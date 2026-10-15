@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       db.from("profiles").select("*").eq("id", uid).maybeSingle(),
       db.from("workspace_members").select("role, workspace_id, workspaces(id, name)").eq("user_id", uid),
     ]);
-    const list: Workspace[] = ((members ?? []) as {
+    const list: Workspace[] = ((members ?? []) as unknown as {
       role: string;
       workspace_id: string;
       workspaces: { id: string; name: string } | null;

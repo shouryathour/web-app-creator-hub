@@ -158,20 +158,20 @@ export function SenderAccountsSettings() {
     if (!draft.name.trim()) return;
     const { error } = await db
       .from("channels")
-      .insert({ name: draft.name.trim(), kind: draft.kind, icon: draft.icon.trim() || null });
+      .insert({ name: draft.name.trim(), kind: draft.kind, icon: draft.icon.trim() || null } as never);
     if (error) return toast.error(error.message);
     setDraft({ name: "", kind: "other", icon: "" });
     invalidateChannels();
   };
 
   const updateChannel = async (id: string, patch: Record<string, unknown>, kind?: string) => {
-    const { error } = await db.from("channels").update(patch).eq("id", id);
+    const { error } = await db.from("channels").update(patch as never).eq("id", id);
     if (error) return toast.error(error.message);
     if (patch.is_active !== undefined && kind && (kind === "email" || kind === "instagram" || kind === "linkedin")) {
       const on = !!patch.is_active;
       const current: string[] = outreach?.kinds ?? ["email", "instagram", "linkedin"];
       const kinds = on ? [...new Set([...current, kind])] : current.filter((k) => k !== kind);
-      await saveOutreachChannels({ kinds, custom: outreach?.custom ?? [] }).catch(console.error);
+      await saveOutreachChannels({ kinds: kinds as never, custom: outreach?.custom ?? [] }).catch(console.error);
       void qc.invalidateQueries({ queryKey: OUTREACH_CHANNELS_QUERY_KEY });
     }
     invalidateChannels();
@@ -206,7 +206,7 @@ export function SenderAccountsSettings() {
   };
 
   const updateAccount = async (id: string, patch: Record<string, unknown>) => {
-    const { error } = await db.from("sender_accounts").update(patch).eq("id", id);
+    const { error } = await db.from("sender_accounts").update(patch as never).eq("id", id);
     if (error) return toast.error(error.message);
     invalidateAccounts();
   };
@@ -403,8 +403,8 @@ export function OutreachChannelsPicker() {
     const next = enable ? [...kinds, kind] : kinds.filter((k) => k !== kind);
     setSaving(true);
     try {
-      await saveOutreachChannels({ kinds: next, custom: outreach?.custom ?? [] });
-      await db.from("channels").update({ is_active: enable }).eq("kind", kind);
+      await saveOutreachChannels({ kinds: next as never, custom: outreach?.custom ?? [] });
+      await db.from("channels").update({ is_active: enable }).eq("kind", kind as never);
       await qc.invalidateQueries({ queryKey: OUTREACH_CHANNELS_QUERY_KEY });
       await qc.invalidateQueries({ queryKey: ["channels"] });
       const name = kind.replace(/^./, (c) => c.toUpperCase());

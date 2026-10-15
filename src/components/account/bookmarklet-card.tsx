@@ -92,7 +92,7 @@ export async function saveClippedLead(url: string, title: string | null, userId:
   const dupe = await findDuplicateLead(plan.channel === "instagram" ? { instagram: plan.url } : { linkedin: plan.url });
   if (dupe)
     return {
-      leadId: dupe.leadId,
+      leadId: dupe.leadId as string,
       companyName: dupe.companyName,
       channel: plan.channel,
       duplicate: true,

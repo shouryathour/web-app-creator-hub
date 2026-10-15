@@ -1113,7 +1113,7 @@ function ActivityCard({
             leadId={leadId}
             onCancel={() => setAdding(false)}
             onAdd={async (v: AnyRow) => {
-              await add(v);
+              await add(v as never);
               setAdding(false);
             }}
           />
@@ -1124,10 +1124,10 @@ function ActivityCard({
           sorted.map((e) => (
             <EventRow
               key={`${e.id}-${e.occurred_at}-${e.event_type}-${eventMeta(e).label ?? ""}`}
-              e={{ ...e, lead_id: e.lead_id ?? leadId }}
+              e={{ ...e, lead_id: e.lead_id ?? leadId } as never}
               canEdit={canEdit}
-              onEdit={(v: AnyRow) => saveEdit(e, v)}
-              onDelete={() => void remove({ ...e, lead_id: e.lead_id ?? leadId }, onLeadSave)}
+              onEdit={(v: AnyRow) => saveEdit(e as never, v as never)}
+              onDelete={() => void remove({ ...e, lead_id: e.lead_id ?? leadId } as never, onLeadSave)}
             />
           ))
         )}
@@ -1431,16 +1431,16 @@ function LeadDetailPage() {
             contacts={contacts}
             canEdit={canEdit}
             onChange={(cid, p) => {
-              supabase.from("lead_contacts").update(p as never).eq("id", cid).then(done);
+              supabase.from("lead_contacts").update(p as never).eq("id", cid).then(done as never);
             }}
             onAdd={() => {
               supabase
                 .from("lead_contacts")
                 .insert({ lead_id: id, order_index: contacts.length, is_primary: contacts.length === 0 } as never)
-                .then(done);
+                .then(done as never);
             }}
             onRemove={(cid) => {
-              supabase.from("lead_contacts").delete().eq("id", cid).then(done);
+              supabase.from("lead_contacts").delete().eq("id", cid).then(done as never);
             }}
           />
           <LeadTasksCard leadId={id} canEdit={canEdit} />
@@ -1463,11 +1463,11 @@ function LeadDetailPage() {
             pauseReason={followupPauseReason(lead, stages)}
             invalidate={invalidate}
             onChange={(fid, p) => {
-              supabase.from("lead_followups").update(p as never).eq("id", fid).then(done);
+              supabase.from("lead_followups").update(p as never).eq("id", fid).then(done as never);
             }}
             onAdd={() => {
               const seq = followups.length > 0 ? Math.max(...followups.map((f) => f.sequence_number)) + 1 : 1;
-              supabase.from("lead_followups").insert({ lead_id: id, sequence_number: seq } as never).then(done);
+              supabase.from("lead_followups").insert({ lead_id: id, sequence_number: seq } as never).then(done as never);
             }}
           />
           <OutreachCard lead={lead} channels={(channels ?? []) as AnyRow[]} canEdit={canEdit} onSave={onSave} />
