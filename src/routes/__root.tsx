@@ -113,7 +113,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Tracker" },
+      { title: "Buzzspear Tracker" },
       { name: "description", content: "A simple tracker for cold outreach, CRM and revenue." },
       { property: "og:title", content: "Tracker" },
       { property: "og:description", content: "A simple tracker for cold outreach, CRM and revenue." },
