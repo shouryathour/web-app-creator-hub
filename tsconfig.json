@@ -19,7 +19,7 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
     "noImplicitReturns": false,
-    "noPropertyAccessFromIndexSignature": true,
+    "noPropertyAccessFromIndexSignature": false,
     "noUncheckedIndexedAccess": false,
     "exactOptionalPropertyTypes": false,
     "noUncheckedSideEffectImports": true,
