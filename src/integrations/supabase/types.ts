@@ -29,7 +29,7 @@ export type Database = {
           key: string
           updated_at?: string
           value?: Json
-          workspace_id: string
+          workspace_id?: string
         }
         Update: {
           created_at?: string
@@ -68,7 +68,7 @@ export type Database = {
           kind?: Database["public"]["Enums"]["channel_kind"]
           name: string
           updated_at?: string
-          workspace_id: string
+          workspace_id?: string
         }
         Update: {
           created_at?: string
@@ -109,7 +109,7 @@ export type Database = {
           is_active?: boolean
           name: string
           updated_at?: string
-          workspace_id: string
+          workspace_id?: string
         }
         Update: {
           code?: string | null
@@ -154,7 +154,7 @@ export type Database = {
           id?: string
           summary?: string | null
           updated_at?: string
-          workspace_id: string
+          workspace_id?: string
         }
         Update: {
           channel_id?: string | null
@@ -259,7 +259,7 @@ export type Database = {
           usd_rate_at_close?: number | null
           usd_value_at_close?: number | null
           usd_value_manual?: boolean
-          workspace_id: string
+          workspace_id?: string
         }
         Update: {
           closed_at?: string | null
@@ -383,7 +383,7 @@ export type Database = {
           name: string
           steps?: Json
           updated_at?: string
-          workspace_id: string
+          workspace_id?: string
         }
         Update: {
           created_at?: string
@@ -469,7 +469,7 @@ export type Database = {
           options?: Json
           signature: string
           updated_at?: string
-          workspace_id: string
+          workspace_id?: string
         }
         Update: {
           created_at?: string
@@ -532,7 +532,7 @@ export type Database = {
           person_name?: string | null
           phone?: string | null
           updated_at?: string
-          workspace_id: string
+          workspace_id?: string
         }
         Update: {
           created_at?: string
@@ -589,7 +589,7 @@ export type Database = {
           meta?: Json
           occurred_at?: string
           updated_at?: string
-          workspace_id: string
+          workspace_id?: string
         }
         Update: {
           created_at?: string
@@ -651,7 +651,7 @@ export type Database = {
           sequence_number?: number
           status?: string
           updated_at?: string
-          workspace_id: string
+          workspace_id?: string
         }
         Update: {
           channel_id?: string | null
@@ -716,7 +716,7 @@ export type Database = {
           order_index?: number
           updated_at?: string
           url?: string | null
-          workspace_id: string
+          workspace_id?: string
         }
         Update: {
           created_at?: string
@@ -760,7 +760,7 @@ export type Database = {
           lead_id: string
           tag_id: string
           updated_at?: string
-          workspace_id: string
+          workspace_id?: string
         }
         Update: {
           created_at?: string
@@ -819,7 +819,7 @@ export type Database = {
           notes?: string | null
           title: string
           updated_at?: string
-          workspace_id: string
+          workspace_id?: string
         }
         Update: {
           assignee_id?: string | null
@@ -985,7 +985,7 @@ export type Database = {
           status?: string
           updated_at?: string
           website_url?: string | null
-          workspace_id: string
+          workspace_id?: string
           youtube_url?: string | null
         }
         Update: {
@@ -1155,7 +1155,7 @@ export type Database = {
           manual_count?: number
           updated_at?: string
           user_id: string
-          workspace_id: string
+          workspace_id?: string
         }
         Update: {
           channel_id?: string
@@ -1215,7 +1215,7 @@ export type Database = {
           id?: string
           updated_at?: string
           user_id?: string | null
-          workspace_id: string
+          workspace_id?: string
         }
         Update: {
           channel_id?: string
@@ -1278,7 +1278,7 @@ export type Database = {
           name: string
           order_index?: number
           updated_at?: string
-          workspace_id: string
+          workspace_id?: string
         }
         Update: {
           body?: string
@@ -1341,7 +1341,7 @@ export type Database = {
           name: string
           permission_keys?: string[]
           updated_at?: string
-          workspace_id: string
+          workspace_id?: string
         }
         Update: {
           created_at?: string
@@ -1455,7 +1455,7 @@ export type Database = {
           warmup_ready_date?: string | null
           warmup_reminder_date?: string | null
           warmup_started_at?: string | null
-          workspace_id: string
+          workspace_id?: string
         }
         Update: {
           channel_id?: string | null
@@ -1560,7 +1560,7 @@ export type Database = {
           name: string
           order_index?: number
           updated_at?: string
-          workspace_id: string
+          workspace_id?: string
         }
         Update: {
           board?: Database["public"]["Enums"]["stage_board"]
@@ -1602,7 +1602,7 @@ export type Database = {
           id?: string
           name: string
           updated_at?: string
-          workspace_id: string
+          workspace_id?: string
         }
         Update: {
           color?: string
@@ -1639,7 +1639,7 @@ export type Database = {
           permission_key: string
           updated_at?: string
           user_id: string
-          workspace_id: string
+          workspace_id?: string
         }
         Update: {
           created_at?: string
