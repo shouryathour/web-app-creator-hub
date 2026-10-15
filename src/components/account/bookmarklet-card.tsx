@@ -93,7 +93,7 @@ export async function saveClippedLead(url: string, title: string | null, userId:
   if (dupe)
     return {
       leadId: dupe.leadId as string,
-      companyName: dupe.companyName,
+      companyName: dupe.companyName as string,
       channel: plan.channel,
       duplicate: true,
       leadCode: dupe.leadCode,

@@ -1127,7 +1127,7 @@ function ActivityCard({
               e={{ ...e, lead_id: e.lead_id ?? leadId } as never}
               canEdit={canEdit}
               onEdit={(v: AnyRow) => saveEdit(e as never, v as never)}
-              onDelete={() => void remove({ ...e, lead_id: e.lead_id ?? leadId } as never, onLeadSave)}
+              onDelete={() => void remove({ ...e, lead_id: e.lead_id ?? leadId } as never, onLeadSave as never)}
             />
           ))
         )}
