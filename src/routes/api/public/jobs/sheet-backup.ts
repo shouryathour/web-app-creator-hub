@@ -14,7 +14,7 @@ export const Route = createFileRoute("/api/public/jobs/sheet-backup")({
         let failed = 0;
         for (const row of (data ?? []) as { workspace_id: string | null; value: unknown }[]) {
           const cfg = (row.value ?? {}) as import("@/lib/sheet-backup.server").BackupConfig;
-          if (!row.workspace_id || !cfg.enabled || cfg.disconnected) continue;
+          if (!row.workspace_id || cfg.enabled === false || cfg.disconnected) continue;
           if (cfg.interval === "daily" && cfg.lastRunAt && Date.now() - new Date(cfg.lastRunAt).getTime() < 23.5 * 3600_000) continue;
           try {
             await h.pushWorkspace(row.workspace_id, { auto: true });
