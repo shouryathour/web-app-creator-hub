@@ -78,7 +78,7 @@ export const getAutoBackupSettings = createServerFn({ method: "GET" })
     const { h, ws } = await ctx(context);
     const v = await h.readConfig(ws);
     return {
-      enabled: v.enabled ?? false,
+      enabled: v.enabled ?? true,
       interval: v.interval ?? "1h",
       lastRunAt: v.lastRunAt ?? null,
       lastStatus: v.lastStatus ?? null,
