@@ -22,8 +22,9 @@ export const getRouter = () => {
     defaultPreloadStaleTime: 0,
     // Load a page's code as soon as the pointer hovers its link, so clicks open instantly.
     defaultPreload: "intent",
-    // Keep showing the current page while the next one loads, instead of a blank loader.
-    defaultPendingMs: 2000,
+    // Swap to the next page's shell quickly so a click never leaves the old page sitting there.
+    defaultPendingMs: 50,
+    defaultPendingMinMs: 0,
   });
 
   return router;
