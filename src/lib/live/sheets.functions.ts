@@ -13,10 +13,7 @@
 //   l -> setAutoBackupSettings       (POST) { enabled, interval }
 //   t -> syncLeadToSheet             (POST) { leadId }
 //
-// Writing to Google Sheets needs Google OAuth credentials, which this
-// deployment does not have. A public sheet link can still be saved and read
-// (status, test); write-back calls (push, pull, backup, per-lead sync) fail
-// with a clear message or are skipped silently for background sync.
+// All calls go through the shared engine in src/lib/sheet-backup.server.ts.
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -35,86 +32,71 @@ export type AutoBackupSettings = {
   lastRunAt?: string | null;
 };
 
-const NO_GOOGLE =
-  "Google Sheets sync needs a Google connection, which is not configured on this server. Use Import / Export to move data instead.";
-
-type SheetSetting = { url?: string | null; tab?: string | null; spreadsheetId?: string | null; lastSyncAt?: string | null };
-
-async function wsCtx(context: unknown) {
-  const h = await import("./server-ctx");
-  const { sb, userId } = h.ctxOf(context);
-  const { workspaceId, role } = await h.currentWorkspace(sb, userId);
-  return { sb, workspaceId, role, h };
+type H = typeof import("../sheet-backup.server");
+async function ctx(context: unknown): Promise<{ h: H; ws: string; role: string | null }> {
+  const c = await import("./server-ctx");
+  const { sb, userId } = c.ctxOf(context);
+  const { workspaceId, role } = await c.currentWorkspace(sb, userId);
+  return { h: await import("../sheet-backup.server"), ws: workspaceId, role };
 }
 
 export const getSheetStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<SheetStatus> => {
-    const { sb, workspaceId, h } = await wsCtx(context);
-    const v = await h.readSetting<SheetSetting>(sb, workspaceId, "google_sheet");
-    return { url: v?.url ?? null, tab: v?.tab ?? null, spreadsheetId: v?.spreadsheetId ?? null, lastSyncAt: v?.lastSyncAt ?? null };
-  });
-
-export const connectSheet = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d: { url: string; tab: string }) => d)
-  .handler(async ({ data, context }): Promise<SheetStatus> => {
-    const { sb, workspaceId, role, h } = await wsCtx(context);
-    if (!h.isAdminRole(role)) throw new Error("Only workspace owners and admins can connect a sheet.");
-    const { parseSheetUrl } = await import("./import.functions");
-    const p = parseSheetUrl(String(data.url ?? ""));
-    if (!p) throw new Error("That does not look like a Google Sheets link.");
-    const value = { url: data.url.trim(), tab: data.tab || null, spreadsheetId: p.id, lastSyncAt: null };
-    await h.writeSetting(sb, workspaceId, "google_sheet", value);
-    return value;
-  });
-
-export const testSheetConnection = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<{ title: string; sheets: string[] }> => {
-    const { sb, workspaceId, h } = await wsCtx(context);
-    const v = await h.readSetting<SheetSetting>(sb, workspaceId, "google_sheet");
-    if (!v?.spreadsheetId) throw new Error("No sheet is connected yet.");
-    const res = await fetch(`https://docs.google.com/spreadsheets/d/${v.spreadsheetId}/export?format=csv`);
-    if (!res.ok || (res.headers.get("content-type") ?? "").includes("text/html"))
-      throw new Error("The sheet could not be read. Set sharing to \"Anyone with the link can view\".");
-    return { title: "Google Sheet", sheets: v.tab ? [v.tab] : [] };
+    const { h, ws } = await ctx(context);
+    const v = await h.readConfig(ws);
+    if (v.disconnected) return { url: null, tab: null, spreadsheetId: null, lastSyncAt: v.lastSyncedAt ?? null };
+    return { url: v.spreadsheetUrl ?? null, tab: "Leads", spreadsheetId: v.spreadsheetId ?? null, lastSyncAt: v.lastSyncedAt ?? null };
   });
 
 export const pushLeadsToSheet = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async (): Promise<{ pushed: number }> => {
-    throw new Error(NO_GOOGLE);
+  .handler(async ({ context }): Promise<{ pushed: number }> => {
+    const { h, ws } = await ctx(context);
+    const r = await h.pushWorkspace(ws);
+    return { pushed: r.lastRowCount ?? 0 };
   });
 
 export const pullLeadsFromSheet = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async (): Promise<{ inserted: number; updated: number }> => {
-    throw new Error(NO_GOOGLE);
+  .handler(async ({ context }): Promise<{ inserted: number; updated: number }> => {
+    const { h, ws } = await ctx(context);
+    return h.pullWorkspace(ws);
   });
 
 export const runSheetBackup = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async (): Promise<{ ok: true }> => {
-    throw new Error("Backups to Google Sheets need a Google connection, which is not configured on this server. Use Download data instead.");
+  .handler(async ({ context }): Promise<{ ok: true }> => {
+    const { h, ws } = await ctx(context);
+    await h.pushWorkspace(ws, { auto: true });
+    return { ok: true };
   });
 
 export const getAutoBackupSettings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<AutoBackupSettings> => {
-    const { sb, workspaceId, h } = await wsCtx(context);
-    const v = await h.readSetting<AutoBackupSettings>(sb, workspaceId, "auto_backup");
-    return { enabled: false, interval: v?.interval ?? "1h", lastRunAt: v?.lastRunAt ?? null };
+  .handler(async ({ context }) => {
+    const { h, ws } = await ctx(context);
+    const v = await h.readConfig(ws);
+    return {
+      enabled: v.enabled ?? false,
+      interval: v.interval ?? "1h",
+      lastRunAt: v.lastRunAt ?? null,
+      lastStatus: v.lastStatus ?? null,
+      lastError: v.lastError ?? null,
+    };
   });
 
 export const setAutoBackupSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { enabled: boolean; interval: string }) => d)
+  .inputValidator((d: { enabled: boolean; interval: string }) => ({
+    enabled: Boolean(d.enabled),
+    interval: d.interval === "daily" ? ("daily" as const) : ("1h" as const),
+  }))
   .handler(async ({ data, context }): Promise<{ ok: true }> => {
-    if (data.enabled)
-      throw new Error("Automatic backups to Google Sheets need a Google connection, which is not configured on this server.");
-    const { sb, workspaceId, h } = await wsCtx(context);
-    await h.writeSetting(sb, workspaceId, "auto_backup", { enabled: false, interval: data.interval });
+    const { h, ws } = await ctx(context);
+    if (data.enabled && (await h.readConfig(ws)).disconnected)
+      throw new Error("Connect Google in the Google Sheet section first.");
+    await h.writeConfig(ws, { enabled: data.enabled, interval: data.interval });
     return { ok: true };
   });
 
@@ -122,6 +104,6 @@ export const syncLeadToSheet = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { leadId: string }) => d)
   .handler(async (): Promise<{ ok: boolean; skipped?: boolean; reason?: string }> => {
-    // Background per-lead sync: no Google connection, so skip quietly.
-    return { ok: false, skipped: true, reason: "Google Sheets is not configured" };
+    // Single-lead changes are picked up by the next Push or automatic backup.
+    return { ok: true, skipped: true, reason: "Saved on next backup" };
   });
