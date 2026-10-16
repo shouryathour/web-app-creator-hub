@@ -715,20 +715,6 @@ function LeadCardsView({
                         )}
                       </div>
                     )}
-                    {r.personalized_message && (
-                      <div className="rounded-md border border-border/80 bg-subtle/60 p-2.5 flex flex-col gap-1 text-[12px]">
-                        <div className="flex items-center gap-1 text-[10.5px] font-semibold text-muted-foreground uppercase tracking-wider">
-                          <FileText className="size-3 text-primary" /> Personalized Draft
-                        </div>
-                        <p className="line-clamp-2 text-foreground font-normal leading-relaxed text-[11.5px]">{r.personalized_message}</p>
-                      </div>
-                    )}
-                    {r.message_angle && !r.personalized_message && (
-                      <div className="rounded-md border border-border/60 bg-subtle/40 px-2 py-1 text-[11.5px] text-muted-foreground flex items-center gap-1">
-                        <span className="font-semibold text-foreground">Hook:</span>
-                        <span className="truncate">{r.message_angle}</span>
-                      </div>
-                    )}
                     <div className="flex flex-wrap items-center gap-2 pt-0.5">
                       {r.website_url && (
                         <a
