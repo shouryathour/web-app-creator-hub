@@ -20,7 +20,6 @@ import { Route as AuthCompleteRouteImport } from './routes/auth_.complete'
 import { Route as CrmActivityRouteImport } from './routes/crm.activity'
 import { Route as CrmDashboardRouteImport } from './routes/crm.dashboard'
 import { Route as CrmFollowupsRouteImport } from './routes/crm.followups'
-import { Route as CrmInvoicesRouteImport } from './routes/crm.invoices'
 import { Route as CrmPipelineRouteImport } from './routes/crm.pipeline'
 import { Route as CrmRevenueRouteImport } from './routes/crm.revenue'
 import { Route as CrmTodosRouteImport } from './routes/crm.todos'
@@ -94,11 +93,6 @@ const CrmDashboardRoute = CrmDashboardRouteImport.update({
 const CrmFollowupsRoute = CrmFollowupsRouteImport.update({
   id: '/crm/followups',
   path: '/crm/followups',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CrmInvoicesRoute = CrmInvoicesRouteImport.update({
-  id: '/crm/invoices',
-  path: '/crm/invoices',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CrmPipelineRoute = CrmPipelineRouteImport.update({
@@ -209,7 +203,6 @@ export interface FileRoutesByFullPath {
   '/crm/activity': typeof CrmActivityRoute
   '/crm/dashboard': typeof CrmDashboardRoute
   '/crm/followups': typeof CrmFollowupsRoute
-  '/crm/invoices': typeof CrmInvoicesRoute
   '/crm/pipeline': typeof CrmPipelineRoute
   '/crm/revenue': typeof CrmRevenueRoute
   '/crm/todos': typeof CrmTodosRoute
@@ -242,7 +235,6 @@ export interface FileRoutesByTo {
   '/crm/activity': typeof CrmActivityRoute
   '/crm/dashboard': typeof CrmDashboardRoute
   '/crm/followups': typeof CrmFollowupsRoute
-  '/crm/invoices': typeof CrmInvoicesRoute
   '/crm/pipeline': typeof CrmPipelineRoute
   '/crm/revenue': typeof CrmRevenueRoute
   '/crm/todos': typeof CrmTodosRoute
@@ -276,7 +268,6 @@ export interface FileRoutesById {
   '/crm/activity': typeof CrmActivityRoute
   '/crm/dashboard': typeof CrmDashboardRoute
   '/crm/followups': typeof CrmFollowupsRoute
-  '/crm/invoices': typeof CrmInvoicesRoute
   '/crm/pipeline': typeof CrmPipelineRoute
   '/crm/revenue': typeof CrmRevenueRoute
   '/crm/todos': typeof CrmTodosRoute
@@ -311,7 +302,6 @@ export interface FileRouteTypes {
     | '/crm/activity'
     | '/crm/dashboard'
     | '/crm/followups'
-    | '/crm/invoices'
     | '/crm/pipeline'
     | '/crm/revenue'
     | '/crm/todos'
@@ -344,7 +334,6 @@ export interface FileRouteTypes {
     | '/crm/activity'
     | '/crm/dashboard'
     | '/crm/followups'
-    | '/crm/invoices'
     | '/crm/pipeline'
     | '/crm/revenue'
     | '/crm/todos'
@@ -377,7 +366,6 @@ export interface FileRouteTypes {
     | '/crm/activity'
     | '/crm/dashboard'
     | '/crm/followups'
-    | '/crm/invoices'
     | '/crm/pipeline'
     | '/crm/revenue'
     | '/crm/todos'
@@ -411,7 +399,6 @@ export interface RootRouteChildren {
   CrmActivityRoute: typeof CrmActivityRoute
   CrmDashboardRoute: typeof CrmDashboardRoute
   CrmFollowupsRoute: typeof CrmFollowupsRoute
-  CrmInvoicesRoute: typeof CrmInvoicesRoute
   CrmPipelineRoute: typeof CrmPipelineRoute
   CrmRevenueRoute: typeof CrmRevenueRoute
   CrmTodosRoute: typeof CrmTodosRoute
@@ -510,13 +497,6 @@ declare module '@tanstack/react-router' {
       path: '/crm/followups'
       fullPath: '/crm/followups'
       preLoaderRoute: typeof CrmFollowupsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/crm/invoices': {
-      id: '/crm/invoices'
-      path: '/crm/invoices'
-      fullPath: '/crm/invoices'
-      preLoaderRoute: typeof CrmInvoicesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/crm/pipeline': {
@@ -667,7 +647,6 @@ const rootRouteChildren: RootRouteChildren = {
   CrmActivityRoute: CrmActivityRoute,
   CrmDashboardRoute: CrmDashboardRoute,
   CrmFollowupsRoute: CrmFollowupsRoute,
-  CrmInvoicesRoute: CrmInvoicesRoute,
   CrmPipelineRoute: CrmPipelineRoute,
   CrmRevenueRoute: CrmRevenueRoute,
   CrmTodosRoute: CrmTodosRoute,

@@ -2264,33 +2264,6 @@ function LeadPeek({ id, onClose }: { id: string; onClose: () => void }) {
             })}
           </div>
         </section>
-        {(lead.personalized_message || lead.message_angle) && (
-          <section>
-            <PeekSectionLabel
-              right={
-                lead.personalized_message ? (
-                  <button
-                    type="button"
-                    onClick={() => copyText(lead.personalized_message)}
-                    className="flex items-center gap-1 text-[12px] text-muted-foreground hover:text-foreground"
-                  >
-                    <Copy className="size-3" />
-                    Copy
-                  </button>
-                ) : null
-              }
-            >
-              Message{lead.message_angle ? ` · ${lead.message_angle}` : ""}
-            </PeekSectionLabel>
-            <div className="rounded-xl border border-border bg-subtle px-3 py-2.5 text-[12.5px] leading-relaxed whitespace-pre-wrap">
-              {lead.personalized_message ? (
-                <Linkify text={lead.personalized_message} />
-              ) : (
-                <span className="text-faint">No message written yet</span>
-              )}
-            </div>
-          </section>
-        )}
         <section>
           <PeekSectionLabel>Notes</PeekSectionLabel>
           {lead.research_notes || lead.additional_notes ? (
@@ -2452,7 +2425,6 @@ export const CRM_NAV: NavItem[] = [
   { to: "/crm/records", label: "Records", icon: Table2, perm: "crm.records", group: "primary" },
   { to: "/crm/pipeline", label: "Pipeline", icon: Columns3, perm: "crm.pipeline", group: "primary" },
   { to: "/crm/revenue", label: "Revenue", icon: ChartColumn, perm: "crm.revenue", group: "primary" },
-  { to: "/crm/invoices", label: "Invoices", icon: ReceiptText, perm: "crm.records", group: "primary" },
   { to: "/crm/todos", label: "To-dos", icon: ListChecks, perm: "crm.todos", group: "secondary" },
   { to: "/crm/followups", label: "Follow-ups", icon: CalendarClock, perm: "crm.followups", group: "secondary" },
   { to: "/crm/activity", label: "Activity", icon: History, perm: "crm.records", group: "secondary" },
@@ -2748,30 +2720,6 @@ function AccountMenu({
             <Keyboard className="size-4" />
             <span className="flex-1">Keyboard shortcuts</span>
             <span className="font-mono text-[11px] text-faint">?</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={openTour}>
-            <Compass className="size-4" />
-            <span>Take the tour</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={openNews}>
-            <Sparkles className="size-4 text-primary" />
-            <span className="flex-1">What's new</span>
-            {unseen && <span className="size-2 rounded-full bg-primary" />}
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <a href={GUIDE_URL} target="_blank" rel="noreferrer" className="flex items-center gap-2 cursor-pointer">
-              <BookOpen className="size-4" />
-              <span>How to use Tracker</span>
-            </a>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => setBugOpen(true)}>
-            <Bug className="size-4" />
-            <span>Report a bug</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => setFeedbackOpen(true)}>
-            <MessageSquarePlus className="size-4" />
-            <span>Submit feedback</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem

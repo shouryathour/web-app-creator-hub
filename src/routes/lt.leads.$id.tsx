@@ -1483,7 +1483,6 @@ function LeadDetailPage() {
             onChanged={invalidateEvents}
             onLeadSave={onSave}
           />
-          <PersonalizedMessageCard lead={lead} canEdit={canEdit} onSave={onSave} />
         </div>
       </div>
     </AppPage>
