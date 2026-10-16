@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Google Sheet backup logic lives only in src/lib/sheet-backup.server.ts (config in app_settings key google_sheet_backup); server fns and the hourly /api/public/jobs/sheet-backup route call it, so manual and automatic backups never diverge.
