@@ -228,6 +228,6 @@ export const syncLeadsToSheet = createServerFn({ method: "POST" })
       lastSyncedAt: new Date().toISOString(),
       lastRowCount: leads.length,
     };
-    await writeSettings(next);
+    await writeSettings(ws, next);
     return next;
   });
