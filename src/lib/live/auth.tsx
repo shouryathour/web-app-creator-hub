@@ -135,7 +135,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .filter((x) => x.enabled)
         .map((x) => x.permission_key),
     );
-    if (p) {
+    // This browser's saved choice wins; only fall back to the profile when none is saved.
+    if (p && typeof window !== "undefined" && !window.localStorage.getItem("tracker.theme")) {
       const t: Theme = p.theme === "dark" ? "dark" : "light";
       setThemeState(t);
       storeTheme(t);
