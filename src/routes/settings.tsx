@@ -34,7 +34,7 @@ import { Input } from "@/components/ui/input";
 // Live app-shell exports AppPage (with `heading` prop), HelpLink and the test app indicator toggle.
 import { AppPage, HelpLink, TestAppIndicatorToggle } from "@/components/app-shell";
 import { IS_TEST_MODE } from "@/lib/live/test-mode";
-import { GoogleConnectCard } from "@/components/live/google-connect";
+import { GoogleSheetCard } from "@/components/settings/GoogleSheetCard";
 import { BookmarkletCard } from "@/components/account/bookmarklet-card";
 import { AccountSettings } from "@/components/account/settings-account";
 import { StagesSettings } from "@/components/account/settings-stages";
@@ -269,10 +269,10 @@ function SettingsPage() {
             id: "google_sheet",
             title: "Google Sheet",
             icon: Sheet,
-            lede: "The Google Sheet your leads sync to.",
+            lede: "Back up every lead to your own Google Sheet.",
             help: <HelpLink section="google-sheet" />,
             show: !IS_TEST_MODE,
-            body: <GoogleConnectCard />,
+            body: <GoogleSheetCard />,
           },
           {
             id: "auto_backup",
