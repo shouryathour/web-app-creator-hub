@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/live/kit";
 import { IS_TEST_MODE } from "@/lib/live/test-mode";
-import { startGoogleSignIn } from "@/lib/live/google.functions";
+import { lovable } from "@/integrations/lovable/index";
 
 type AuthSearch = { mode?: "signin"; google_error?: string };
 
@@ -105,7 +105,6 @@ function AuthPage() {
     toast.success("Account created. Check your email if confirmation is required.");
   };
 
-  const googleStart = useServerFn(startGoogleSignIn);
   const [googleBusy, setGoogleBusy] = useState(false);
 
   useEffect(() => {
@@ -127,15 +126,17 @@ function AuthPage() {
 
   const google = async () => {
     setGoogleBusy(true);
-    try {
-      const { url } = await googleStart({
-        data: { origin: window.location.origin },
-      });
-      window.location.assign(url);
-    } catch {
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin,
+    });
+    if (result.error) {
       setGoogleBusy(false);
       toast.error("Google sign in failed. Please try again.");
+      return;
     }
+    if (result.redirected) return;
+    setGoogleBusy(false);
+    void navigate({ to: "/" });
   };
 
   const reset = async () => {
