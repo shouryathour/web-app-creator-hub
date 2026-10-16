@@ -145,39 +145,56 @@ function toRow(l: Row): string[] {
 
 const SELECT = `*, countries(name), stages(name), channel:channels!leads_channel_id_fkey(name), reply_channel:channels!leads_reply_channel_id_fkey(name), sender_accounts(label)`;
 
-async function readSettings(): Promise<SheetSettings | null> {
+async function wsId(userId: string): Promise<string> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data } = await supabaseAdmin.from("app_settings").select("value").eq("key", SETTINGS_KEY).maybeSingle();
+  const { data } = await supabaseAdmin.from("profiles").select("current_workspace_id").eq("id", userId).maybeSingle();
+  const id = (data as { current_workspace_id?: string | null } | null)?.current_workspace_id;
+  if (!id) throw new Error("No workspace selected.");
+  return id;
+}
+
+async function readSettings(workspaceId: string): Promise<SheetSettings | null> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin
+    .from("app_settings")
+    .select("value")
+    .eq("key", SETTINGS_KEY)
+    .eq("workspace_id" as never, workspaceId as never)
+    .maybeSingle();
   const value = (data as { value?: unknown } | null)?.value;
   return (value as SheetSettings | undefined) ?? null;
 }
 
-async function writeSettings(value: SheetSettings) {
+async function writeSettings(workspaceId: string, value: SheetSettings) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  await supabaseAdmin
+  const { error } = await supabaseAdmin
     .from("app_settings")
-    .upsert({ key: SETTINGS_KEY, value } as never, { onConflict: "key" });
+    .upsert({ key: SETTINGS_KEY, value, workspace_id: workspaceId } as never, { onConflict: "workspace_id,key" });
+  if (error) throw new Error(error.message);
 }
 
 export const getSheetStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .handler(async ({ context }) => {
     const connected = Boolean(process.env["LOVABLE_API_KEY"] && process.env["GOOGLE_SHEETS_API_KEY"]);
-    return { connected, sheet: await readSettings() };
+    const ws = await wsId(context.userId);
+    return { connected, sheet: await readSettings(ws) };
   });
 
 export const syncLeadsToSheet = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase } = context;
+    const ws = await wsId(context.userId);
     const { data, error } = await supabase
       .from("leads")
       .select(SELECT)
+      .eq("workspace_id" as never, ws as never)
       .order("date_added", { ascending: false });
     if (error) throw new Error(error.message);
     const leads = (data ?? []) as unknown as Row[];
 
-    let settings = await readSettings();
+    let settings = await readSettings(ws);
 
     if (!settings?.spreadsheetId) {
       const created = await gateway("/spreadsheets", {
