@@ -12,12 +12,10 @@ import {
   Flag,
   Globe,
   Hash,
-  Keyboard,
   LayoutGrid,
   Mail,
   MessagesSquare,
   ReceiptText,
-  Scissors,
   Search,
   Sheet,
   Shield,
@@ -35,7 +33,6 @@ import { Input } from "@/components/ui/input";
 import { AppPage, HelpLink, TestAppIndicatorToggle } from "@/components/app-shell";
 import { IS_TEST_MODE } from "@/lib/live/test-mode";
 import { GoogleSheetCard } from "@/components/settings/GoogleSheetCard";
-import { BookmarkletCard } from "@/components/account/bookmarklet-card";
 import { AccountSettings } from "@/components/account/settings-account";
 import { StagesSettings } from "@/components/account/settings-stages";
 import { OutreachChannelsPicker, SenderAccountsSettings } from "@/components/account/settings-channels";
@@ -47,7 +44,6 @@ import { InvoiceTemplatesSettings } from "@/components/account/settings-invoice-
 import { OutreachTemplatesSettings } from "@/components/account/settings-outreach-templates";
 import { FollowupTemplatesSettings } from "@/components/account/settings-followup-templates";
 import { RapidEntrySettings } from "@/components/account/settings-rapid-entry";
-import { ShortcutsSettings } from "@/components/account/settings-shortcuts";
 import { UsersSettings } from "@/components/account/settings-users";
 import { PresetsSettings } from "@/components/account/settings-presets";
 import { DataSettings } from "@/components/account/settings-data";
@@ -203,24 +199,6 @@ function SettingsPage() {
             help: <HelpLink section="rapid-entry-settings" />,
             show: can("lead.leads"),
             body: <RapidEntrySettings />,
-          },
-          {
-            id: "bookmarklet",
-            title: "One-click lead clipper",
-            icon: Scissors,
-            lede: "Save leads from LinkedIn or Instagram in one click.",
-            help: <HelpLink section="clipper" />,
-            show: can("lead.leads"),
-            body: <BookmarkletCard />,
-          },
-          {
-            id: "shortcuts",
-            title: "Keyboard shortcuts",
-            icon: Keyboard,
-            lede: "Every keyboard shortcut, and your own bindings.",
-            help: <HelpLink section="search-and-shortcuts" />,
-            show: can("settings.shortcuts"),
-            body: <ShortcutsSettings />,
           },
         ],
       },
