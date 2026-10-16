@@ -64,6 +64,13 @@
       "when": 1792108109364,
       "tag": "0008_workspace_id_default",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792113164011,
+      "tag": "0009_lock_fx_rates_writes",
+      "breakpoints": true
     }
   ]
 }
