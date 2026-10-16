@@ -3003,6 +3003,14 @@ export function AppShell({
     if (!loading && !session) void navigate({ to: "/auth" });
   }, [loading, session, navigate]);
 
+  // Warm up Settings in the background so opening it from the menu is instant.
+  useEffect(() => {
+    const t = window.setTimeout(() => {
+      void import("@/routes/settings");
+    }, 1500);
+    return () => window.clearTimeout(t);
+  }, []);
+
   useEffect(() => {
     let gAt = 0;
     const onKey = (e: KeyboardEvent) => {
