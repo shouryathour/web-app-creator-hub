@@ -71,6 +71,13 @@
       "when": 1792113164011,
       "tag": "0009_lock_fx_rates_writes",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792113544476,
+      "tag": "0010_drop_unused_avatars_read_policy",
+      "breakpoints": true
     }
   ]
 }
