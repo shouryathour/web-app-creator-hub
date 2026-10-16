@@ -107,3 +107,28 @@ export const syncLeadToSheet = createServerFn({ method: "POST" })
     // Single-lead changes are picked up by the next Push or automatic backup.
     return { ok: true, skipped: true, reason: "Saved on next backup" };
   });
+
+export const connectSheet = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { url: string; tab: string }) => d)
+  .handler(async ({ data, context }): Promise<SheetStatus> => {
+    const { h, ws, role } = await ctx(context);
+    const c = await import("./server-ctx");
+    if (!c.isAdminRole(role)) throw new Error("Only workspace owners and admins can connect a sheet.");
+    const m = /\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/.exec(String(data.url ?? ""));
+    if (!m) throw new Error("That does not look like a Google Sheets link.");
+    const v = await h.writeConfig(ws, { spreadsheetId: m[1], spreadsheetUrl: data.url.trim(), disconnected: false });
+    return { url: v.spreadsheetUrl ?? null, tab: "Leads", spreadsheetId: v.spreadsheetId ?? null, lastSyncAt: v.lastSyncedAt ?? null };
+  });
+
+export const testSheetConnection = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<{ title: string; sheets: string[] }> => {
+    const { h, ws } = await ctx(context);
+    const v = await h.readConfig(ws);
+    if (!v.spreadsheetId) throw new Error("No sheet is connected yet.");
+    const r = await h.gateway(`/spreadsheets/${v.spreadsheetId}?fields=properties.title,sheets.properties.title`);
+    const props = r["properties"] as { title?: string } | undefined;
+    const sheets = ((r["sheets"] as { properties?: { title?: string } }[] | undefined) ?? []).map((x) => x.properties?.title ?? "");
+    return { title: props?.title ?? "Google Sheet", sheets };
+  });
