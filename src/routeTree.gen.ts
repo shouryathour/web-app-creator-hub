@@ -39,6 +39,7 @@ import { Route as LtLeadsIdRouteImport } from './routes/lt.leads.$id'
 import { Route as LtLeadsEmailRouteImport } from './routes/lt.leads.email'
 import { Route as LtLeadsInstagramRouteImport } from './routes/lt.leads.instagram'
 import { Route as LtLeadsLinkedinRouteImport } from './routes/lt.leads.linkedin'
+import { Route as ApiPublicJobsSheetBackupRouteImport } from './routes/api/public/jobs/sheet-backup'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -190,6 +191,12 @@ const LtLeadsLinkedinRoute = LtLeadsLinkedinRouteImport.update({
   path: '/lt/leads/linkedin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicJobsSheetBackupRoute =
+  ApiPublicJobsSheetBackupRouteImport.update({
+    id: '/api/public/jobs/sheet-backup',
+    path: '/api/public/jobs/sheet-backup',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -222,6 +229,7 @@ export interface FileRoutesByFullPath {
   '/lt/leads/linkedin': typeof LtLeadsLinkedinRoute
   '/crm/records/': typeof CrmRecordsIndexRoute
   '/lt/leads/': typeof LtLeadsIndexRoute
+  '/api/public/jobs/sheet-backup': typeof ApiPublicJobsSheetBackupRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -254,6 +262,7 @@ export interface FileRoutesByTo {
   '/lt/leads/linkedin': typeof LtLeadsLinkedinRoute
   '/crm/records': typeof CrmRecordsIndexRoute
   '/lt/leads': typeof LtLeadsIndexRoute
+  '/api/public/jobs/sheet-backup': typeof ApiPublicJobsSheetBackupRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -287,6 +296,7 @@ export interface FileRoutesById {
   '/lt/leads/linkedin': typeof LtLeadsLinkedinRoute
   '/crm/records/': typeof CrmRecordsIndexRoute
   '/lt/leads/': typeof LtLeadsIndexRoute
+  '/api/public/jobs/sheet-backup': typeof ApiPublicJobsSheetBackupRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -321,6 +331,7 @@ export interface FileRouteTypes {
     | '/lt/leads/linkedin'
     | '/crm/records/'
     | '/lt/leads/'
+    | '/api/public/jobs/sheet-backup'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -353,6 +364,7 @@ export interface FileRouteTypes {
     | '/lt/leads/linkedin'
     | '/crm/records'
     | '/lt/leads'
+    | '/api/public/jobs/sheet-backup'
   id:
     | '__root__'
     | '/'
@@ -385,6 +397,7 @@ export interface FileRouteTypes {
     | '/lt/leads/linkedin'
     | '/crm/records/'
     | '/lt/leads/'
+    | '/api/public/jobs/sheet-backup'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -418,6 +431,7 @@ export interface RootRouteChildren {
   LtLeadsLinkedinRoute: typeof LtLeadsLinkedinRoute
   CrmRecordsIndexRoute: typeof CrmRecordsIndexRoute
   LtLeadsIndexRoute: typeof LtLeadsIndexRoute
+  ApiPublicJobsSheetBackupRoute: typeof ApiPublicJobsSheetBackupRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -632,6 +646,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LtLeadsLinkedinRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/jobs/sheet-backup': {
+      id: '/api/public/jobs/sheet-backup'
+      path: '/api/public/jobs/sheet-backup'
+      fullPath: '/api/public/jobs/sheet-backup'
+      preLoaderRoute: typeof ApiPublicJobsSheetBackupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -666,6 +687,7 @@ const rootRouteChildren: RootRouteChildren = {
   LtLeadsLinkedinRoute: LtLeadsLinkedinRoute,
   CrmRecordsIndexRoute: CrmRecordsIndexRoute,
   LtLeadsIndexRoute: LtLeadsIndexRoute,
+  ApiPublicJobsSheetBackupRoute: ApiPublicJobsSheetBackupRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

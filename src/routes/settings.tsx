@@ -6,7 +6,6 @@ import {
   ChevronLeft,
   CircleHelp,
   CloudUpload,
-  Coins,
   Database,
   FileSpreadsheet,
   Flag,
@@ -14,8 +13,6 @@ import {
   Hash,
   LayoutGrid,
   Mail,
-  MessagesSquare,
-  ReceiptText,
   Search,
   Sheet,
   Shield,
@@ -39,9 +36,6 @@ import { OutreachChannelsPicker, SenderAccountsSettings } from "@/components/acc
 import { CountriesSettings } from "@/components/account/settings-countries";
 import { TagsSettings } from "@/components/account/settings-tags";
 import { TargetsSettings } from "@/components/account/settings-targets";
-import { CrmCurrencySettings } from "@/components/account/settings-currency";
-import { InvoiceTemplatesSettings } from "@/components/account/settings-invoice-templates";
-import { OutreachTemplatesSettings } from "@/components/account/settings-outreach-templates";
 import { FollowupTemplatesSettings } from "@/components/account/settings-followup-templates";
 import { RapidEntrySettings } from "@/components/account/settings-rapid-entry";
 import { UsersSettings } from "@/components/account/settings-users";
@@ -151,37 +145,11 @@ function SettingsPage() {
             show: can("settings.targets"),
             body: <TargetsSettings />,
           },
-          {
-            id: "crm_currency",
-            title: "CRM currency",
-            icon: Coins,
-            lede: "The currency CRM totals are reported in.",
-            help: <HelpLink section="currency" />,
-            show: can("crm.revenue"),
-            body: <CrmCurrencySettings />,
-          },
         ],
       },
       {
         label: "Tools",
         items: [
-          {
-            id: "invoice_templates",
-            title: "Invoice templates",
-            icon: ReceiptText,
-            lede: "Reusable invoice templates, default sender profile and payment details.",
-            show: true,
-            body: <InvoiceTemplatesSettings />,
-          },
-          {
-            id: "outreach_templates",
-            title: "Outreach templates",
-            icon: MessagesSquare,
-            lede: "The messages you send on each channel. Pick one when you add or follow up a lead.",
-            help: <HelpLink section="outreach-templates" />,
-            show: can("lead.leads"),
-            body: <OutreachTemplatesSettings />,
-          },
           {
             id: "followup_templates",
             title: "Follow-up templates",
