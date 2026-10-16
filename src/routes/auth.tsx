@@ -136,7 +136,7 @@ function AuthPage() {
     }
     if (result.redirected) return;
     setGoogleBusy(false);
-    void navigate({ to: "/" });
+    void navigate({ to: "/modules" });
   };
 
   const reset = async () => {
