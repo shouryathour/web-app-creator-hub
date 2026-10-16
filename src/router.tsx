@@ -20,6 +20,10 @@ export const getRouter = () => {
     context: { queryClient },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
+    // Load a page's code as soon as the pointer hovers its link, so clicks open instantly.
+    defaultPreload: "intent",
+    // Keep showing the current page while the next one loads, instead of a blank loader.
+    defaultPendingMs: 2000,
   });
 
   return router;
