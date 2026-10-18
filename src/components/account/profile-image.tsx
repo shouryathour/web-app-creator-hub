@@ -6,7 +6,8 @@ export function avatarStoragePath(value: string | null | undefined): string | nu
   if (value.startsWith("avatars/")) return value.slice(8);
   try {
     const url = new URL(value);
-    if (url.origin !== new URL(import.meta.env.VITE_SUPABASE_URL).origin) return null;
+    const origin = import.meta.env.VITE_SUPABASE_URL;
+    if (!origin || url.origin !== new URL(origin).origin) return null;
     const prefix = "/storage/v1/object/public/avatars/";
     return url.pathname.startsWith(prefix) ? decodeURIComponent(url.pathname.slice(prefix.length)) : null;
   } catch { return null; }
