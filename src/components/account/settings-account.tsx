@@ -67,7 +67,7 @@ export function AccountSettings() {
       if (error) throw error;
       setAvatarUrl(url);
       toast.success("Profile picture saved");
-      void refresh();
+      await refresh();
     } catch (e) {
       window.alert(e instanceof Error ? e.message : "Couldn't upload the picture.");
     } finally {
@@ -80,7 +80,7 @@ export function AccountSettings() {
     const { error } = await supabase.from("profiles").update({ avatar_url: null }).eq("id", profile.id);
     if (error) return window.alert(error.message);
     setAvatarUrl("");
-    void refresh();
+    await refresh();
   };
 
   const initial = (fullName || profile.email || "?").trim().charAt(0).toUpperCase();
