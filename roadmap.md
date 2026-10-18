@@ -1,5 +1,9 @@
 # Buzzspear Tracker roadmap
 
+- [ ] Run signed-in lead, contact, follow-up, task, CRM and archive workflows using temporary records
+- [ ] Review import/export, Settings, Google Sheet and numerical workflows; fix confirmed defects
+- [ ] Run regression tests and report tested flows and any blocked checks
+
 - [x] Repair Add lead and verify creation, editing and list updates while signed in
 - [x] Correct live refresh across lead and CRM screens; review related buttons
 - [x] Double-check saved lead data and other visible screens; report confirmed unfinished features requiring a decision
