@@ -37,11 +37,7 @@ export {
 
 /* ---------------------------------------------------------------- helpers */
 
-export function pct(numerator: number, denominator: number) {
-  if (!denominator || denominator <= 0) return { text: "0%", value: 0, hasData: false };
-  const value = (numerator / denominator) * 100;
-  return { text: `${Math.round(value)}%`, value, hasData: true };
-}
+export { pct } from "@/lib/percentage";
 
 export function money(value: number | string | null | undefined, currency = "USD") {
   const n = Number(value ?? 0);
