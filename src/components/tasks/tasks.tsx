@@ -17,6 +17,8 @@ import { useProfiles } from "@/hooks/useLookups";
 import { useAuth } from "@/lib/live/auth";
 import { fmtDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { invalidateTrackerQueries } from "@/lib/tracker-updates";
+import { taskAssignee } from "@/lib/task-input";
 
 export type LeadTask = {
   id: string;
@@ -35,7 +37,7 @@ export const TASK_SELECT = "*, leads(id,company_name,lead_code)";
 export function useTaskActions(onDone?: () => void) {
   const qc = useQueryClient();
   const invalidate = () => {
-    void qc.invalidateQueries({ queryKey: ["lead_tasks"] });
+    void invalidateTrackerQueries(qc, ["lead_tasks"]);
     onDone?.();
   };
 
@@ -46,7 +48,7 @@ export function useTaskActions(onDone?: () => void) {
       due_date?: string | null;
       assignee_id?: string | null;
     }) => {
-      const { error } = await supabase.from("lead_tasks").insert(task as never);
+      const { error } = await supabase.from("lead_tasks").insert({ ...task, assignee_id: taskAssignee(task.assignee_id) } as never);
       if (error) throw error;
     },
     onSuccess: invalidate,
@@ -93,6 +95,7 @@ export function TaskRow({
     <div className="flex items-center gap-2 rounded-md border border-border px-3 py-2">
       <input
         type="checkbox"
+        aria-label={`Complete ${task.title}`}
         checked={done}
         disabled={!canEdit}
         onChange={(e) =>
@@ -110,7 +113,7 @@ export function TaskRow({
         </div>
       </div>
       {canEdit && (
-        <Button variant="ghost" size="icon" className="size-7" onClick={() => remove.mutate(task.id)}>
+        <Button variant="ghost" size="icon" className="size-7" aria-label={`Delete ${task.title}`} onClick={() => remove.mutate(task.id)}>
           <Trash2 className="size-3.5" />
         </Button>
       )}

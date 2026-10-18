@@ -22,6 +22,7 @@ import { useAuth } from "@/lib/live/auth";
 import { cn } from "@/lib/utils";
 import { TASK_SELECT, TaskRow, useTaskActions, type LeadTask } from "@/components/lt/tasks";
 import { LeadPicker, type PickedLead } from "@/components/lt/events";
+import { taskAssignee } from "@/lib/task-input";
 
 type ProfileLite = { id: string; full_name: string | null; email: string | null };
 
@@ -44,8 +45,7 @@ function AddTaskDialog({ profiles }: { profiles: ProfileLite[] }) {
     if (!lead) return;
     const t = title.trim();
     if (!t) return;
-    // NOTE: live sends assignee_id "unassigned" literally when that option is picked.
-    add.mutate({ lead_id: lead.id, title: t, due_date: due || null, assignee_id: owner || null } as never);
+    add.mutate({ lead_id: lead.id, title: t, due_date: due || null, assignee_id: taskAssignee(owner) });
   };
 
   return (
