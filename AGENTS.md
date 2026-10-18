@@ -13,3 +13,4 @@
 - Tracker change-to-query mappings live in src/lib/tracker-updates.ts and are shared by save actions and realtime subscriptions so every affected view refreshes consistently.
 - Private profile pictures are stored as avatars/<user-id>/<file> and rendered through ProfileImage with expiring signed URLs, so uploads never require public storage.
 - Outreach activity windows are resolved in src/lib/activity-rates.ts from each flag's timestamp; creation dates never substitute for missing event dates.
+- Shared outreach rate numerators and denominators live in src/lib/outreach-metrics.ts and are tested independently of rendering.

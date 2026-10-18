@@ -6,10 +6,10 @@ export const BUILTIN = [
 ] as const;
 type BuiltinKind = (typeof BUILTIN)[number]["kind"];
 
-type Tile = { key: string; label: string; value: string; hasData: boolean; detail: string; bar: number };
+export type Tile = { key: string; label: string; value: string; hasData: boolean; detail: string; bar: number };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-type RateLead = Record<string, any>;
+export type RateLead = Record<string, any>;
 
 function tile(key: string, label: string, n: number, d: number): Tile {
   const r = pct(n, d) as { text: string; hasData: boolean };

@@ -80,7 +80,7 @@ export function RangePicker({ range }: { range: RateRange }) {
   );
 }
 
-import { BUILTIN, computeTiles } from "@/lib/outreach-metrics";
+import { BUILTIN, computeTiles, type RateLead, type Tile } from "@/lib/outreach-metrics";
 
 function readLS<T>(key: string, fallback: T): T {
   try {
