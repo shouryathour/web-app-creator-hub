@@ -537,9 +537,7 @@ export function LeadQuickAdd({ kind }: { kind: LeadKind }) {
         if (!r.ok && !r.skipped) console.error("Google Sheet sync failed:", r.reason);
       })
       .catch((err) => console.error("Google Sheet sync failed:", err));
-    qc.invalidateQueries({ queryKey: ["rapid-today", kind] });
-    qc.invalidateQueries({ queryKey: ["leads-table"] });
-    qc.invalidateQueries({ queryKey: ["leads-board"] });
+    void qc.invalidateQueries();
     reset(cfg);
   };
 

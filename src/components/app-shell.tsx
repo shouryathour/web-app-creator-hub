@@ -39,6 +39,7 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { TRACKER_INVALIDATIONS, invalidateTrackerQueries } from "@/lib/tracker-updates";
 import {
   Activity,
   ArchiveRestore,
@@ -429,25 +430,7 @@ export function isTypingTarget(target: EventTarget | null) {
 
 /* =============================================================== realtime */
 
-const REALTIME_INVALIDATIONS: Record<string, string[][]> = {
-  leads: [["leads"], ["today-leads"], ["outreach-auto"], ["ledger-counts"], ["dashboard"]],
-  lead_events: [["lead-events"], ["ledger"], ["activity"]],
-  lead_followups: [["lead-followups"], ["today-leads"], ["followups"]],
-  lead_contacts: [["lead-contacts"], ["leads"]],
-  lead_links: [["lead-links"], ["leads"]],
-  lead_tags: [["lead_tags"], ["tags"], ["leads"]],
-  lead_tasks: [["lead-tasks"], ["tasks"]],
-  crm_records: [["crm-records"], ["crm-dashboard"], ["crm-pipeline"], ["invoices"]],
-  crm_contact_log: [["crm-records"], ["crm-activity"]],
-  outreach_daily: [["outreach-daily"], ["ledger"]],
-  outreach_targets: [["outreach-targets"]],
-  stages: [["stages"]],
-  profiles: [["profiles"], ["all_profiles"]],
-  user_permissions: [["user-permissions"], ["all_user_permissions"]],
-  permission_presets: [["permission_presets"]],
-  followup_templates: [["followup_templates"]],
-};
-const REALTIME_TABLES = Object.keys(REALTIME_INVALIDATIONS);
+const REALTIME_TABLES = Object.keys(TRACKER_INVALIDATIONS);
 
 /** Subscribes to postgres changes and invalidates matching queries (300 ms debounce). */
 export function useRealtimeInvalidation() {
@@ -458,11 +441,7 @@ export function useRealtimeInvalidation() {
     const flush = () => {
       const tables = Array.from(pending);
       pending.clear();
-      for (const t of tables) {
-        const keys = REALTIME_INVALIDATIONS[t];
-        if (keys) for (const k of keys) void qc.invalidateQueries({ queryKey: k });
-        else void qc.invalidateQueries();
-      }
+      void invalidateTrackerQueries(qc, tables);
     };
     const queue = (t: string) => {
       pending.add(t);

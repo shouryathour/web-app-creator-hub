@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type KeyboardEvent, type RefObject } from 
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { invalidateTrackerQueries } from "@/lib/tracker-updates";
 import {
   Archive,
   ArchiveRestore,
@@ -74,6 +75,8 @@ export const Route = createFileRoute("/lt/leads/$id")({
       { name: "description", content: "Full lead detail: company info, people, outreach and activity." },
       { property: "og:title", content: "Lead | Lead Tracker" },
       { property: "og:description", content: "Full lead detail: company info, people, outreach and activity." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: LeadDetailPage,
@@ -949,9 +952,11 @@ function FollowupsCard({
     const { error } = await supabase.from("lead_followups").delete().eq("id", f.id);
     if (error) return toast.error(error.message);
     const after = sorted.filter((x) => x.sequence_number > f.sequence_number);
-    await Promise.all(
+    const results = await Promise.all(
       after.map((x) => supabase.from("lead_followups").update({ sequence_number: x.sequence_number - 1 } as never).eq("id", x.id)),
     );
+    const failed = results.find((result) => result.error);
+    if (failed?.error) toast.error(`Follow-up deleted, but numbering could not be updated: ${failed.error.message}`);
     invalidate();
   };
 
@@ -1171,32 +1176,36 @@ function LeadDetailPage() {
   const { data: tags } = useTags();
   const isNew = id === "new";
   const creating = useRef(false);
+  const [creationError, setCreationError] = useState<string | null>(null);
+  const [creationAttempt, setCreationAttempt] = useState(0);
 
   useEffect(() => {
-    if (id !== "new" || creating.current) return;
+    if (id !== "new") {
+      creating.current = false;
+      return;
+    }
+    if (!user?.id || creating.current) return;
     creating.current = true;
+    setCreationError(null);
     void (async () => {
-      const { data, error } = await (supabase.rpc as any)("create_lead", {
-        _lead: { company_name: "Untitled lead", created_by: user?.id ?? null },
-        _contacts: [
-          { order_index: 0, is_primary: true },
-          { order_index: 1, is_primary: false },
-        ],
-        _followups: 5,
-      });
-      if (error) {
+      try {
+        const { data, error } = await supabase.rpc("create_lead", {
+          _lead: { company_name: "Untitled lead", created_by: user.id },
+          _contacts: [{ order_index: 0, is_primary: true }],
+          _tag_ids: [],
+        });
+        if (error) throw error;
+        if (!data) throw new Error("The lead could not be created. Please try again.");
+        void invalidateTrackerQueries(qc);
+        await navigate({ to: "/lt/leads/$id", params: { id: data }, replace: true });
+      } catch (error) {
         creating.current = false;
-        toast.error(error.message ?? "Failed to create lead");
-        navigate({ to: "/lt/leads" });
-        return;
-      }
-      if (data) {
-        qc.invalidateQueries({ queryKey: ["leads-table"] });
-        qc.invalidateQueries({ queryKey: ["leads-board"] });
-        navigate({ to: "/lt/leads/$id", params: { id: data as string }, replace: true });
+        const message = error instanceof Error ? error.message : (error as { message?: string })?.message ?? "Failed to create lead";
+        setCreationError(message);
+        toast.error(message);
       }
     })();
-  }, [id, user?.id, navigate, qc]);
+  }, [id, user?.id, navigate, qc, creationAttempt]);
 
   const leadQ = useQuery({
     queryKey: ["lead_detail", id],
@@ -1233,7 +1242,7 @@ function LeadDetailPage() {
     },
   });
   const { saved, setSaved, flashSaved } = useSavedFlash();
-  const invalidate = () => qc.invalidateQueries({ queryKey: ["lead_detail", id] });
+  const invalidate = () => invalidateTrackerQueries(qc, ["leads", "lead_events", "lead_contacts", "lead_links", "lead_tags", "lead_followups"]);
   const invalidateEvents = () => qc.invalidateQueries({ queryKey: ["lead_events", id] });
 
   const save = useMutation({
@@ -1256,30 +1265,6 @@ function LeadDetailPage() {
     },
   });
 
-  // Ensure at least 2 contacts
-  useEffect(() => {
-    const l = leadQ.data;
-    if (!l) return;
-    const cs = l.lead_contacts ?? [];
-    if (cs.length === 0 && canEdit)
-      supabase
-        .from("lead_contacts")
-        .insert([
-          { lead_id: id, order_index: 0, is_primary: true },
-          { lead_id: id, order_index: 1, is_primary: false },
-        ] as never)
-        .then(({ error }) => {
-          if (!error) invalidate();
-        });
-    else if (cs.length === 1 && canEdit)
-      supabase
-        .from("lead_contacts")
-        .insert({ lead_id: id, order_index: 1, is_primary: false } as never)
-        .then(({ error }) => {
-          if (!error) invalidate();
-        });
-  }, [leadQ.data?.id, leadQ.data?.lead_contacts?.length, canEdit]);
-
   // Ensure at least 5 follow-ups
   useEffect(() => {
     const l = leadQ.data;
@@ -1296,7 +1281,8 @@ function LeadDetailPage() {
         .from("lead_followups")
         .insert(rows as never)
         .then(({ error }) => {
-          if (!error) invalidate();
+          if (error) toast.error(`Could not prepare follow-ups: ${error.message}`);
+          else invalidate();
         });
   }, [leadQ.data?.id, leadQ.data?.lead_followups?.length, canEdit]);
 
@@ -1330,11 +1316,13 @@ function LeadDetailPage() {
         leadQ.data?.reply_sentiment !== "positive" &&
         !window.confirm("This lead does not have a positive reply. Only positive replies normally go to the CRM. Push it anyway?")
       )
-        return;
+        return false;
       const { error } = await (supabase.rpc as any)("ensure_crm_record", { _lead_id: id });
       if (error) throw error;
+      return true;
     },
-    onSuccess: () => {
+    onSuccess: (pushed) => {
+      if (!pushed) return;
       toast.success("Pushed to CRM");
       invalidate();
     },
@@ -1355,9 +1343,7 @@ function LeadDetailPage() {
     if (error) return toast.error(error.message ?? "Could not delete the lead");
     if (!data?.length) return toast.error("Only admins can delete leads.");
     toast.success("Lead deleted");
-    qc.invalidateQueries({ queryKey: ["leads-table"] });
-    qc.invalidateQueries({ queryKey: ["leads-board"] });
-    qc.invalidateQueries({ queryKey: ["rapid-today"] });
+    void invalidateTrackerQueries(qc);
     if (window.history.length > 1) window.history.back();
     else navigate({ to: "/lt/leads" });
   };
@@ -1366,7 +1352,11 @@ function LeadDetailPage() {
   if (id === "new" || isNew)
     return (
       <AppPage module="lead" title="New lead" perm="lead.leads">
-        <Loading label="Creating lead" />
+        {creationError ? (
+          <EmptyState title="Could not create lead" hint={creationError} action={
+            <Button size="sm" variant="outline" onClick={() => setCreationAttempt((attempt) => attempt + 1)}>Try again</Button>
+          } />
+        ) : <Loading label="Creating lead" />}
       </AppPage>
     );
   if (leadQ.isLoading)
