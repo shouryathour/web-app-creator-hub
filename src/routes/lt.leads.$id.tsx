@@ -949,16 +949,8 @@ function FollowupsCard({
 
   const remove = async (f: AnyRow) => {
     if (!isBlank(f) && !window.confirm(`Delete follow-up #${f.sequence_number}?`)) return;
-    const { error } = await supabase.from("lead_followups").delete().eq("id", f.id);
+    const { error } = await supabase.rpc("delete_followup", { _id: f.id });
     if (error) return toast.error(error.message);
-    const after = sorted.filter((x) => x.sequence_number > f.sequence_number);
-    for (const x of after.sort((a, b) => a.sequence_number - b.sequence_number)) {
-      const { error: renumberError } = await supabase.from("lead_followups").update({ sequence_number: x.sequence_number - 1 } as never).eq("id", x.id);
-      if (renumberError) {
-        toast.error(`Follow-up deleted, but numbering could not be updated: ${renumberError.message}`);
-        break;
-      }
-    }
     invalidate();
   };
 

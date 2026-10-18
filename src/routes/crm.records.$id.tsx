@@ -20,8 +20,9 @@ import { dealTotal } from "@/components/crm/earnings";
 import { DIRECTION_LABELS, dealValueLabel } from "@/components/crm/helpers";
 import { useReportCurrency } from "@/components/crm/report-currency";
 import { useInvoices } from "@/components/crm/invoice-types";
+import { invalidateTrackerQueries } from "@/lib/tracker-updates";
 
-const META_TITLE = "Record | CRM | Tracker";
+const META_TITLE = "Record | CRM | Buzzspear";
 const META_DESC = "CRM record detail: stage, contacts, dates, contact log.";
 
 export const Route = createFileRoute("/crm/records/$id")({
@@ -100,7 +101,7 @@ function CrmRecordPage() {
     },
     onSuccess: () => {
       flashSaved();
-      qc.invalidateQueries({ queryKey: ["crm_record", id] });
+      void invalidateTrackerQueries(qc, ["crm_records"]);
     },
     onError: (e: any) => {
       setSaved(null);
@@ -342,9 +343,18 @@ function DealCard({
           <Select
             value={r.stage_id ?? undefined}
             disabled={!canEdit}
-            onValueChange={(v) =>
-              onSave({ stage_id: v, probability: stages.find((s) => s.id === v)?.default_probability ?? r.probability })
-            }
+            onValueChange={(v) => {
+              const stage = stages.find((s) => s.id === v);
+              if (!stage) return;
+              let closed = null;
+              if (stage.is_won || stage.is_lost) {
+                const date = window.prompt("When did this deal close? (YYYY-MM-DD)", new Date().toISOString().slice(0, 10));
+                if (date === null) return;
+                if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(new Date(date).getTime())) return toast.error("Enter a valid date as YYYY-MM-DD");
+                closed = new Date(`${date}T12:00:00`).toISOString();
+              }
+              onSave({ stage_id: v, probability: stage.default_probability ?? r.probability, closed_at: closed });
+            }}
           >
             <SelectTrigger className="h-8 text-[13px]">
               <SelectValue placeholder="Stage" />
@@ -516,9 +526,16 @@ function ContactsCard({
 }) {
   const qc = useQueryClient();
   const [saved, setSaved] = useState(false);
-  const refresh = () => qc.invalidateQueries({ queryKey: ["crm_record", recordId] });
+  const refresh = () => invalidateTrackerQueries(qc, ["lead_contacts"]);
   const update = useMutation({
     mutationFn: async ({ contactId, patch }: { contactId: string; patch: Patch }) => {
+      if (patch.is_primary === true) {
+        const { error } = await supabase.rpc("set_primary_contact", { _id: contactId });
+        if (error) throw error;
+        const { is_primary, ...rest } = patch;
+        if (Object.keys(rest).length === 0) return;
+        patch = rest;
+      }
       const { error } = await (supabase as any).from("lead_contacts").update(patch).eq("id", contactId);
       if (error) throw error;
     },
