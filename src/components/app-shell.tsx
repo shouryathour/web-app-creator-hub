@@ -40,6 +40,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { TRACKER_INVALIDATIONS, invalidateTrackerQueries } from "@/lib/tracker-updates";
+import { ProfileImage } from "@/components/account/profile-image";
 import {
   Activity,
   ArchiveRestore,
@@ -2658,7 +2659,7 @@ function AccountMenu({
             title={profile?.email ?? ""}
           >
             {avatar ? (
-              <img src={avatar} alt="" className="size-7 shrink-0 rounded-full object-cover" />
+              <ProfileImage value={avatar} className="size-7 shrink-0 rounded-full object-cover" />
             ) : (
               <span className="grid size-7 shrink-0 place-items-center rounded-full border border-border bg-subtle font-mono text-[10px] font-semibold text-muted-foreground">
                 {initials}
