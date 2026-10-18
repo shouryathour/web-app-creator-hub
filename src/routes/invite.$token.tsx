@@ -10,8 +10,12 @@ import { clearPendingInvite, setPendingInvite } from "@/components/account/pendi
 export const Route = createFileRoute("/invite/$token")({
   head: () => ({
     meta: [
-      { title: "Join workspace | Tracker" },
+      { title: "Join workspace | Tracker | Buzzspear" },
       { name: "description", content: "Accept an invite to a Tracker workspace." },
+      { property: "og:title", content: "Join workspace | Tracker | Buzzspear" },
+      { property: "og:description", content: "Accept an invite to a Tracker workspace." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: InvitePage,

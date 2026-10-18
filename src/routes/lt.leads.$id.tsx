@@ -71,9 +71,9 @@ import { useOutreachTemplates, renderTemplate } from "@/lib/live/outreach-templa
 export const Route = createFileRoute("/lt/leads/$id")({
   head: () => ({
     meta: [
-      { title: "Lead | Lead Tracker" },
+      { title: "Lead | Lead Tracker | Buzzspear" },
       { name: "description", content: "Full lead detail: company info, people, outreach and activity." },
-      { property: "og:title", content: "Lead | Lead Tracker" },
+      { property: "og:title", content: "Lead | Lead Tracker | Buzzspear" },
       { property: "og:description", content: "Full lead detail: company info, people, outreach and activity." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

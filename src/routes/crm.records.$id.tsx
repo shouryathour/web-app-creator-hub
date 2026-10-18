@@ -31,6 +31,8 @@ export const Route = createFileRoute("/crm/records/$id")({
       { name: "description", content: META_DESC },
       { property: "og:title", content: META_TITLE },
       { property: "og:description", content: META_DESC },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: CrmRecordPage,

@@ -150,13 +150,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(s);
       const uid = s?.user?.id ?? null;
       if (uid === lastUid.current) {
-        setLoading(false);
+        // INITIAL_SESSION/TOKEN_REFRESHED may repeat before profile loading
+        // finishes. Never expose pages with an incomplete workspace role.
         return;
       }
       lastUid.current = uid;
+      setLoading(true);
       // Defer so Supabase finishes its own auth work before we query.
       setTimeout(() => {
-        void load(uid ?? undefined).finally(() => setLoading(false));
+        void load(uid ?? undefined).finally(() => {
+          if (lastUid.current === uid) setLoading(false);
+        });
       }, 0);
     });
     return () => data.subscription.unsubscribe();

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useLocation, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
   Bolt,
@@ -49,8 +49,12 @@ import { DangerZoneSettings } from "@/components/account/settings-danger-zone";
 export const Route = createFileRoute("/settings")({
   head: () => ({
     meta: [
-      { title: "Settings | Tracker" },
+      { title: "Settings | Tracker | Buzzspear" },
       { name: "description", content: "Manage stages, channels, tags, targets, shortcuts, account and access." },
+      { property: "og:title", content: "Settings | Tracker | Buzzspear" },
+      { property: "og:description", content: "Manage stages, channels, tags, targets, shortcuts, account and access." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: SettingsPage,
@@ -274,29 +278,24 @@ function SettingsPage() {
   const allItems = groups.flatMap((g) => g.items);
   const [activeId, setActiveId] = useState("overview");
   const [query, setQuery] = useState("");
-  const hashApplied = useRef(false);
-  const initialHash = useRef<string | null>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (hashApplied.current) return;
-    if (initialHash.current === null) initialHash.current = window.location.hash.replace("#", "");
-    const id = initialHash.current;
-    const match = allItems.some((i) => i.id === id) ? id : null;
-    if (match) {
-      hashApplied.current = true;
-      setActiveId(match);
-    }
+    const id = location.hash.replace(/^#/, "");
+    if (allItems.some((i) => i.id === id)) setActiveId(id);
+    else if (!id) setActiveId("overview");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allItems.length]);
+  }, [allItems.length, location.hash]);
 
   const open = (id: string) => {
     setActiveId(id);
-    window.history.replaceState(null, "", `#${id}`);
+    void navigate({ to: "/settings", hash: id, replace: true });
     window.scrollTo({ top: 0 });
   };
   const backToOverview = () => {
     setActiveId("overview");
-    window.history.replaceState(null, "", window.location.pathname);
+    void navigate({ to: "/settings", hash: "", replace: true });
   };
 
   const active = activeId === "overview" ? null : (allItems.find((i) => i.id === activeId) ?? null);

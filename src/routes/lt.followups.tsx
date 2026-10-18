@@ -40,7 +40,13 @@ import { useChannels, useStages, type Stage } from "@/hooks/useLookups";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/lt/followups")({
-  head: () => ({ meta: [{ title: "Follow-ups | Lead Tracker" }] }),
+  head: () => ({ meta: [{ title: "Follow-ups | Lead Tracker | Buzzspear" },
+      { name: "description", content: "Manage pending outreach follow-ups in Buzzspear." },
+      { property: "og:title", content: "Follow-ups | Lead Tracker | Buzzspear" },
+      { property: "og:description", content: "Manage pending outreach follow-ups in Buzzspear." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ] }),
   component: FollowupsPage,
 });
 

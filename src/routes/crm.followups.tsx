@@ -15,10 +15,12 @@ import { useChannels } from "@/hooks/useLookups";
 export const Route = createFileRoute("/crm/followups")({
   head: () => ({
     meta: [
-      { title: "Follow-ups | CRM | Tracker" },
+      { title: "Follow-ups | CRM | Tracker | Buzzspear" },
       { name: "description", content: "Overdue, today and upcoming CRM follow-ups." },
-      { property: "og:title", content: "Follow-ups | CRM | Tracker" },
+      { property: "og:title", content: "Follow-ups | CRM | Tracker | Buzzspear" },
       { property: "og:description", content: "Overdue, today and upcoming CRM follow-ups." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: FollowupsPage,

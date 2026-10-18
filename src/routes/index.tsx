@@ -6,10 +6,12 @@ import { Loading } from "@/components/live/kit";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Tracker" },
+      { title: "Tracker | Buzzspear" },
       { name: "description", content: "Cold outreach pipeline, CRM and revenue tracking in one place." },
-      { property: "og:title", content: "Tracker" },
+      { property: "og:title", content: "Tracker | Buzzspear" },
       { property: "og:description", content: "Cold outreach pipeline, CRM and revenue tracking in one place." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Index,

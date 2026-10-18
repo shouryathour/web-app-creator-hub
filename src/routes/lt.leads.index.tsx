@@ -57,6 +57,14 @@ import { LEAD_STATUSES } from "@/components/lt/lead-types";
 import { DownloadIcon, LEAD_VIEW_STORAGE_KEY, viewFromProfileDefault } from "@/components/lt/lead-view";
 
 export const Route = createFileRoute("/lt/leads/")({
+  head: () => ({ meta: [
+      { title: "All Leads | Buzzspear" },
+      { name: "description", content: "Search and manage all Buzzspear outreach leads." },
+      { property: "og:title", content: "All Leads | Buzzspear" },
+      { property: "og:description", content: "Search and manage all Buzzspear outreach leads." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ] }),
   component: LeadsPage,
 });
 

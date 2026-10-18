@@ -20,10 +20,12 @@ export const Route = createFileRoute("/auth")({
   }),
   head: () => ({
     meta: [
-      { title: "Get started | Tracker" },
+      { title: "Get started | Tracker | Buzzspear" },
       { name: "description", content: "Create your outreach, CRM and revenue tracker account." },
-      { property: "og:title", content: "Get started | Tracker" },
+      { property: "og:title", content: "Get started | Tracker | Buzzspear" },
       { property: "og:description", content: "Create your outreach, CRM and revenue tracker account." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: AuthPage,

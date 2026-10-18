@@ -17,7 +17,13 @@ import { useAuth } from "@/lib/live/auth";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/lt/ledger")({
-  head: () => ({ meta: [{ title: "Ledger | Lead Tracker" }] }),
+  head: () => ({ meta: [{ title: "Ledger | Lead Tracker | Buzzspear" },
+      { name: "description", content: "Review dated outreach events and totals in Buzzspear." },
+      { property: "og:title", content: "Ledger | Lead Tracker | Buzzspear" },
+      { property: "og:description", content: "Review dated outreach events and totals in Buzzspear." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ] }),
   component: LedgerPage,
 });
 

@@ -4,7 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loading } from "@/components/live/kit";
 
 export const Route = createFileRoute("/auth_/complete")({
-  head: () => ({ meta: [{ title: "Signing in | Tracker" }] }),
+  head: () => ({ meta: [{ title: "Signing in | Tracker | Buzzspear" },
+      { name: "description", content: "Complete your Buzzspear account sign-in." },
+      { property: "og:title", content: "Signing in | Tracker | Buzzspear" },
+      { property: "og:description", content: "Complete your Buzzspear account sign-in." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ] }),
   component: AuthComplete,
 });
 

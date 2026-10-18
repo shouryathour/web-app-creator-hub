@@ -9,10 +9,12 @@ import { ImportWizard } from "@/components/lt/data-import-wizard";
 export const Route = createFileRoute("/lt/data")({
   head: () => ({
     meta: [
-      { title: "Import / Export | Lead Tracker" },
+      { title: "Import / Export | Lead Tracker | Buzzspear" },
       { name: "description", content: "Import leads from CSV or export leads and CRM records." },
-      { property: "og:title", content: "Import / Export | Lead Tracker" },
+      { property: "og:title", content: "Import / Export | Lead Tracker | Buzzspear" },
       { property: "og:description", content: "Import leads from CSV or export leads and CRM records." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: DataPage,

@@ -20,7 +20,13 @@ import { useAuth } from "@/lib/live/auth";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/lt/outreach")({
-  head: () => ({ meta: [{ title: "Outreach Tracker | Lead Tracker" }] }),
+  head: () => ({ meta: [{ title: "Outreach Tracker | Lead Tracker | Buzzspear" },
+      { name: "description", content: "Track daily outreach by channel in Buzzspear." },
+      { property: "og:title", content: "Outreach Tracker | Lead Tracker | Buzzspear" },
+      { property: "og:description", content: "Track daily outreach by channel in Buzzspear." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ] }),
   component: OutreachPage,
 });
 

@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/live/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ProfileImage } from "./profile-image";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -324,7 +325,7 @@ export function UsersSettings() {
             className="flex flex-wrap items-center gap-3 rounded-md border border-border bg-subtle px-3 py-2 text-left"
           >
             {m.avatar_url ? (
-              <img src={m.avatar_url} alt="" className="size-7 shrink-0 rounded-full object-cover" />
+              <ProfileImage value={m.avatar_url} className="size-7 shrink-0 rounded-full object-cover" />
             ) : (
               <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-border text-[11px]">
                 {(m.full_name || m.email || "?").slice(0, 1).toUpperCase()}

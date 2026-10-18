@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { trackerQueryMatches } from "./tracker-updates";
+import { trackerQueryMatches } from "../src/lib/tracker-updates";
 
 describe("tracker live refresh", () => {
   test("lead changes refresh lists, quick entry, dashboard and CRM", () => {

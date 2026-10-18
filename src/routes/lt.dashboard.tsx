@@ -19,8 +19,12 @@ import { OutreachRateTiles, RangePicker, resolveRange, useRateRange } from "@/co
 export const Route = createFileRoute("/lt/dashboard")({
   head: () => ({
     meta: [
-      { title: "Dashboard | Lead Tracker" },
+      { title: "Dashboard | Lead Tracker | Buzzspear" },
       { name: "description", content: "Follow-up reminders, volume and outreach performance for the lead pipeline." },
+      { property: "og:title", content: "Dashboard | Lead Tracker | Buzzspear" },
+      { property: "og:description", content: "Follow-up reminders, volume and outreach performance for the lead pipeline." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: DashboardPage,

@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/live/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ProfileImage } from "./profile-image";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // localStorage key for the remembered lead view (live lead-view chunk).
@@ -61,11 +62,12 @@ export function AccountSettings() {
         .from("avatars")
         .upload(path, file, { contentType: file.type, upsert: true });
       if (upErr) throw upErr;
-      const url = supabase.storage.from("avatars").getPublicUrl(path).data.publicUrl;
+      const url = `avatars/${path}`;
       const { error } = await supabase.from("profiles").update({ avatar_url: url }).eq("id", profile.id);
       if (error) throw error;
       setAvatarUrl(url);
-      void refresh();
+      toast.success("Profile picture saved");
+      await refresh();
     } catch (e) {
       window.alert(e instanceof Error ? e.message : "Couldn't upload the picture.");
     } finally {
@@ -78,7 +80,7 @@ export function AccountSettings() {
     const { error } = await supabase.from("profiles").update({ avatar_url: null }).eq("id", profile.id);
     if (error) return window.alert(error.message);
     setAvatarUrl("");
-    void refresh();
+    await refresh();
   };
 
   const initial = (fullName || profile.email || "?").trim().charAt(0).toUpperCase();
@@ -98,7 +100,7 @@ export function AccountSettings() {
           <div className="label-text mb-1">Profile picture</div>
           <div className="flex flex-wrap items-center gap-3">
             {avatarUrl ? (
-              <img src={avatarUrl} alt="" className="size-12 rounded-full border border-border object-cover" />
+              <ProfileImage value={avatarUrl} className="size-12 rounded-full border border-border object-cover" />
             ) : (
               <div className="flex size-12 items-center justify-center rounded-full border border-border bg-subtle text-[15px] font-medium text-muted-foreground">
                 {initial}
