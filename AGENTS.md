@@ -11,3 +11,4 @@
 
 - Google Sheet backup logic lives only in src/lib/sheet-backup.server.ts (config in app_settings key google_sheet_backup); server fns and the hourly /api/public/jobs/sheet-backup route call it, so manual and automatic backups never diverge.
 - Tracker change-to-query mappings live in src/lib/tracker-updates.ts and are shared by save actions and realtime subscriptions so every affected view refreshes consistently.
+- Private profile pictures are stored as avatars/<user-id>/<file> and rendered through ProfileImage with expiring signed URLs, so uploads never require public storage.
