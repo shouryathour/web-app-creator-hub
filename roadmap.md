@@ -1,5 +1,9 @@
 # Buzzspear Tracker roadmap
 
+- [ ] Repair Add lead and verify creation, editing and list updates while signed in
+- [ ] Correct live refresh across lead and CRM screens; review related buttons
+- [ ] Double-check saved lead data and other visible screens; report confirmed unfinished features requiring a decision
+
 - [x] Database schema, RLS, permissions, triggers, seed config (stages, channels, countries, targets)
 - [x] Email + password auth, Google sign in, pending approval screen, first user becomes owner
 - [x] Design tokens, app shell, sidebar, top bar, theme toggle, command palette, shortcut layer
