@@ -1,8 +1,10 @@
 # Buzzspear Tracker roadmap
 
-- [ ] Run signed-in lead, contact, follow-up, task, CRM and archive workflows using temporary records
-- [ ] Review import/export, Settings, Google Sheet and numerical workflows; fix confirmed defects
-- [ ] Run regression tests and report tested flows and any blocked checks
+- [x] Run signed-in lead, contact, follow-up, task, CRM and archive workflows using temporary records; remove test records
+- [x] Review import/export, all 16 Settings sections, Google Sheet status and numerical workflows; fix confirmed defects
+- [x] Run 23 regression tests, verify 18 screens and report tested flows and blocked checks
+- [ ] Verify fresh Google sign-in and invitation acceptance: requires external account participation; existing signed-in session was tested
+- [ ] Verify a new Google Sheet push/pull end-to-end: deferred to avoid overwriting the live backup or importing live data during QA; hourly backup status shows success
 
 - [x] Repair Add lead and verify creation, editing and list updates while signed in
 - [x] Correct live refresh across lead and CRM screens; review related buttons
