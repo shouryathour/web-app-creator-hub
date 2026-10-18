@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, downloadCsv } from "@/components/live/kit";
 import { SheetSync } from "@/components/live/sheet-sync";
 import { ImportWizard } from "@/components/lt/data-import-wizard";
+import { collectExportPages } from "@/lib/export-pages";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/lt/data")({
   head: () => ({
@@ -21,6 +23,10 @@ export const Route = createFileRoute("/lt/data")({
 });
 
 const LEAD_EXPORT_COLUMNS = [
+  "id",
+  "lead_code",
+  "status",
+  "priority",
   "company_name",
   "primary_contact",
   "country_id",
@@ -36,6 +42,11 @@ const LEAD_EXPORT_COLUMNS = [
   "additional_notes",
   "next_followup_date",
   "archived",
+  "email_sent", "email_sent_at", "email_viewed", "email_viewed_at", "email_replied", "email_replied_at", "reply_sentiment",
+  "loom_url", "loom_sent", "loom_sent_at", "loom_watched", "loom_watched_at", "loom_watch_percent",
+  "linkedin_connection_sent", "linkedin_connection_sent_at", "linkedin_sent", "linkedin_sent_at", "linkedin_replied", "linkedin_replied_at",
+  "instagram_sent", "instagram_sent_at", "instagram_replied", "instagram_replied_at",
+  "meeting_booked", "meeting_booked_at", "client_closed", "client_closed_at", "last_contacted_at",
 ] as const;
 
 const CRM_EXPORT_COLUMNS = [
@@ -65,17 +76,17 @@ function GoogleSheetsCard() {
 
 function DataPage() {
   const exportLeads = async () => {
-    const { data, error } = await supabase.from("leads").select(LEAD_EXPORT_COLUMNS.join(","));
-    if (error) return window.alert(`Export failed: ${error.message}`);
-    const rows = (data ?? []) as unknown as Record<string, unknown>[];
+    try {
+    const rows = await collectExportPages<Record<string, unknown>>((from, to) => supabase.from("leads").select(LEAD_EXPORT_COLUMNS.join(",")).order("id").range(from, to) as unknown as PromiseLike<{ data: Record<string, unknown>[] | null; error: { message: string } | null }>);
     downloadCsv("leads.csv", [[...LEAD_EXPORT_COLUMNS], ...rows.map((r) => LEAD_EXPORT_COLUMNS.map((c) => r[c] as string | number | null))]);
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Export failed"); }
   };
 
   const exportCrm = async () => {
-    const { data, error } = await supabase.from("crm_records").select(CRM_EXPORT_COLUMNS.join(","));
-    if (error) return window.alert(`Export failed: ${error.message}`);
-    const rows = (data ?? []) as unknown as Record<string, unknown>[];
+    try {
+    const rows = await collectExportPages<Record<string, unknown>>((from, to) => supabase.from("crm_records").select(CRM_EXPORT_COLUMNS.join(",")).order("id").range(from, to) as unknown as PromiseLike<{ data: Record<string, unknown>[] | null; error: { message: string } | null }>);
     downloadCsv("crm_records.csv", [[...CRM_EXPORT_COLUMNS], ...rows.map((r) => CRM_EXPORT_COLUMNS.map((c) => r[c] as string | number | null))]);
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Export failed"); }
   };
 
   // Live passes guide="import" to the page shell; the repo AppPage has no guide prop yet.

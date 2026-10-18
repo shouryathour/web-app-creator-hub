@@ -15,6 +15,7 @@ import { useStages } from "@/hooks/useLookups";
 import { useReportCurrency } from "@/components/crm/report-currency";
 import { dealTotal } from "@/components/crm/earnings";
 import { PRIORITY_COLORS, dealValueLabel } from "@/components/crm/helpers";
+import { invalidateTrackerQueries } from "@/lib/tracker-updates";
 
 export const Route = createFileRoute("/crm/pipeline")({
   head: () => ({
@@ -96,7 +97,7 @@ function PipelinePage() {
       const { error } = await (supabase as any).from("crm_records").update(patch).eq("id", recordId);
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["crm_pipeline_records"] }),
+    onSuccess: () => invalidateTrackerQueries(qc, ["crm_records"]),
     onError: (e: any) => toast.error(e.message ?? "Failed to move"),
   });
 
@@ -118,7 +119,7 @@ function PipelinePage() {
       setLostDialog({ recordId: rec.id, stageId, reason: "" });
       return;
     }
-    move.mutate({ recordId: rec.id, patch: { stage_id: stageId, probability: stage.default_probability } });
+    move.mutate({ recordId: rec.id, patch: { stage_id: stageId, probability: stage.default_probability, closed_at: null } });
   };
 
   if (query.isLoading)
@@ -298,7 +299,7 @@ function PipelinePage() {
                   .join("\n");
                 move.mutate({
                   recordId: lostDialog.recordId,
-                  patch: { stage_id: lostDialog.stageId, probability: stage?.default_probability ?? 0, notes },
+                  patch: { stage_id: lostDialog.stageId, probability: stage?.default_probability ?? 0, notes, closed_at: new Date().toISOString() },
                 });
                 setLostDialog(null);
               }}

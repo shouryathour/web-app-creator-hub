@@ -1863,6 +1863,7 @@ export type Database = {
       }
       create_workspace: { Args: { _name: string }; Returns: string }
       current_ws: { Args: never; Returns: string }
+      delete_followup: { Args: { _id: string }; Returns: undefined }
       ensure_crm_record: { Args: { _lead_id: string }; Returns: string }
       invite_preview: {
         Args: { _token: string }
@@ -1900,6 +1901,7 @@ export type Database = {
         Args: { _kind: string; _lead_id: string }
         Returns: undefined
       }
+      set_primary_contact: { Args: { _id: string }; Returns: undefined }
       switch_workspace: { Args: { _ws: string }; Returns: undefined }
       ws_admin: { Args: { _ws: string }; Returns: boolean }
       ws_role: {

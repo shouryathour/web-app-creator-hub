@@ -14,3 +14,6 @@
 - Private profile pictures are stored as avatars/<user-id>/<file> and rendered through ProfileImage with expiring signed URLs, so uploads never require public storage.
 - Outreach activity windows are resolved in src/lib/activity-rates.ts from each flag's timestamp; creation dates never substitute for missing event dates.
 - Shared outreach rate numerators and denominators live in src/lib/outreach-metrics.ts and are tested independently of rendering.
+- Task owner selectors normalize empty and Unassigned values with taskAssignee before writes, because assignee_id accepts UUIDs or null only.
+- Follow-up deletion/renumbering and selecting a primary contact use SECURITY INVOKER database functions so each change is atomic and respects workspace RLS.
+- Full CSV exports read ordered pages with collectExportPages so the Data API row cap cannot silently truncate the file.

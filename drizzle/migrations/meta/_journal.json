@@ -85,6 +85,13 @@
       "when": 1792353983454,
       "tag": "0011_private_team_avatar_access",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1792355479236,
+      "tag": "0012_atomic_followup_delete_and_primary_contact",
+      "breakpoints": true
     }
   ]
 }

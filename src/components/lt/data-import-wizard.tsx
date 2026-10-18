@@ -755,9 +755,10 @@ export function ImportWizard() {
     };
     return async (leadId: string, row: ConvertedRow, replace: boolean) => {
       const db = supabase as any;
+      const checked = async (query: PromiseLike<{ error: any }>) => { const { error } = await query; if (error) throw error; };
       if (row.people.length > 0) {
-        if (replace) await db.from("lead_contacts").delete().eq("lead_id", leadId);
-        await db.from("lead_contacts").insert(
+        if (replace) await checked(db.from("lead_contacts").delete().eq("lead_id", leadId));
+        await checked(db.from("lead_contacts").insert(
           row.people.map((p, i) => ({
             lead_id: leadId,
             person_name: p.person_name,
@@ -769,13 +770,13 @@ export function ImportWizard() {
             is_primary: i === 0,
             order_index: i,
           })),
-        );
+        ));
       }
       if (row.links.length > 0)
-        await db.from("lead_links").insert(row.links.map((url, i) => ({ lead_id: leadId, url, label: null, order_index: i })));
+        await checked(db.from("lead_links").insert(row.links.map((url, i) => ({ lead_id: leadId, url, label: null, order_index: i }))));
       if (row.followups.length > 0) {
-        if (replace) await db.from("lead_followups").delete().eq("lead_id", leadId);
-        await db.from("lead_followups").insert(
+        if (replace) await checked(db.from("lead_followups").delete().eq("lead_id", leadId));
+        await checked(db.from("lead_followups").insert(
           row.followups.map((f) => ({
             lead_id: leadId,
             sequence_number: f.sequence_number,
@@ -783,12 +784,12 @@ export function ImportWizard() {
             status: f.status,
             notes: f.notes,
           })),
-        );
+        ));
       }
       if (row.tags.length > 0) {
         const ids = await Promise.all(row.tags.map(tagId));
-        if (replace) await db.from("lead_tags").delete().eq("lead_id", leadId);
-        await db.from("lead_tags").insert(ids.map((tag_id) => ({ lead_id: leadId, tag_id })));
+        if (replace) await checked(db.from("lead_tags").delete().eq("lead_id", leadId));
+        await checked(db.from("lead_tags").insert(ids.map((tag_id) => ({ lead_id: leadId, tag_id }))));
       }
     };
   };
@@ -806,41 +807,30 @@ export function ImportWizard() {
       const batch = queue.slice(start, start + BATCH);
       const fresh = batch.filter((q) => !q.dup.isDuplicate || action === "add_new");
       const dups = batch.filter((q) => q.dup.isDuplicate && action !== "add_new");
-      if (fresh.length > 0) {
+      for (const q of fresh) {
         if (cancelRef.current) break;
-        const { data, error } = await db
-          .from("leads")
-          .insert(fresh.map((q) => q.row.lead))
-          .select("id");
-        if (!error && data && data.length === fresh.length)
-          for (let i = 0; i < fresh.length && !cancelRef.current; i++) {
-            const q = fresh[i];
-            const id = data[i].id;
-            insertedIds.current.push(id);
-            try {
-              await writeDetails(id, q.row, false);
-              out.push({ row: q.index + 2, status: "imported" });
-            } catch (err: any) {
-              out.push({ row: q.index + 2, status: "failed", error: err?.message ?? "Could not save details" });
-            }
+        let savedId: string | null = null;
+        try {
+          const { data: one, error } = await db.from("leads").insert(q.row.lead).select("id").single();
+          if (error) throw error;
+          savedId = one.id;
+          insertedIds.current.push(one.id);
+          await writeDetails(one.id, q.row, false);
+          out.push({ row: q.index + 2, status: "imported" });
+        } catch (err: any) {
+          let note = err?.message ?? "Unknown error";
+          if (savedId) {
+            const { error: cleanupError } = await db.from("leads").delete().eq("id", savedId);
+            if (cleanupError) note += "; partially saved: remove this lead before retrying";
+            else insertedIds.current = insertedIds.current.filter((id) => id !== savedId);
           }
-        else
-          for (const q of fresh) {
-            if (cancelRef.current) break;
-            try {
-              const { data: one, error: e1 } = await db.from("leads").insert(q.row.lead).select("id").single();
-              if (e1) throw e1;
-              insertedIds.current.push(one.id);
-              await writeDetails(one.id, q.row, false);
-              out.push({ row: q.index + 2, status: "imported" });
-            } catch (err: any) {
-              out.push({ row: q.index + 2, status: "failed", error: err?.message ?? "Unknown error" });
-            }
-          }
+          out.push({ row: q.index + 2, status: "failed", error: note });
+        }
       }
       for (const q of dups) {
         if (cancelRef.current) break;
-        const ex = q.dup.existing!;
+        const ex = q.dup.existing;
+        if (!ex) { out.push({ row: q.index + 2, status: "failed", error: "Matching lead no longer exists" }); continue; }
         try {
           const patch = action === "merge" ? mergeEmpty(q.row.lead, ex) : q.row.lead;
           if (Object.keys(patch).length > 0) {
@@ -850,7 +840,7 @@ export function ImportWizard() {
           await writeDetails(ex.id, q.row, action === "update");
           out.push({ row: q.index + 2, status: "updated" });
         } catch (err: any) {
-          out.push({ row: q.index + 2, status: "failed", error: err?.message ?? "Unknown error" });
+          out.push({ row: q.index + 2, status: "failed", error: `Update incomplete; review this existing lead before retrying: ${err?.message ?? "Unknown error"}` });
         }
       }
       if (cancelRef.current) break;

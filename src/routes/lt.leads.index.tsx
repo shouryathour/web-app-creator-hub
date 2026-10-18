@@ -50,6 +50,7 @@ import { StagePill } from "@/components/leads/StagePill";
 import { useStages, useCountries, useChannels, useSenderAccounts, useTags } from "@/hooks/useLookups";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { invalidateTrackerQueries } from "@/lib/tracker-updates";
 import { useAuth } from "@/lib/live/auth";
 import { cn } from "@/lib/utils";
 import { fmtDate } from "@/lib/format";
@@ -972,14 +973,13 @@ function LeadsPage() {
   const bulkStage = async (stageId: string) => {
     const { error } = await supabase.from("leads").update({ stage_id: stageId } as never).in("id", ids());
     if (error) return toast.error(error.message);
-    qc.invalidateQueries({ queryKey: ["leads-table"] });
-    qc.invalidateQueries({ queryKey: ["leads-board"] });
+    void invalidateTrackerQueries(qc, ["leads"]);
     setSelected(new Set());
   };
   const bulkArchive = async () => {
     const { error } = await supabase.from("leads").update({ archived: true, archived_at: new Date().toISOString() } as never).in("id", ids());
     if (error) return toast.error(error.message);
-    qc.invalidateQueries({ queryKey: ["leads-table"] });
+    void invalidateTrackerQueries(qc, ["leads"]);
     setSelected(new Set());
   };
   const bulkPushCrm = async () => {
@@ -994,7 +994,7 @@ function LeadsPage() {
     if (!window.confirm(`Delete ${selected.size} lead(s)? This cannot be undone.`)) return;
     const { error } = await supabase.from("leads").delete().in("id", ids());
     if (error) return toast.error(error.message);
-    qc.invalidateQueries({ queryKey: ["leads-table"] });
+    void invalidateTrackerQueries(qc, ["leads"]);
     setSelected(new Set());
   };
   const exportCsv = async () => {
@@ -1012,7 +1012,7 @@ function LeadsPage() {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || Number.isNaN(new Date(d).getTime())) return toast.error("Enter a date as YYYY-MM-DD");
     const { error } = await supabase.from("leads").update({ next_followup_date: d } as never).in("id", ids());
     if (error) return toast.error(error.message);
-    qc.invalidateQueries({ queryKey: ["leads-table"] });
+    void invalidateTrackerQueries(qc, ["leads", "lead_followups"]);
     setSelected(new Set());
   };
 
