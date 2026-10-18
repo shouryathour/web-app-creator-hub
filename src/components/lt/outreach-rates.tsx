@@ -9,6 +9,7 @@ import { useAuth } from "@/lib/live/auth";
 import { useChannels } from "@/hooks/useLookups";
 import { todayISO, addDaysISO } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { ACTIVITY_FLAGS, activityInRange } from "@/lib/activity-rates";
 // Shared (ported in parallel): live kit DateRangePicker (kit chunk `d` = Uu)
 import { DateRangePicker, pct } from "@/components/live/kit";
 // Shared: outreach-channels chunk `r` (= c), app_settings "outreach_channels" query
@@ -114,7 +115,7 @@ function computeTiles(leads: RateLead[], scope: string, channels: any[]): Tile[]
     pool = leads.filter((l) => kindOf(l.channel_id) === k || sent(l) || (k === "linkedin" && l.linkedin_connection_sent));
     isSent = sent;
     isReplied = (l) => (k === "email" ? l.email_replied : k === "instagram" ? l.instagram_replied : l.linkedin_replied);
-    const label = BUILTIN.find((b) => b.kind === k)!.label;
+    const label = BUILTIN.find((b) => b.kind === k)?.label ?? k;
     const sentCount = pool.filter(isSent).length;
     if (k === "linkedin")
       tiles.push(tile("connection", "Connection request rate", pool.filter((l) => l.linkedin_connection_sent).length, pool.length));
@@ -142,7 +143,7 @@ function computeTiles(leads: RateLead[], scope: string, channels: any[]): Tile[]
   const replied = pool.filter(isReplied);
   const loomSent = pool.filter((l) => l.loom_sent);
   const loomWatched = pool.filter((l) => l.loom_watched);
-  const watchPcts = loomWatched.filter((l) => l.loom_watch_percent != null).map((l) => l.loom_watch_percent as number);
+  const watchPcts = loomWatched.filter((l) => Number.isFinite(l.loom_watch_percent) && l.loom_watch_percent >= 0 && l.loom_watch_percent <= 100).map((l) => l.loom_watch_percent as number);
   const meetings = pool.filter((l) => l.meeting_booked);
   const avg = watchPcts.length ? watchPcts.reduce((a, b) => a + b, 0) / watchPcts.length : 0;
   tiles.push(tile("reply", "Reply rate", replied.length, sent.length));
@@ -159,7 +160,7 @@ function computeTiles(leads: RateLead[], scope: string, channels: any[]): Tile[]
     bar: watchPcts.length ? Math.round(avg) : 0,
   });
   tiles.push(tile("meetings", "Meetings booked rate", meetings.length, replied.length));
-  tiles.push(tile("close", "Client close rate", meetings.filter((l) => l.client_closed).length, meetings.length));
+  tiles.push(tile("close", "Client close rate", pool.filter((l) => l.client_closed).length, meetings.length));
   return tiles;
 }
 
@@ -269,15 +270,16 @@ export function OutreachRateTiles({
   const { data: leads, isLoading } = useQuery({
     queryKey: ["outreach-rate-leads", from, to],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("leads")
-        .select(
-          "channel_id,contacted_channel_id,reply_channel_id,email_sent,email_viewed,email_replied,instagram_sent,instagram_replied,linkedin_connection_sent,linkedin_sent,linkedin_replied,loom_sent,loom_watched,loom_watch_percent,meeting_booked,client_closed,reply_sentiment",
-        )
-        .gte("date_added", from)
-        .lte("date_added", to);
-      if (error) throw error;
-      return (data ?? []) as RateLead[];
+      const all: RateLead[] = [];
+      for (let offset = 0; ; offset += 1000) {
+        const { data, error } = await supabase.from("leads")
+          .select(["id", "channel_id", "contacted_channel_id", "reply_channel_id", "last_contacted_at", "loom_watch_percent", "reply_sentiment", ...ACTIVITY_FLAGS.flatMap((flag) => [flag, `${flag}_at`])].join(","))
+          .order("id").range(offset, offset + 999);
+        if (error) throw error;
+        all.push(...(data ?? []) as unknown as RateLead[]);
+        if ((data?.length ?? 0) < 1000) break;
+      }
+      return activityInRange(all, from, to);
     },
   });
 

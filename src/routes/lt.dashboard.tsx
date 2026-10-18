@@ -105,7 +105,7 @@ function DashboardPage() {
     queryKey: ["dashboard-counts", weekStart, today],
     queryFn: async () => {
       const [{ count: weekCount }, { count: todayCount }] = await Promise.all([
-        supabase.from("leads").select("id", { count: "exact", head: true }).gte("date_added", weekStart),
+        supabase.from("leads").select("id", { count: "exact", head: true }).gte("date_added", weekStart).lte("date_added", today),
         supabase.from("leads").select("id", { count: "exact", head: true }).eq("date_added", today),
       ]);
       return { weekCount: weekCount ?? 0, todayCount: todayCount ?? 0 };
