@@ -299,7 +299,7 @@ function PipelinePage() {
                   .join("\n");
                 move.mutate({
                   recordId: lostDialog.recordId,
-                  patch: { stage_id: lostDialog.stageId, probability: stage?.default_probability ?? 0, notes },
+                  patch: { stage_id: lostDialog.stageId, probability: stage?.default_probability ?? 0, notes, closed_at: new Date().toISOString() },
                 });
                 setLostDialog(null);
               }}

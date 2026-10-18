@@ -1415,6 +1415,10 @@ function LeadDetailPage() {
             contacts={contacts}
             canEdit={canEdit}
             onChange={(cid, p) => {
+              if (p.is_primary === true) {
+                supabase.rpc("set_primary_contact", { _id: cid }).then(done as never);
+                return;
+              }
               supabase.from("lead_contacts").update(p as never).eq("id", cid).then(done as never);
             }}
             onAdd={() => {
