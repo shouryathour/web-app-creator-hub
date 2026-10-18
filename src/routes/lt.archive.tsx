@@ -15,10 +15,12 @@ import type { Lead } from "@/components/leads/types";
 export const Route = createFileRoute("/lt/archive")({
   head: () => ({
     meta: [
-      { title: "Archive | Lead Tracker" },
+      { title: "Archive | Lead Tracker | Buzzspear" },
       { name: "description", content: "Archived leads with restore and delete actions." },
-      { property: "og:title", content: "Archive | Lead Tracker" },
+      { property: "og:title", content: "Archive | Lead Tracker | Buzzspear" },
       { property: "og:description", content: "Archived leads with restore and delete actions." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: ArchivePage,

@@ -22,10 +22,12 @@ import {
 export const Route = createFileRoute("/crm/records/")({
   head: () => ({
     meta: [
-      { title: "Records | CRM | Tracker" },
+      { title: "Records | CRM | Tracker | Buzzspear" },
       { name: "description", content: "All CRM deal records with stage, value and owner." },
-      { property: "og:title", content: "Records | CRM | Tracker" },
+      { property: "og:title", content: "Records | CRM | Tracker | Buzzspear" },
       { property: "og:description", content: "All CRM deal records with stage, value and owner." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: RecordsPage,

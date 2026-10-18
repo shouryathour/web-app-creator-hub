@@ -19,10 +19,12 @@ import { PRIORITY_COLORS, dealValueLabel } from "@/components/crm/helpers";
 export const Route = createFileRoute("/crm/pipeline")({
   head: () => ({
     meta: [
-      { title: "Pipeline | CRM | Tracker" },
+      { title: "Pipeline | CRM | Tracker | Buzzspear" },
       { name: "description", content: "Kanban view of CRM deals by stage." },
-      { property: "og:title", content: "Pipeline | CRM | Tracker" },
+      { property: "og:title", content: "Pipeline | CRM | Tracker | Buzzspear" },
       { property: "og:description", content: "Kanban view of CRM deals by stage." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: PipelinePage,

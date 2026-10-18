@@ -10,10 +10,12 @@ import { needsOnboarding } from "@/components/account/onboarding";
 export const Route = createFileRoute("/modules")({
   head: () => ({
     meta: [
-      { title: "Choose a module | Tracker" },
+      { title: "Choose a module | Tracker | Buzzspear" },
       { name: "description", content: "Pick the Lead Tracker or the CRM module." },
-      { property: "og:title", content: "Choose a module | Tracker" },
+      { property: "og:title", content: "Choose a module | Tracker | Buzzspear" },
       { property: "og:description", content: "Pick the Lead Tracker or the CRM module." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: ModulePicker,

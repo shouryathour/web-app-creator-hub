@@ -23,7 +23,13 @@ export const Route = createFileRoute("/welcome")({
     ...(s.google === "connected" || s.google === "error" ? { google: s.google } : {}),
     ...(typeof s.reason === "string" ? { reason: s.reason } : {}),
   }),
-  head: () => ({ meta: [{ title: "Welcome | Tracker" }] }),
+  head: () => ({ meta: [{ title: "Welcome | Tracker | Buzzspear" },
+      { name: "description", content: "Set up your Buzzspear team tracker." },
+      { property: "og:title", content: "Welcome | Tracker | Buzzspear" },
+      { property: "og:description", content: "Set up your Buzzspear team tracker." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ] }),
   component: WelcomePage,
 });
 

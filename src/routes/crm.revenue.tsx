@@ -36,10 +36,12 @@ import {
 export const Route = createFileRoute("/crm/revenue")({
   head: () => ({
     meta: [
-      { title: "Revenue | CRM | Tracker" },
+      { title: "Revenue | CRM | Tracker | Buzzspear" },
       { name: "description", content: "Money won, money still in play, monthly income and closed deals." },
-      { property: "og:title", content: "Revenue | CRM | Tracker" },
+      { property: "og:title", content: "Revenue | CRM | Tracker | Buzzspear" },
       { property: "og:description", content: "Money won, money still in play, monthly income and closed deals." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: RevenuePage,

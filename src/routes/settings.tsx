@@ -49,8 +49,12 @@ import { DangerZoneSettings } from "@/components/account/settings-danger-zone";
 export const Route = createFileRoute("/settings")({
   head: () => ({
     meta: [
-      { title: "Settings | Tracker" },
+      { title: "Settings | Tracker | Buzzspear" },
       { name: "description", content: "Manage stages, channels, tags, targets, shortcuts, account and access." },
+      { property: "og:title", content: "Settings | Tracker | Buzzspear" },
+      { property: "og:description", content: "Manage stages, channels, tags, targets, shortcuts, account and access." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: SettingsPage,

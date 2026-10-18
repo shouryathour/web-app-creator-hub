@@ -26,13 +26,15 @@ import {
 export const Route = createFileRoute("/crm/dashboard")({
   head: () => ({
     meta: [
-      { title: "Dashboard | CRM | Tracker" },
+      { title: "Dashboard | CRM | Tracker | Buzzspear" },
       { name: "description", content: "Sales overview: open pipeline, money won, monthly income and win rate." },
-      { property: "og:title", content: "Dashboard | CRM | Tracker" },
+      { property: "og:title", content: "Dashboard | CRM | Tracker | Buzzspear" },
       {
         property: "og:description",
         content: "Sales overview: open pipeline, money won, monthly income and win rate.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: CrmDashboardPage,

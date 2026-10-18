@@ -22,9 +22,9 @@ export const Route = createFileRoute("/clip")({
   validateSearch: clipSearch,
   head: () => ({
     meta: [
-      { title: "Save Lead | Tracker" },
+      { title: "Save Lead | Tracker | Buzzspear" },
       { name: "description", content: "Save the page you are browsing straight into your lead tracker." },
-      { property: "og:title", content: "Save Lead | Tracker" },
+      { property: "og:title", content: "Save Lead | Tracker | Buzzspear" },
       { property: "og:description", content: "Save the page you are browsing straight into your lead tracker." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
