@@ -23,7 +23,7 @@ export const TRACKER_INVALIDATIONS: Record<string, string[]> = {
   crm_records: [...CRM_KEYS, "lead_detail", "dashboard-replies-not-in-crm"],
   crm_contact_log: [...CRM_KEYS, "crm_contact_log", "crm-activity", "activity-all"],
   outreach_daily: ["outreach-daily", "ledger", "dashboard-counts"],
-  outreach_targets: ["outreach-targets"],
+  outreach_targets: ["outreach-targets", "outreach_targets"],
   stages: ["stages", ...LEAD_KEYS, ...CRM_KEYS],
   profiles: ["profiles", "all_profiles"],
   user_permissions: ["user-permissions", "all_user_permissions"],

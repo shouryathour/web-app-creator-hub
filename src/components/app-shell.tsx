@@ -451,9 +451,20 @@ export function useRealtimeInvalidation() {
     const channel = supabase.channel("tracker-realtime");
     for (const t of REALTIME_TABLES)
       channel.on("postgres_changes" as any, { event: "*", schema: "public", table: t }, () => queue(t));
-    channel.subscribe();
+    channel.subscribe((status) => {
+      if (status === "SUBSCRIBED") void invalidateTrackerQueries(qc, REALTIME_TABLES);
+    });
+    // Delete notifications can be suppressed by row visibility; recover missed
+    // events while the app is visible, including after a dropped connection.
+    const recover = () => {
+      if (document.visibilityState === "visible") void invalidateTrackerQueries(qc, REALTIME_TABLES);
+    };
+    const recoveryTimer = setInterval(recover, 15000);
+    window.addEventListener("focus", recover);
     return () => {
       if (timer) clearTimeout(timer);
+      clearInterval(recoveryTimer);
+      window.removeEventListener("focus", recover);
       void supabase.removeChannel(channel);
     };
   }, [qc]);
