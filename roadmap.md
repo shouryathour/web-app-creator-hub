@@ -4,6 +4,7 @@
 - [ ] Correct live refresh across lead and CRM screens; review related buttons
 - [ ] Double-check saved lead data and other visible screens; report confirmed unfinished features requiring a decision
 - [ ] Finish profile-picture uploads as requested and verify upload, reload and removal
+- [ ] Check and remove payment options for this internal-team app
 
 - [x] Database schema, RLS, permissions, triggers, seed config (stages, channels, countries, targets)
 - [x] Email + password auth, Google sign in, pending approval screen, first user becomes owner
