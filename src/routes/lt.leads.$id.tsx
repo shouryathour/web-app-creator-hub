@@ -952,11 +952,13 @@ function FollowupsCard({
     const { error } = await supabase.from("lead_followups").delete().eq("id", f.id);
     if (error) return toast.error(error.message);
     const after = sorted.filter((x) => x.sequence_number > f.sequence_number);
-    const results = await Promise.all(
-      after.map((x) => supabase.from("lead_followups").update({ sequence_number: x.sequence_number - 1 } as never).eq("id", x.id)),
-    );
-    const failed = results.find((result) => result.error);
-    if (failed?.error) toast.error(`Follow-up deleted, but numbering could not be updated: ${failed.error.message}`);
+    for (const x of after.sort((a, b) => a.sequence_number - b.sequence_number)) {
+      const { error: renumberError } = await supabase.from("lead_followups").update({ sequence_number: x.sequence_number - 1 } as never).eq("id", x.id);
+      if (renumberError) {
+        toast.error(`Follow-up deleted, but numbering could not be updated: ${renumberError.message}`);
+        break;
+      }
+    }
     invalidate();
   };
 
