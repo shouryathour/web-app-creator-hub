@@ -12,6 +12,13 @@ When a link is pasted into a box meant for a different site, keep it saved but s
 - Red border plus a short red message under the box, which clears once the link matches.
 - The Website box warns when a LinkedIn, Instagram or YouTube link is pasted there.
 
+## How each link is recognised
+- YouTube: youtube.com/... (also youtu.be)
+- Company LinkedIn: linkedin.com/company/...
+- Personal LinkedIn: linkedin.com/in/...
+- Instagram: instagram.com/...
+- Anything else counts as a website.
+
 ## Technical details
 - New `src/lib/link-kind.ts`: `detectLinkSite(url)` returns linkedin-person / linkedin-company / instagram / youtube / email / website, and `linkMismatch(expected, value)` returns a message or null.
 - Use it in the lead page social fields (`lt.leads.$id.tsx`) and in the People card fields.
