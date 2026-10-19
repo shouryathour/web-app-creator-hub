@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { senderColor } from "@/lib/email-progress";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Check, ImagePlus, Plus, Trash2, Upload, X } from "lucide-react";

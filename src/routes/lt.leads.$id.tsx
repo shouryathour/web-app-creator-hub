@@ -68,6 +68,7 @@ import { TemplateSelect } from "@/components/live/template-select";
 import { findDuplicateLead, DUPLICATE_MATCH_LABELS } from "@/lib/live/duplicate-detector";
 import { followupPauseReason, skipPendingFollowups, resumeSkippedFollowups } from "@/lib/live/followup-actions";
 import { useOutreachTemplates, renderTemplate } from "@/lib/live/outreach-templates";
+import { emailStageTarget, senderColor } from "@/lib/email-progress";
 
 export const Route = createFileRoute("/lt/leads/$id")({
   head: () => ({
