@@ -1436,7 +1436,14 @@ function LeadDetailPage() {
           />
           <LeadTasksCard leadId={id} canEdit={canEdit} />
           <NotesCard lead={lead} canEdit={canEdit} onSave={onSave} />
-          <EmailCard lead={lead} canEdit={canEdit} onSave={onSave} />
+          <EmailCard
+            lead={lead}
+            canEdit={canEdit}
+            onSave={onSave}
+            stages={(stages ?? []) as AnyRow[]}
+            channels={(channels ?? []) as AnyRow[]}
+            senderAccounts={(senderAccounts ?? []) as AnyRow[]}
+          />
           <LoomCard lead={lead} canEdit={canEdit} onSave={onSave} />
           <FollowupsCard
             followups={followups}
@@ -1777,7 +1784,10 @@ function CompanyCard({
                   .filter((s) => s.channel_id === lead.channel_id)
                   .map((s) => (
                     <SelectItem key={s.id} value={s.id}>
-                      {s.label}
+                      <span className="inline-flex items-center gap-2">
+                        <span className="size-2.5 shrink-0 rounded-full" style={{ background: senderColor(s as any) }} />
+                        {s.label}
+                      </span>
                     </SelectItem>
                   ))}
               </SelectContent>
