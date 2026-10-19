@@ -92,6 +92,13 @@
       "when": 1792355479236,
       "tag": "0012_atomic_followup_delete_and_primary_contact",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1792396385587,
+      "tag": "0013_sender_account_colors",
+      "breakpoints": true
     }
   ]
 }

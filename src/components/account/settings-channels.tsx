@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { senderColor } from "@/lib/email-progress";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Check, ImagePlus, Plus, Trash2, Upload, X } from "lucide-react";
@@ -277,6 +278,14 @@ export function SenderAccountsSettings() {
               {chAccounts.length === 0 && <div className="label-text">No sender accounts on this channel.</div>}
               {chAccounts.map((a) => (
                 <div key={a.id} className="flex flex-wrap items-center gap-2 rounded-md bg-subtle px-2 py-2">
+                  <input
+                    type="color"
+                    aria-label="Sender color"
+                    title="Color for this sender"
+                    defaultValue={senderColor(a as any)}
+                    className="size-8 cursor-pointer rounded border border-border bg-transparent p-0.5"
+                    onChange={(e) => updateAccount(a.id, { color: e.target.value } as any)}
+                  />
                   <Input
                     defaultValue={a.label}
                     placeholder="Label"

@@ -68,6 +68,7 @@ import { TemplateSelect } from "@/components/live/template-select";
 import { findDuplicateLead, DUPLICATE_MATCH_LABELS } from "@/lib/live/duplicate-detector";
 import { followupPauseReason, skipPendingFollowups, resumeSkippedFollowups } from "@/lib/live/followup-actions";
 import { useOutreachTemplates, renderTemplate } from "@/lib/live/outreach-templates";
+import { emailStageTarget, senderColor } from "@/lib/email-progress";
 
 export const Route = createFileRoute("/lt/leads/$id")({
   head: () => ({
@@ -1436,7 +1437,14 @@ function LeadDetailPage() {
           />
           <LeadTasksCard leadId={id} canEdit={canEdit} />
           <NotesCard lead={lead} canEdit={canEdit} onSave={onSave} />
-          <EmailCard lead={lead} canEdit={canEdit} onSave={onSave} />
+          <EmailCard
+            lead={lead}
+            canEdit={canEdit}
+            onSave={onSave}
+            stages={(stages ?? []) as AnyRow[]}
+            channels={(channels ?? []) as AnyRow[]}
+            senderAccounts={(senderAccounts ?? []) as AnyRow[]}
+          />
           <LoomCard lead={lead} canEdit={canEdit} onSave={onSave} />
           <FollowupsCard
             followups={followups}
@@ -1777,7 +1785,10 @@ function CompanyCard({
                   .filter((s) => s.channel_id === lead.channel_id)
                   .map((s) => (
                     <SelectItem key={s.id} value={s.id}>
-                      {s.label}
+                      <span className="inline-flex items-center gap-2">
+                        <span className="size-2.5 shrink-0 rounded-full" style={{ background: senderColor(s as any) }} />
+                        {s.label}
+                      </span>
                     </SelectItem>
                   ))}
               </SelectContent>
@@ -1945,11 +1956,54 @@ function NotesCard({ lead, canEdit, onSave }: { lead: AnyRow; canEdit: boolean; 
   );
 }
 
-function EmailCard({ lead, canEdit, onSave }: { lead: AnyRow; canEdit: boolean; onSave: (p: AnyRow) => void }) {
+function EmailCard({
+  lead,
+  canEdit,
+  onSave,
+  stages,
+  channels,
+  senderAccounts,
+}: {
+  lead: AnyRow;
+  canEdit: boolean;
+  onSave: (p: AnyRow) => void;
+  stages: AnyRow[];
+  channels: AnyRow[];
+  senderAccounts: AnyRow[];
+}) {
+  const [askSentiment, setAskSentiment] = useState(false);
+  const [askSender, setAskSender] = useState(false);
+  const [pickChannel, setPickChannel] = useState<string>("");
+  const [pickSender, setPickSender] = useState<string>("");
   const parts: string[] = [];
   if (lead.email_sent) parts.push(`Sent ${fmtDate(lead.email_sent_at)}`);
   if (lead.email_viewed) parts.push(`Viewed ${fmtDate(lead.email_viewed_at)}`);
   if (lead.email_replied) parts.push(`Replied ${fmtDate(lead.email_replied_at)}`);
+
+  const tick = (field: "email_sent" | "email_viewed" | "email_replied", c: boolean, d: string | null) => {
+    const patch: AnyRow = { [field]: c, [`${field}_at`]: d };
+    if (c) {
+      const flags = {
+        sent: field === "email_sent" || !!lead.email_sent,
+        viewed: field === "email_viewed" || !!lead.email_viewed,
+        replied: field === "email_replied" || !!lead.email_replied,
+      };
+      const target = emailStageTarget(stages as any, lead.stage_id ?? null, flags);
+      if (target) patch.stage_id = target;
+      const emailCh = channels.find((x) => x.kind === "email");
+      if (field === "email_replied" && emailCh && !lead.reply_channel_id) patch.reply_channel_id = emailCh.id;
+    }
+    onSave(patch);
+    if (!c) return;
+    if (field === "email_replied" && !lead.reply_sentiment) setAskSentiment(true);
+    if (!lead.channel_id || !lead.sender_account_id) {
+      const emailCh = channels.find((x) => x.kind === "email");
+      setPickChannel(lead.channel_id ?? emailCh?.id ?? "");
+      setPickSender(lead.sender_account_id ?? "");
+      setAskSender(true);
+    }
+  };
+
   return (
     <CollapsibleCard id="lead.email" title="Email">
       <div className="flex flex-col gap-1">
@@ -1958,22 +2012,90 @@ function EmailCard({ lead, canEdit, onSave }: { lead: AnyRow; canEdit: boolean; 
           checked={lead.email_sent}
           date={lead.email_sent_at}
           disabled={!canEdit}
-          onChange={(c: boolean, d: string | null) => onSave({ email_sent: c, email_sent_at: d })}
+          onChange={(c: boolean, d: string | null) => tick("email_sent", c, d)}
         />
         <CheckDate
           label="Email viewed"
           checked={lead.email_viewed}
           date={lead.email_viewed_at}
           disabled={!canEdit}
-          onChange={(c: boolean, d: string | null) => onSave({ email_viewed: c, email_viewed_at: d })}
+          onChange={(c: boolean, d: string | null) => tick("email_viewed", c, d)}
         />
         <CheckDate
           label="Email replied"
           checked={lead.email_replied}
           date={lead.email_replied_at}
           disabled={!canEdit}
-          onChange={(c: boolean, d: string | null) => onSave({ email_replied: c, email_replied_at: d })}
+          onChange={(c: boolean, d: string | null) => tick("email_replied", c, d)}
         />
+        <Dialog open={askSentiment} onOpenChange={setAskSentiment}>
+          <DialogContent className="sm:max-w-sm">
+            <DialogHeader>
+              <DialogTitle>How did they reply?</DialogTitle>
+              <DialogDescription>Pick the reply sentiment. Positive replies go to the CRM.</DialogDescription>
+            </DialogHeader>
+            <div className="flex gap-2">
+              {SENTIMENT_OPTIONS.map((s) => (
+                <Button
+                  key={s}
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    onSave({ reply_sentiment: s });
+                    setAskSentiment(false);
+                  }}
+                >
+                  {s[0].toUpperCase() + s.slice(1)}
+                </Button>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
+        <Dialog open={askSender && !askSentiment} onOpenChange={setAskSender}>
+          <DialogContent className="sm:max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Which channel and sender?</DialogTitle>
+              <DialogDescription>Pick the channel and the account this email was sent from.</DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col gap-3">
+              <Select value={pickChannel || undefined} onValueChange={(v) => { setPickChannel(v); setPickSender(""); }}>
+                <SelectTrigger className="h-9 text-[13px]"><SelectValue placeholder="Channel" /></SelectTrigger>
+                <SelectContent>
+                  {channels.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={pickSender || undefined} disabled={!pickChannel} onValueChange={setPickSender}>
+                <SelectTrigger className="h-9 text-[13px]"><SelectValue placeholder="Sender account" /></SelectTrigger>
+                <SelectContent>
+                  {senderAccounts.filter((s) => s.channel_id === pickChannel).map((s) => (
+                    <SelectItem key={s.id} value={s.id}>
+                      <span className="inline-flex items-center gap-2">
+                        <span className="size-2.5 shrink-0 rounded-full" style={{ background: senderColor(s as any) }} />
+                        {s.label}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setAskSender(false)}>Skip</Button>
+              <Button
+                disabled={!pickChannel}
+                onClick={() => {
+                  onSave({
+                    channel_id: pickChannel,
+                    contacted_channel_id: lead.contacted_channel_id ?? pickChannel,
+                    ...(pickSender ? { sender_account_id: pickSender } : {}),
+                  });
+                  setAskSender(false);
+                }}
+              >
+                Save
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
         <div className={lead.email_replied && !lead.reply_sentiment ? "rounded-md border border-warning p-2" : ""}>
           <div className="label-text mb-1">
             Reply sentiment {lead.email_replied && <span className="text-warning">(required)</span>}

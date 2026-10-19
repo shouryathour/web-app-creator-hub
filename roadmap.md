@@ -22,3 +22,6 @@
 - [x] CRM pages (records, record detail, pipeline, follow-ups, revenue)
 - [x] Settings page (nine cards incl. users and access)
 - [x] Typecheck clean; sign-in page verified in browser (authenticated pages need the first real account)
+
+- [x] Email box: separate ticks, sentiment popup, stage follows email, ask channel/sender
+- [x] Different color per sender account
