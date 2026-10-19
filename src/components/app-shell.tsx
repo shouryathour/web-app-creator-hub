@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // Live chunk: app-shell-DE-EaUp2.js
 // The app frame (sidebar, header, command palette, shortcuts)
-// plus the shared pieces other chunks import { findLeadsBySearch, cleanSearch, type LeadSearchHit } from "@/lib/lead-search";
-import from it.
+// plus the shared pieces other chunks import from it.
 //
 // Export mapping (live letter -> name here):
 //   t  -> AppShell (also exported as AppPage for older routes)
@@ -24,6 +23,7 @@ import from it.
 //   U Video, W UserPlus, X MessageSquarePlus, Y MessageSquare, Z Mail, q Search,
 //   et Instagram, tt ImagePlus, nt Globe, rt Flag, it Database, at CircleQuestionMark,
 //   ot ChevronUp, st CalendarClock, ct Bot, lt Archive, ut ArchiveRestore.
+import { findLeadsBySearch, cleanSearch, type LeadSearchHit } from "@/lib/lead-search";
 import {
   createContext,
   useCallback,
