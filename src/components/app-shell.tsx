@@ -23,6 +23,7 @@
 //   U Video, W UserPlus, X MessageSquarePlus, Y MessageSquare, Z Mail, q Search,
 //   et Instagram, tt ImagePlus, nt Globe, rt Flag, it Database, at CircleQuestionMark,
 //   ot ChevronUp, st CalendarClock, ct Bot, lt Archive, ut ArchiveRestore.
+import { findLeadsBySearch, cleanSearch, type LeadSearchHit } from "@/lib/lead-search";
 import {
   createContext,
   useCallback,
@@ -2851,19 +2852,17 @@ function ShortcutsDialog({ open, onOpenChange }: { open: boolean; onOpenChange: 
 function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
   const navigate = useNavigate();
   const [q, setQ] = useState("");
-  const [leads, setLeads] = useState<PickedLead[]>([]);
+  const [leads, setLeads] = useState<LeadSearchHit[]>([]);
+  const [searched, setSearched] = useState("");
   useEffect(() => {
     if (!open || q.trim().length < 2) {
       setLeads([]);
       return;
     }
     const t = setTimeout(async () => {
-      const { data } = await db
-        .from("leads")
-        .select("id,company_name,lead_code")
-        .or(`company_name.ilike.%${q}%,lead_code.ilike.%${q}%`)
-        .limit(8);
-      setLeads((data ?? []) as PickedLead[]);
+      const hits = await findLeadsBySearch(q, 8).catch(() => []);
+      setLeads(hits);
+      setSearched(q);
     }, 200);
     return () => clearTimeout(t);
   }, [q, open]);
@@ -2881,9 +2880,11 @@ function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenChange: (
           <DialogTitle>Command palette</DialogTitle>
         </DialogHeader>
         <Command shouldFilter={false}>
-          <CommandInput placeholder="Search pages and leads" value={q} onValueChange={setQ} />
+          <CommandInput placeholder="Search leads by email, link, company or code" value={q} onValueChange={setQ} />
           <CommandList>
-            <CommandEmpty>No results</CommandEmpty>
+            <CommandEmpty>
+              {cleanSearch(q).email && searched === q ? "No lead with this email is in the tracker." : "No results"}
+            </CommandEmpty>
             <CommandGroup heading="Pages">
               {pages.map((p) => (
                 <CommandItem key={p.to} onSelect={() => go(p.to)}>
@@ -2895,8 +2896,14 @@ function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenChange: (
               <CommandGroup heading="Leads">
                 {leads.map((l) => (
                   <CommandItem key={l.id} onSelect={() => go(`/lt/leads/${l.id}`)}>
-                    {l.company_name}
-                    <span className="ml-2 text-[11px] text-muted-foreground">{l.lead_code}</span>
+                    <span className="flex flex-col">
+                      <span>
+                        {l.company_name}
+                        <span className="ml-2 text-[11px] text-muted-foreground">{l.lead_code}</span>
+                        {l.archived && <span className="ml-2 text-[11px] text-destructive">Archived</span>}
+                      </span>
+                      {l.matched && <span className="text-[11px] text-muted-foreground">Matched: {l.matched}</span>}
+                    </span>
                   </CommandItem>
                 ))}
               </CommandGroup>
