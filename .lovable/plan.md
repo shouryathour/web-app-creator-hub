@@ -28,3 +28,4 @@
 - Channel dialog writes `channel_id`, `contacted_channel_id` (and `reply_channel_id` on reply) and `sender_account_id`.
 - Existing database stage automation stays; the patch sets flags already, so no double events.
 - Add a small test for the "stage never moves backwards" rule in a helper module.
+- Sender colors: add a `color` column to `sender_accounts` (migration, default assigned from a fixed palette by order), a color picker in the Accounts settings card, and a `SenderBadge` used in sender selects and lists. Roadmap gets this item when building.
