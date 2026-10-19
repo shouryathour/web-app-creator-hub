@@ -1429,6 +1429,7 @@ export type Database = {
       sender_accounts: {
         Row: {
           channel_id: string | null
+          color: string | null
           created_at: string
           daily_send_limit: number | null
           id: string
@@ -1444,6 +1445,7 @@ export type Database = {
         }
         Insert: {
           channel_id?: string | null
+          color?: string | null
           created_at?: string
           daily_send_limit?: number | null
           id?: string
@@ -1459,6 +1461,7 @@ export type Database = {
         }
         Update: {
           channel_id?: string | null
+          color?: string | null
           created_at?: string
           daily_send_limit?: number | null
           id?: string
