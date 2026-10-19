@@ -60,6 +60,7 @@ import { isTypingTarget } from "@/lib/shortcuts";
 import { useStages, useChannels, useSenderAccounts, useCountries, useTags } from "@/hooks/useLookups";
 import { StagePill } from "@/components/leads/StagePill";
 import { CopyButton, LinkInput, VerifyToggle } from "@/components/lt/copy-button";
+import { linkMismatch, type LinkBox } from "@/lib/link-kind";
 import { EventRow, AddActivityForm, useEventActions } from "@/components/lt/events";
 import { LeadTasksCard } from "@/components/lt/tasks";
 import { autoStageForOutreach, normalizeForChannel } from "@/lib/live/config";
@@ -571,6 +572,7 @@ function ContactRow({
             }
           }}
         />
+        <LinkWarning box="linkedin-person" value={linkedin} />
         <LinkInput
           placeholder="Instagram URL"
           className="h-8 text-[13px]"
@@ -586,6 +588,7 @@ function ContactRow({
             }
           }}
         />
+        <LinkWarning box="instagram" value={instagram} />
         <Input
           placeholder="Phone"
           className="h-8 text-[13px]"
@@ -1646,6 +1649,16 @@ function LeadHeader({
   );
 }
 
+function LinkWarning({ box, value }: { box: LinkBox; value: string }) {
+  const msg = linkMismatch(box, value);
+  if (!msg) return null;
+  return (
+    <div role="alert" className="mt-1 text-[11px] leading-4 font-medium text-destructive">
+      {msg}
+    </div>
+  );
+}
+
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
@@ -1784,6 +1797,7 @@ function CompanyCard({
             onChange={(e) => setWebsite(e.target.value)}
             onBlur={urlBlur("website", website, setWebsite, "website_url", "website")}
           />
+          <LinkWarning box="website" value={website} />
         </Field>
         <Field label="Company LinkedIn">
           <LinkInput
@@ -1793,6 +1807,7 @@ function CompanyCard({
             onChange={(e) => setCompanyLinkedin(e.target.value)}
             onBlur={urlBlur("linkedin", companyLinkedin, setCompanyLinkedin, "company_linkedin_url", "linkedin")}
           />
+          <LinkWarning box="linkedin-company" value={companyLinkedin} />
         </Field>
         <Field label="Instagram">
           <LinkInput
@@ -1802,6 +1817,7 @@ function CompanyCard({
             onChange={(e) => setInstagram(e.target.value)}
             onBlur={urlBlur("instagram", instagram, setInstagram, "instagram_url", "instagram")}
           />
+          <LinkWarning box="instagram" value={instagram} />
         </Field>
         <Field label="YouTube">
           <LinkInput
@@ -1811,6 +1827,7 @@ function CompanyCard({
             onChange={(e) => setYoutube(e.target.value)}
             onBlur={() => youtube !== (lead.youtube_url ?? "") && onSave({ youtube_url: youtube || null })}
           />
+          <LinkWarning box="youtube" value={youtube} />
         </Field>
       </div>
       <div className="mt-4">
