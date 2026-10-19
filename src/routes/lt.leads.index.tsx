@@ -50,6 +50,7 @@ import { StagePill } from "@/components/leads/StagePill";
 import { useStages, useCountries, useChannels, useSenderAccounts, useTags } from "@/hooks/useLookups";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { findLeadsBySearch, cleanSearch, escapeLike } from "@/lib/lead-search";
 import { invalidateTrackerQueries } from "@/lib/tracker-updates";
 import { useAuth } from "@/lib/live/auth";
 import { cn } from "@/lib/utils";
@@ -871,7 +872,11 @@ function LeadsPage() {
 
   const applyFilters = (q: any) => {
     const f = filters;
-    if (f.search) q = q.or(`company_name.ilike.%${f.search}%,primary_contact.ilike.%${f.search}%,lead_code.ilike.%${f.search}%`);
+    if (f.search) {
+      const t = escapeLike(cleanSearch(f.search).text);
+      const ids = (searchLeadIds ?? []).length ? `,id.in.(${(searchLeadIds ?? []).join(",")})` : "";
+      q = q.or(`company_name.ilike.%${t}%,primary_contact.ilike.%${t}%,lead_code.ilike.%${t}%${ids}`);
+    }
     if (f.stageId) q = q.eq("stage_id", f.stageId);
     if (f.countryId) q = q.eq("country_id", f.countryId);
     if (f.channelId) q = q.eq("channel_id", f.channelId);
@@ -897,8 +902,14 @@ function LeadsPage() {
     },
   });
 
+  const { data: searchLeadIds } = useQuery({
+    queryKey: ["leads-search-ids", filters.search],
+    enabled: filters.search.trim().length >= 2,
+    queryFn: async () => (await findLeadsBySearch(filters.search, 200)).map((h) => h.id),
+  });
+
   const { data: tableData, isLoading } = useQuery({
-    queryKey: ["leads-table", filters, page, pageSize, orderCol, sortDir, tagLeadIds],
+    queryKey: ["leads-table", searchLeadIds, filters, page, pageSize, orderCol, sortDir, tagLeadIds],
     queryFn: async () => {
       let q: any = supabase.from("leads").select("*", { count: "exact" });
       q = applyFilters(q);
@@ -915,7 +926,7 @@ function LeadsPage() {
   });
 
   const { data: boardLeads } = useQuery({
-    queryKey: ["leads-board", filters, tagLeadIds, view, month, orderCol, sortDir],
+    queryKey: ["leads-board", searchLeadIds, filters, tagLeadIds, view, month, orderCol, sortDir],
     queryFn: async () => {
       let q: any = supabase.from("leads").select("*").limit(1000);
       q = applyFilters(q);
