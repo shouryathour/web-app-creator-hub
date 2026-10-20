@@ -7,7 +7,7 @@ begin
   select lower(trim(name)) into sname from public.stages where id = l.stage_id;
   if not (
     ((l.email_replied or l.linkedin_replied or l.instagram_replied) and coalesce(l.reply_sentiment,'') <> 'negative')
-    or coalesce(l.reply_sentiment,'') in ('positive','neutral')
+    or l.reply_sentiment in ('positive','neutral')
     or coalesce(sname,'') in ('replied','call booked','proposal sent')
   ) then return; end if;
   rid := public.ensure_crm_record(_lead_id);
