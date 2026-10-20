@@ -1865,6 +1865,7 @@ export type Database = {
         Returns: string
       }
       create_workspace: { Args: { _name: string }; Returns: string }
+      crm_auto_push: { Args: { _lead_id: string }; Returns: undefined }
       current_ws: { Args: never; Returns: string }
       delete_followup: { Args: { _id: string }; Returns: undefined }
       ensure_crm_record: { Args: { _lead_id: string }; Returns: string }
