@@ -156,10 +156,10 @@ function AuthPage() {
         <div className="mb-6 text-center">
           <TrackerMark />
           <div className="mt-4 text-[20px] font-semibold">
-            {isSignup ? "Create your Tracker account" : "Welcome back"}
+            {isSignup ? "Request access" : "Buzzspear team sign-in"}
           </div>
           <div className="label-text mt-1">
-            {isSignup ? "Outreach, CRM and revenue in one place" : "Sign in to your Tracker account"}
+            {isSignup ? "The owner approves every new account" : "Internal team only"}
           </div>
         </div>
         <Card>
@@ -228,9 +228,9 @@ function AuthPage() {
             </>
           ) : (
             <>
-              New here? Don't have an account?{" "}
+              New team member?{" "}
               <Link to="/auth" search={{}} className="font-medium text-foreground underline">
-                Sign up
+                Request access
               </Link>
             </>
           )}
