@@ -4,7 +4,6 @@ import { ArrowRight, Boxes, Columns3 } from "lucide-react";
 import { useAuth } from "@/lib/live/auth";
 import { Loading } from "@/components/live/kit";
 import { NoWorkspace } from "@/components/live/workspace-switcher";
-import { getPendingInvite } from "@/components/account/pending-invite";
 import { needsOnboarding } from "@/components/account/onboarding";
 
 export const Route = createFileRoute("/modules")({
@@ -35,13 +34,10 @@ function ModulePicker() {
   useEffect(() => {
     if (loading) return;
     if (!session) return void navigate({ to: "/auth" });
-    const invite = getPendingInvite();
-    if (invite) return void navigate({ to: "/invite/$token", params: { token: invite } });
     if (profile && !workspace) return;
     let cancelled = false;
     void needsOnboarding({ onboarded: user?.user_metadata?.onboarded, role: workspace?.role }).then((onboard) => {
       if (cancelled) return;
-      if (onboard) return void navigate({ to: "/welcome" });
       if (lead && !crm) return void navigate({ to: "/lt/dashboard" });
       if (crm && !lead) return void navigate({ to: "/crm/records" });
       if (lead && crm)

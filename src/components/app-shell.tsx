@@ -128,7 +128,8 @@ import {
 } from "@/lib/live/app-shell.functions";
 import { isTourMenuOpen, openTour, TOUR_MENU_EVENT } from "@/components/live/demo-tour";
 import { ConnectGoogleButton, GOOGLE_STATUS_QUERY_KEY } from "@/components/live/google-connect";
-import { NoWorkspace, WorkspaceSwitcher } from "@/components/live/workspace-switcher";
+import { NoWorkspace } from "@/components/live/workspace-switcher";
+import { AccessRequests } from "@/components/live/access-requests";
 import { CollapsibleCard, DatePicker, fmtDate, fmtDateTime, Loading, money, Pill, todayISO } from "@/components/live/kit";
 import {
   Command,
@@ -2776,7 +2777,7 @@ function SidebarContent({
         <div className={cn("flex flex-col gap-3 px-3 pt-3 pb-3", collapsed && "px-2", !onToggleCollapse && "pr-11")}>
           <div className={cn("flex gap-1", collapsed ? "flex-col items-center" : "items-start")}>
             <div className={cn(collapsed ? "w-full" : "min-w-0 flex-1")}>
-              <WorkspaceSwitcher collapsed={collapsed} />
+              <div className="truncate px-2 py-1.5 text-[14px] font-semibold">{collapsed ? "B" : "Buzzspear"}</div>
             </div>
             {onToggleCollapse && (
               <Button
@@ -3188,6 +3189,7 @@ export function AppShell({
             </header>
           )}
           {!IS_TEST_MODE && googleDown && <GoogleDisconnectedBanner />}
+          <AccessRequests />
           <main
             data-tour="page-main"
             className={

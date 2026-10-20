@@ -788,7 +788,8 @@ export function TodayLeadStream({ kind, range }: { kind: LeadKind; range?: RateR
         .select(
           "id, lead_code, stage_id, company_name, primary_contact, instagram_url, company_linkedin_url, instagram_sent, instagram_replied, linkedin_connection_sent, linkedin_sent, linkedin_replied, email_sent, email_replied, next_followup_date, lead_contacts(email, linkedin_url, instagram_url, is_primary), lead_tags(tag_id), sender_accounts(label)",
         )
-        .eq("channel_id", channel!.id);
+        .eq("channel_id", channel!.id)
+        .eq("pushed_to_crm", false);
       q = range ? q.gte("date_added", from).lte("date_added", to) : q.eq("date_added", today);
       const { data, error } = await q.order("created_at", { ascending: false }).limit(500);
       if (error) throw error;

@@ -186,22 +186,17 @@ export function WorkspaceSwitcher({ collapsed }: { collapsed?: boolean }) {
 
 export function NoWorkspace() {
   const { signOut } = useAuth();
-  const [open, setOpen] = useState(false);
   return (
     <div className="flex min-h-screen items-center justify-center p-6">
       <div className="w-full max-w-sm space-y-3 text-center">
-        <h1 className="text-[18px] font-semibold">You are not in a workspace</h1>
+        <h1 className="text-[18px] font-semibold">Waiting for approval</h1>
         <p className="text-[13px] text-muted-foreground">
-          Create your own workspace, or ask a teammate to send you an invite link.
+          You are signed in. The owner has been notified and will let you in shortly.
         </p>
-        <div className="flex justify-center gap-2">
-          <Button onClick={() => setOpen(true)}>Create workspace</Button>
-          <Button variant="ghost" onClick={() => void signOut()}>
-            Sign out
-          </Button>
-        </div>
+        <Button variant="ghost" onClick={() => void signOut()}>
+          Sign out
+        </Button>
       </div>
-      <NewWorkspaceDialog open={open} onOpenChange={setOpen} />
     </div>
   );
 }

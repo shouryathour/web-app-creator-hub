@@ -25,3 +25,6 @@
 
 - [x] Email box: separate ticks, sentiment popup, stage follows email, ask channel/sender
 - [x] Different color per sender account
+- [x] Replied (non-negative) / Call Booked / Proposal Sent leads auto-enter CRM
+- [x] CRM leads hidden from Leads list and channel tabs
+- [x] Team-only sign-in with owner approval; welcome/invite/create-workspace removed

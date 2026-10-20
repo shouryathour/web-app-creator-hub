@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_requests: {
+        Row: {
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          email: string | null
+          full_name: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          email?: string | null
+          full_name?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          email?: string | null
+          full_name?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "access_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_settings: {
         Row: {
           created_at: string
@@ -1858,6 +1896,10 @@ export type Database = {
     }
     Functions: {
       accept_invite: { Args: { _token: string }; Returns: string }
+      approve_access: {
+        Args: { _role: Database["public"]["Enums"]["app_role"]; _user: string }
+        Returns: undefined
+      }
       can: { Args: { _key: string }; Returns: boolean }
       can_create_workspace: { Args: never; Returns: boolean }
       create_lead: {
@@ -1865,6 +1907,7 @@ export type Database = {
         Returns: string
       }
       create_workspace: { Args: { _name: string }; Returns: string }
+      crm_auto_push: { Args: { _lead_id: string }; Returns: undefined }
       current_ws: { Args: never; Returns: string }
       delete_followup: { Args: { _id: string }; Returns: undefined }
       ensure_crm_record: { Args: { _lead_id: string }; Returns: string }
@@ -1884,6 +1927,7 @@ export type Database = {
       is_ws_member: { Args: { _ws: string }; Returns: boolean }
       make_workspace: { Args: { _name: string; _uid: string }; Returns: string }
       next_lead_code: { Args: never; Returns: string }
+      reject_access: { Args: { _user: string }; Returns: undefined }
       remove_crm_record: { Args: { _lead_id: string }; Returns: undefined }
       revenue_summary: {
         Args: never

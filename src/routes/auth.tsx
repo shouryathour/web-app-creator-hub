@@ -11,11 +11,11 @@ import { Card } from "@/components/live/kit";
 import { IS_TEST_MODE } from "@/lib/live/test-mode";
 import { lovable } from "@/integrations/lovable/index";
 
-type AuthSearch = { mode?: "signin"; google_error?: string };
+type AuthSearch = { mode?: "signin" | "signup"; google_error?: string };
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (s: Record<string, unknown>): AuthSearch => ({
-    ...(s.mode === "signin" ? { mode: "signin" as const } : {}),
+    ...(s.mode === "signin" || s.mode === "signup" ? { mode: s.mode as "signin" | "signup" } : {}),
     ...(typeof s.google_error === "string" ? { google_error: s.google_error } : {}),
   }),
   head: () => ({
@@ -66,7 +66,7 @@ function GoogleIcon() {
 function AuthPage() {
   const navigate = useNavigate();
   const { mode, google_error: googleError } = Route.useSearch();
-  const formMode = mode === "signin" ? "signin" : "signup";
+  const formMode = mode === "signup" ? "signup" : "signin";
   const isSignup = formMode === "signup";
   const { session, loading } = useAuth();
   const [email, setEmail] = useState("");
@@ -156,10 +156,10 @@ function AuthPage() {
         <div className="mb-6 text-center">
           <TrackerMark />
           <div className="mt-4 text-[20px] font-semibold">
-            {isSignup ? "Create your Tracker account" : "Welcome back"}
+            {isSignup ? "Request access" : "Buzzspear team sign-in"}
           </div>
           <div className="label-text mt-1">
-            {isSignup ? "Outreach, CRM and revenue in one place" : "Sign in to your Tracker account"}
+            {isSignup ? "The owner approves every new account" : "Internal team only"}
           </div>
         </div>
         <Card>
@@ -228,9 +228,9 @@ function AuthPage() {
             </>
           ) : (
             <>
-              New here? Don't have an account?{" "}
-              <Link to="/auth" search={{}} className="font-medium text-foreground underline">
-                Sign up
+              New team member?{" "}
+              <Link to="/auth" search={{ mode: "signup" }} className="font-medium text-foreground underline">
+                Request access
               </Link>
             </>
           )}

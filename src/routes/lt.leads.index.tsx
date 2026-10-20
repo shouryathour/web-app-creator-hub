@@ -889,7 +889,7 @@ function LeadsPage() {
     if (f.hasLoomSent === "yes") q = q.eq("loom_sent", true);
     if (f.hasLoomSent === "no") q = q.eq("loom_sent", false);
     q = applyWhen(q, f);
-    q = q.eq("archived", false);
+    q = q.eq("archived", false).eq("pushed_to_crm", false);
     return q;
   };
 
