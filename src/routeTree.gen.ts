@@ -15,7 +15,6 @@ import { Route as ClipRouteImport } from './routes/clip'
 import { Route as ModulesRouteImport } from './routes/modules'
 import { Route as PendingRouteImport } from './routes/pending'
 import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as AuthCompleteRouteImport } from './routes/auth_.complete'
 import { Route as CrmActivityRouteImport } from './routes/crm.activity'
 import { Route as CrmDashboardRouteImport } from './routes/crm.dashboard'
@@ -23,7 +22,6 @@ import { Route as CrmFollowupsRouteImport } from './routes/crm.followups'
 import { Route as CrmPipelineRouteImport } from './routes/crm.pipeline'
 import { Route as CrmRevenueRouteImport } from './routes/crm.revenue'
 import { Route as CrmTodosRouteImport } from './routes/crm.todos'
-import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as LtActivityRouteImport } from './routes/lt.activity'
 import { Route as LtArchiveRouteImport } from './routes/lt.archive'
 import { Route as LtDashboardRouteImport } from './routes/lt.dashboard'
@@ -71,11 +69,6 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WelcomeRoute = WelcomeRouteImport.update({
-  id: '/welcome',
-  path: '/welcome',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthCompleteRoute = AuthCompleteRouteImport.update({
   id: '/auth_/complete',
   path: '/auth/complete',
@@ -109,11 +102,6 @@ const CrmRevenueRoute = CrmRevenueRouteImport.update({
 const CrmTodosRoute = CrmTodosRouteImport.update({
   id: '/crm/todos',
   path: '/crm/todos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InviteTokenRoute = InviteTokenRouteImport.update({
-  id: '/invite/$token',
-  path: '/invite/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LtActivityRoute = LtActivityRouteImport.update({
@@ -205,7 +193,6 @@ export interface FileRoutesByFullPath {
   '/modules': typeof ModulesRoute
   '/pending': typeof PendingRoute
   '/settings': typeof SettingsRoute
-  '/welcome': typeof WelcomeRoute
   '/auth/complete': typeof AuthCompleteRoute
   '/crm/activity': typeof CrmActivityRoute
   '/crm/dashboard': typeof CrmDashboardRoute
@@ -213,7 +200,6 @@ export interface FileRoutesByFullPath {
   '/crm/pipeline': typeof CrmPipelineRoute
   '/crm/revenue': typeof CrmRevenueRoute
   '/crm/todos': typeof CrmTodosRoute
-  '/invite/$token': typeof InviteTokenRoute
   '/lt/activity': typeof LtActivityRoute
   '/lt/archive': typeof LtArchiveRoute
   '/lt/dashboard': typeof LtDashboardRoute
@@ -238,7 +224,6 @@ export interface FileRoutesByTo {
   '/modules': typeof ModulesRoute
   '/pending': typeof PendingRoute
   '/settings': typeof SettingsRoute
-  '/welcome': typeof WelcomeRoute
   '/auth/complete': typeof AuthCompleteRoute
   '/crm/activity': typeof CrmActivityRoute
   '/crm/dashboard': typeof CrmDashboardRoute
@@ -246,7 +231,6 @@ export interface FileRoutesByTo {
   '/crm/pipeline': typeof CrmPipelineRoute
   '/crm/revenue': typeof CrmRevenueRoute
   '/crm/todos': typeof CrmTodosRoute
-  '/invite/$token': typeof InviteTokenRoute
   '/lt/activity': typeof LtActivityRoute
   '/lt/archive': typeof LtArchiveRoute
   '/lt/dashboard': typeof LtDashboardRoute
@@ -272,7 +256,6 @@ export interface FileRoutesById {
   '/modules': typeof ModulesRoute
   '/pending': typeof PendingRoute
   '/settings': typeof SettingsRoute
-  '/welcome': typeof WelcomeRoute
   '/auth_/complete': typeof AuthCompleteRoute
   '/crm/activity': typeof CrmActivityRoute
   '/crm/dashboard': typeof CrmDashboardRoute
@@ -280,7 +263,6 @@ export interface FileRoutesById {
   '/crm/pipeline': typeof CrmPipelineRoute
   '/crm/revenue': typeof CrmRevenueRoute
   '/crm/todos': typeof CrmTodosRoute
-  '/invite/$token': typeof InviteTokenRoute
   '/lt/activity': typeof LtActivityRoute
   '/lt/archive': typeof LtArchiveRoute
   '/lt/dashboard': typeof LtDashboardRoute
@@ -307,7 +289,6 @@ export interface FileRouteTypes {
     | '/modules'
     | '/pending'
     | '/settings'
-    | '/welcome'
     | '/auth/complete'
     | '/crm/activity'
     | '/crm/dashboard'
@@ -315,7 +296,6 @@ export interface FileRouteTypes {
     | '/crm/pipeline'
     | '/crm/revenue'
     | '/crm/todos'
-    | '/invite/$token'
     | '/lt/activity'
     | '/lt/archive'
     | '/lt/dashboard'
@@ -340,7 +320,6 @@ export interface FileRouteTypes {
     | '/modules'
     | '/pending'
     | '/settings'
-    | '/welcome'
     | '/auth/complete'
     | '/crm/activity'
     | '/crm/dashboard'
@@ -348,7 +327,6 @@ export interface FileRouteTypes {
     | '/crm/pipeline'
     | '/crm/revenue'
     | '/crm/todos'
-    | '/invite/$token'
     | '/lt/activity'
     | '/lt/archive'
     | '/lt/dashboard'
@@ -373,7 +351,6 @@ export interface FileRouteTypes {
     | '/modules'
     | '/pending'
     | '/settings'
-    | '/welcome'
     | '/auth_/complete'
     | '/crm/activity'
     | '/crm/dashboard'
@@ -381,7 +358,6 @@ export interface FileRouteTypes {
     | '/crm/pipeline'
     | '/crm/revenue'
     | '/crm/todos'
-    | '/invite/$token'
     | '/lt/activity'
     | '/lt/archive'
     | '/lt/dashboard'
@@ -407,7 +383,6 @@ export interface RootRouteChildren {
   ModulesRoute: typeof ModulesRoute
   PendingRoute: typeof PendingRoute
   SettingsRoute: typeof SettingsRoute
-  WelcomeRoute: typeof WelcomeRoute
   AuthCompleteRoute: typeof AuthCompleteRoute
   CrmActivityRoute: typeof CrmActivityRoute
   CrmDashboardRoute: typeof CrmDashboardRoute
@@ -415,7 +390,6 @@ export interface RootRouteChildren {
   CrmPipelineRoute: typeof CrmPipelineRoute
   CrmRevenueRoute: typeof CrmRevenueRoute
   CrmTodosRoute: typeof CrmTodosRoute
-  InviteTokenRoute: typeof InviteTokenRoute
   LtActivityRoute: typeof LtActivityRoute
   LtArchiveRoute: typeof LtArchiveRoute
   LtDashboardRoute: typeof LtDashboardRoute
@@ -478,13 +452,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/welcome': {
-      id: '/welcome'
-      path: '/welcome'
-      fullPath: '/welcome'
-      preLoaderRoute: typeof WelcomeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/auth_/complete': {
       id: '/auth_/complete'
       path: '/auth/complete'
@@ -532,13 +499,6 @@ declare module '@tanstack/react-router' {
       path: '/crm/todos'
       fullPath: '/crm/todos'
       preLoaderRoute: typeof CrmTodosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/invite/$token': {
-      id: '/invite/$token'
-      path: '/invite/$token'
-      fullPath: '/invite/$token'
-      preLoaderRoute: typeof InviteTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lt/activity': {
@@ -663,7 +623,6 @@ const rootRouteChildren: RootRouteChildren = {
   ModulesRoute: ModulesRoute,
   PendingRoute: PendingRoute,
   SettingsRoute: SettingsRoute,
-  WelcomeRoute: WelcomeRoute,
   AuthCompleteRoute: AuthCompleteRoute,
   CrmActivityRoute: CrmActivityRoute,
   CrmDashboardRoute: CrmDashboardRoute,
@@ -671,7 +630,6 @@ const rootRouteChildren: RootRouteChildren = {
   CrmPipelineRoute: CrmPipelineRoute,
   CrmRevenueRoute: CrmRevenueRoute,
   CrmTodosRoute: CrmTodosRoute,
-  InviteTokenRoute: InviteTokenRoute,
   LtActivityRoute: LtActivityRoute,
   LtArchiveRoute: LtArchiveRoute,
   LtDashboardRoute: LtDashboardRoute,
