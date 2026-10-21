@@ -157,7 +157,7 @@ export function DealPeek({
               <Row label="Email"><CopyText value={primary?.email ?? null} /></Row>
               <Row label="LinkedIn"><CopyText value={primary?.linkedin_url ?? null} /></Row>
               <Row label="Channel">{lead?.channels?.name ?? null}</Row>
-              <Row label="Sender">{lead?.sender_accounts?.name ?? lead?.sender_accounts?.email ?? null}</Row>
+              <Row label="Sender">{lead?.sender_accounts?.label ?? null}</Row>
             </div>
 
             <div>
