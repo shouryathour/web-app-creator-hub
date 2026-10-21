@@ -120,6 +120,13 @@
       "when": 1792500357675,
       "tag": "0016_access_requests",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1792622714772,
+      "tag": "0017_respect_independent_outreach_ticks",
+      "breakpoints": true
     }
   ]
 }
