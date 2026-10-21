@@ -16,6 +16,8 @@ import { useReportCurrency } from "@/components/crm/report-currency";
 import { dealTotal } from "@/components/crm/earnings";
 import { PRIORITY_COLORS, dealValueLabel } from "@/components/crm/helpers";
 import { invalidateTrackerQueries } from "@/lib/tracker-updates";
+import { fmtDate } from "@/lib/format";
+import { DealPeek } from "@/components/crm/DealPeek";
 
 export const Route = createFileRoute("/crm/pipeline")({
   head: () => ({
@@ -103,14 +105,31 @@ function PipelinePage() {
 
   const records = query.data ?? [];
   const fx = useReportCurrency();
+  const [peekId, setPeekId] = useState<string | null>(null);
+  const [view, setView] = useState<"board" | "list">("board");
+  const [compact, setCompact] = useState(false);
+  const [sort, setSort] = useState<{ key: string; dir: 1 | -1 }>({ key: "updated_at", dir: -1 });
+  const [closedGroups, setClosedGroups] = useState<Set<string>>(new Set());
 
-  const dropOn = (stageId: string) => {
-    if (!dragId) return;
-    const rec = records.find((r) => r.id === dragId);
-    setDragId(null);
-    if (!rec) return;
+  useEffect(() => {
+    const v = window.localStorage.getItem("tracker.pipeline.view");
+    if (v === "list" || v === "board") setView(v);
+    setCompact(window.localStorage.getItem("tracker.pipeline.compact") === "1");
+  }, []);
+  const changeView = (v: "board" | "list") => {
+    setView(v);
+    window.localStorage.setItem("tracker.pipeline.view", v);
+  };
+  const toggleCompact = () =>
+    setCompact((c) => {
+      window.localStorage.setItem("tracker.pipeline.compact", c ? "0" : "1");
+      return !c;
+    });
+
+  const applyStage = (recordId: string, stageId: string) => {
+    const rec = records.find((r) => r.id === recordId);
     const stage = (stages ?? []).find((s) => s.id === stageId);
-    if (!stage || rec.stage_id === stageId) return;
+    if (!rec || !stage || rec.stage_id === stageId) return;
     if (stage.is_won) {
       setWonDialog({ recordId: rec.id, stageId, value: String(rec.estimated_value ?? "") });
       return;
@@ -122,6 +141,33 @@ function PipelinePage() {
     move.mutate({ recordId: rec.id, patch: { stage_id: stageId, probability: stage.default_probability, closed_at: null } });
   };
 
+  const dropOn = (stageId: string) => {
+    if (!dragId) return;
+    const id = dragId;
+    setDragId(null);
+    applyStage(id, stageId);
+  };
+
+  const visibleStages = (stages ?? []).filter((s) => !hidden.has(s.id));
+  const orderedIds = visibleStages.flatMap((s) => records.filter((r) => r.stage_id === s.id).map((r) => r.id));
+
+  useEffect(() => {
+    if (!peekId) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") return;
+      const i = orderedIds.indexOf(peekId);
+      const next = orderedIds[i + (e.key === "ArrowDown" ? 1 : -1)];
+      if (next) {
+        e.preventDefault();
+        setPeekId(next);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [peekId, orderedIds]);
+
   if (query.isLoading)
     return (
       <AppPage guide="pipeline" module="crm" title="Pipeline" perm="crm.pipeline">
@@ -129,15 +175,116 @@ function PipelinePage() {
       </AppPage>
     );
 
+  const sortVal = (r: PipelineRecord, key: string): string | number => {
+    if (key === "company") return (r.leads?.company_name ?? "").toLowerCase();
+    if (key === "value") return dealTotal(r as any, fx);
+    if (key === "priority") return { high: 3, medium: 2, low: 1 }[r.priority] ?? 0;
+    return (r as any)[key] ?? "";
+  };
+  const sorted = (list: PipelineRecord[]) =>
+    [...list].sort((a, b) => {
+      const x = sortVal(a, sort.key);
+      const y = sortVal(b, sort.key);
+      return (x > y ? 1 : x < y ? -1 : 0) * sort.dir;
+    });
+  const SortHead = ({ k, children }: { k: string; children: React.ReactNode }) => (
+    <th
+      className="cursor-pointer px-2 py-1.5 text-left font-medium text-muted-foreground hover:text-foreground"
+      onClick={() => setSort((s) => ({ key: k, dir: s.key === k ? (s.dir === 1 ? -1 : 1) : 1 }))}
+    >
+      {children} {sort.key === k ? (sort.dir === 1 ? "↑" : "↓") : ""}
+    </th>
+  );
+
   return (
     <AppPage guide="pipeline" module="crm" title="Pipeline" perm="crm.pipeline">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <div className="flex rounded-md border border-border p-0.5">
+          {(["board", "list"] as const).map((v) => (
+            <button
+              key={v}
+              type="button"
+              onClick={() => changeView(v)}
+              className={cn(
+                "rounded px-2.5 py-1 text-[12px] capitalize",
+                view === v ? "bg-subtle font-medium text-foreground" : "text-muted-foreground",
+              )}
+            >
+              {v}
+            </button>
+          ))}
+        </div>
+        {view === "board" && (
+          <Button variant="outline" size="sm" className="h-7 text-[12px]" onClick={toggleCompact}>
+            {compact ? "Comfortable cards" : "Compact cards"}
+          </Button>
+        )}
+      </div>
       {records.length === 0 ? (
         <EmptyState title="No deals in the pipeline" hint="Records appear here once a lead is marked replied." />
+      ) : view === "list" ? (
+        <div className="overflow-x-auto rounded-lg border border-border">
+          <table className="w-full text-[13px]">
+            <thead className="border-b border-border">
+              <tr>
+                <SortHead k="company">Company</SortHead>
+                <SortHead k="priority">Priority</SortHead>
+                <SortHead k="value">Value</SortHead>
+                <SortHead k="next_followup_date">Next follow-up</SortHead>
+                <SortHead k="updated_at">Updated</SortHead>
+              </tr>
+            </thead>
+            {visibleStages.map((stage) => {
+              const inStage = sorted(records.filter((r) => r.stage_id === stage.id));
+              const total = inStage.reduce((a, r) => a + dealTotal(r as any, fx), 0);
+              const isClosed = closedGroups.has(stage.id);
+              return (
+                <tbody key={stage.id}>
+                  <tr
+                    className="cursor-pointer bg-subtle/40"
+                    onClick={() =>
+                      setClosedGroups((p) => {
+                        const n = new Set(p);
+                        n.has(stage.id) ? n.delete(stage.id) : n.add(stage.id);
+                        return n;
+                      })
+                    }
+                  >
+                    <td colSpan={5} className="px-2 py-1.5">
+                      <span className="flex items-center gap-2">
+                        {isClosed ? "▸" : "▾"} <Pill color={stage.color}>{stage.name}</Pill>
+                        <span className="text-[12px] text-muted-foreground">
+                          {inStage.length} · {fx.fmt(total)}
+                        </span>
+                      </span>
+                    </td>
+                  </tr>
+                  {!isClosed &&
+                    inStage.map((r) => (
+                      <tr
+                        key={r.id}
+                        onClick={() => setPeekId(r.id)}
+                        className={cn("cursor-pointer border-t border-border hover:bg-subtle", peekId === r.id && "bg-subtle")}
+                      >
+                        <td className="px-2 py-1.5 font-medium">{r.leads?.company_name}</td>
+                        <td className="px-2 py-1.5 capitalize">
+                          <span className="flex items-center gap-1.5">
+                            <Dot color={PRIORITY_COLORS[r.priority]} /> {r.priority}
+                          </span>
+                        </td>
+                        <td className="tabular px-2 py-1.5">{dealValueLabel(r)}</td>
+                        <td className="px-2 py-1.5">{fmtDate((r as any).next_followup_date) || "—"}</td>
+                        <td className="px-2 py-1.5 text-muted-foreground">{fmtDate(r.updated_at)}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              );
+            })}
+          </table>
+        </div>
       ) : (
-        <div className="flex gap-3 overflow-x-auto pb-3 [scrollbar-color:var(--border)_transparent] [scrollbar-width:thin]">
-          {(stages ?? [])
-            .filter((s) => !hidden.has(s.id))
-            .map((stage) => {
+        <div className="flex gap-2 overflow-x-auto pb-3 [scrollbar-color:var(--border)_transparent] [scrollbar-width:thin]">
+          {visibleStages.map((stage) => {
               const inStage = records.filter((r) => r.stage_id === stage.id);
               const total = inStage.reduce((a, r) => a + dealTotal(r as any, fx), 0);
               return (
@@ -155,11 +302,11 @@ function PipelinePage() {
                     dropOn(stage.id);
                   }}
                   className={cn(
-                    "group flex w-[280px] min-w-[280px] shrink-0 flex-col rounded-xl border p-3 transition-colors",
+                    "group flex min-w-[190px] flex-1 basis-0 flex-col rounded-xl border p-2 transition-colors",
                     overStage === stage.id ? "border-ring bg-subtle" : "border-border/60 bg-subtle/40",
                   )}
                 >
-                  <div className="px-0.5 pb-2.5">
+                  <div className="px-0.5 pb-2">
                     <div className="flex items-center justify-between gap-2">
                       <Pill color={stage.color}>{stage.name}</Pill>
                       <span className="flex items-center gap-1.5">
@@ -177,29 +324,36 @@ function PipelinePage() {
                         </button>
                       </span>
                     </div>
-                    <div className="tabular mt-1.5 text-[12.5px] font-semibold text-muted-foreground">
-                      {fx.fmt(total)}
-                    </div>
+                    <div className="tabular mt-1 text-[12px] font-semibold text-muted-foreground">{fx.fmt(total)}</div>
                   </div>
-                  <div className="flex min-h-[80px] flex-col gap-2">
+                  <div className={cn("flex min-h-[80px] flex-col", compact ? "gap-1" : "gap-2")}>
                     {inStage.map((r) => (
                       <div
                         key={r.id}
                         draggable
                         onDragStart={() => setDragId(r.id)}
                         onDragEnd={() => setOverStage(null)}
-                        onClick={() => navigate({ to: "/crm/records/$id", params: { id: r.id } })}
-                        className="pro-card pressable cursor-grab space-y-2 p-3.5 text-left hover:border-foreground/20 active:cursor-grabbing"
+                        onClick={() => setPeekId(r.id)}
+                        onDoubleClick={() => navigate({ to: "/crm/records/$id", params: { id: r.id } })}
+                        className={cn(
+                          "pro-card pressable cursor-grab text-left hover:border-foreground/20 active:cursor-grabbing",
+                          compact ? "flex items-center justify-between gap-2 px-2.5 py-1.5" : "space-y-2 p-3",
+                          peekId === r.id && "border-ring",
+                        )}
                       >
-                        <div className="text-[13px] font-semibold tracking-tight text-foreground">
+                        <div className={cn("truncate font-semibold tracking-tight text-foreground", compact ? "text-[12.5px]" : "text-[13px]")}>
                           {r.leads?.company_name}
                         </div>
-                        <div className="flex items-center justify-between text-[12px] text-muted-foreground">
-                          <span className="flex items-center gap-1.5 capitalize">
-                            <Dot color={PRIORITY_COLORS[r.priority]} /> {r.priority}
-                          </span>
-                          <span className="tabular text-[13px] font-semibold text-foreground">{dealValueLabel(r)}</span>
-                        </div>
+                        {compact ? (
+                          <span className="tabular shrink-0 text-[12px] text-muted-foreground">{dealValueLabel(r)}</span>
+                        ) : (
+                          <div className="flex items-center justify-between text-[12px] text-muted-foreground">
+                            <span className="flex items-center gap-1.5 capitalize">
+                              <Dot color={PRIORITY_COLORS[r.priority]} /> {r.priority}
+                            </span>
+                            <span className="tabular text-[13px] font-semibold text-foreground">{dealValueLabel(r)}</span>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -207,7 +361,7 @@ function PipelinePage() {
               );
             })}
           {(stages ?? []).some((s) => hidden.has(s.id)) && (
-            <div className="w-[200px] shrink-0 self-start rounded-lg border border-dashed border-border p-2">
+            <div className="w-[170px] shrink-0 self-start rounded-lg border border-dashed border-border p-2">
               <div className="px-1 pb-1.5 text-[11px] font-medium text-muted-foreground">Hidden stages</div>
               <div className="flex flex-col gap-1">
                 {(stages ?? [])
@@ -237,6 +391,14 @@ function PipelinePage() {
           )}
         </div>
       )}
+
+      <DealPeek
+        recordId={peekId}
+        stages={stages ?? []}
+        onClose={() => setPeekId(null)}
+        onStageChange={applyStage}
+        onPatch={(recordId, patch) => move.mutate({ recordId, patch })}
+      />
 
       <Dialog open={!!wonDialog} onOpenChange={(o) => !o && setWonDialog(null)}>
         <DialogContent>

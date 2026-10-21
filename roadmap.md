@@ -28,3 +28,4 @@
 - [x] Replied (non-negative) / Call Booked / Proposal Sent leads auto-enter CRM
 - [x] CRM leads hidden from Leads list and channel tabs
 - [x] Team-only sign-in with owner approval; welcome/invite/create-workspace removed
+- [x] Email + password sign-in on /auth beside Google; password set for shourya@buzzspear.com
