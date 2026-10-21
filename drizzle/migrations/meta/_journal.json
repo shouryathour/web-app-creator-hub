@@ -127,6 +127,13 @@
       "when": 1792622714772,
       "tag": "0017_respect_independent_outreach_ticks",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1792623822082,
+      "tag": "0018_enforce_outreach_sending_order",
+      "breakpoints": true
     }
   ]
 }

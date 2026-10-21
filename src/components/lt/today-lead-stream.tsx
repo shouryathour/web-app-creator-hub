@@ -50,6 +50,8 @@ import { findDuplicateLead, DUPLICATE_MATCH_LABELS } from "@/lib/live/duplicate-
 import { TemplateSelect } from "@/components/live/template-select";
 import { useOutreachTemplates, templatesForChannel, fillTemplate } from "@/lib/live/outreach-templates";
 import type { RateRange } from "./outreach-rates";
+import { canCheckOutreach, outreachDisabled } from "@/lib/outreach-order";
+import { invalidateTrackerQueries } from "@/lib/tracker-updates";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type LeadKind = "email" | "linkedin" | "instagram";
@@ -241,25 +243,27 @@ function defaultFlags(kind: LeadKind, cfg: any): Flags {
     return {
       sent: cfg.instagram.showOutreachSent && cfg.instagram.defaultOutreachSent,
       connection: false,
-      replied: cfg.instagram.showReplied && cfg.instagram.defaultReplied,
+      replied: cfg.instagram.showOutreachSent && cfg.instagram.defaultOutreachSent && cfg.instagram.showReplied && cfg.instagram.defaultReplied,
     };
   if (kind === "linkedin")
     return {
-      sent: cfg.linkedin.showMessageSent && cfg.linkedin.defaultMessageSent,
+      sent: cfg.linkedin.showConnectionSent && cfg.linkedin.defaultConnectionSent && cfg.linkedin.showMessageSent && cfg.linkedin.defaultMessageSent,
       connection: cfg.linkedin.showConnectionSent && cfg.linkedin.defaultConnectionSent,
-      replied: cfg.linkedin.showReplied && cfg.linkedin.defaultReplied,
+      replied: cfg.linkedin.showConnectionSent && cfg.linkedin.defaultConnectionSent && cfg.linkedin.showMessageSent && cfg.linkedin.defaultMessageSent && cfg.linkedin.showReplied && cfg.linkedin.defaultReplied,
     };
   return {
     sent: cfg.email.showEmailSent && cfg.email.defaultEmailSent,
     connection: false,
-    replied: cfg.email.showReplied && cfg.email.defaultReplied,
+    replied: cfg.email.showEmailSent && cfg.email.defaultEmailSent && cfg.email.showReplied && cfg.email.defaultReplied,
   };
 }
 
-function YesNoToggle({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) {
+function YesNoToggle({ label, value, onChange, disabled }: { label: string; value: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
   return (
-    <button
+    <Button
       type="button"
+      variant="outline"
+      disabled={disabled}
       onClick={() => onChange(!value)}
       aria-pressed={value}
       className={cn(
@@ -269,7 +273,7 @@ function YesNoToggle({ label, value, onChange }: { label: string; value: boolean
     >
       {label}
       <span className="text-[11px] opacity-80">{value ? "Yes" : "No"}</span>
-    </button>
+    </Button>
   );
 }
 
@@ -537,7 +541,7 @@ export function LeadQuickAdd({ kind }: { kind: LeadKind }) {
         if (!r.ok && !r.skipped) console.error("Google Sheet sync failed:", r.reason);
       })
       .catch((err) => console.error("Google Sheet sync failed:", err));
-    void qc.invalidateQueries();
+    void invalidateTrackerQueries(qc, ["leads", "lead_events", "lead_contacts", "lead_tags", "lead_followups"]);
     reset(cfg);
   };
 
@@ -628,7 +632,11 @@ export function LeadQuickAdd({ kind }: { kind: LeadKind }) {
           {toggles
             .filter((t) => t.show)
             .map((t) => (
-              <YesNoToggle key={t.key} label={t.label} value={flags[t.key]} onChange={(v) => setFlags((f) => ({ ...f, [t.key]: v }))} />
+              <YesNoToggle
+                key={t.key} label={t.label} value={flags[t.key]}
+                disabled={t.key === "replied" ? !flags.sent : t.key === "sent" && kind === "linkedin" ? !flags.connection : false}
+                onChange={(v) => setFlags((f) => ({ ...f, [t.key]: v, ...(!v && t.key === "connection" ? { sent: false, replied: false } : !v && t.key === "sent" ? { replied: false } : {}) }))}
+              />
             ))}
         </div>
         <div className="flex flex-col gap-1.5">
@@ -820,6 +828,7 @@ export function TodayLeadStream({ kind, range }: { kind: LeadKind; range?: RateR
 
   const toggleField = async (lead: any, field: string) => {
     const val = !lead[field];
+    if (val && !canCheckOutreach(lead, field)) return;
     const patch: Record<string, any> = { [field]: val, [`${field}_at`]: val ? new Date().toISOString() : null };
     if (val && channel) {
       if (field.endsWith("_replied")) patch.reply_channel_id = channel.id;
@@ -829,7 +838,7 @@ export function TodayLeadStream({ kind, range }: { kind: LeadKind; range?: RateR
     if (st) patch.stage_id = st.id;
     const { error } = await supabase.from("leads").update(patch as never).eq("id", lead.id);
     if (error) return toast.error(error.message);
-    qc.invalidateQueries({ queryKey: ["rapid-today", kind] });
+    void invalidateTrackerQueries(qc, ["leads", "lead_events"]);
     syncLeadToSheet(lead.id).catch((err) => console.error("Google Sheet sync failed:", err));
   };
 
@@ -918,10 +927,11 @@ export function TodayLeadStream({ kind, range }: { kind: LeadKind; range?: RateR
                     <td className="py-2">
                       <div className="flex flex-wrap items-center gap-1.5">
                         {OUTREACH_FIELDS[kind].map((f) => (
-                          <button
+                          <Button
                             key={f.field}
                             type="button"
-                            disabled={!canEdit}
+                            variant="ghost"
+                            disabled={outreachDisabled(lead, f.field, canEdit)}
                             onClick={() => void toggleField(lead, f.field)}
                             title={lead[f.field] ? `Click to mark as "${f.off}"` : `Click to mark as "${f.on}"`}
                             className={cn(
@@ -933,7 +943,7 @@ export function TodayLeadStream({ kind, range }: { kind: LeadKind; range?: RateR
                           >
                             {lead[f.field] ? <Check className="size-3" /> : null}
                             {lead[f.field] ? f.on : f.off}
-                          </button>
+                          </Button>
                         ))}
                         <Popover>
                           <PopoverTrigger asChild>
@@ -983,6 +993,7 @@ export function TodayLeadStream({ kind, range }: { kind: LeadKind; range?: RateR
                                             type="button"
                                             size="sm"
                                             className="h-6 text-[10px] px-2 gap-1"
+                                            disabled={outreachDisabled(lead, `${kind}_sent`, canEdit)}
                                             onClick={async () => {
                                               await navigator.clipboard.writeText(text);
                                               toast.success("Copied message and marking sent");
