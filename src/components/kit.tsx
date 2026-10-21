@@ -3,6 +3,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { outreachCheckChange } from "@/lib/outreach-check";
 
 export function Card({
   children,
@@ -161,7 +162,7 @@ export function Loading({ label = "Loading" }: { label?: string }) {
   return <div className="label-text p-6">{label}...</div>;
 }
 
-/** Checkbox with an editable paired date. Ticking stamps now; unticking confirms and clears. */
+/** Checkbox with an editable paired date. Ticking stamps now; unticking clears. */
 export function CheckDate({
   label,
   checked,
@@ -184,15 +185,7 @@ export function CheckDate({
         <Checkbox
           checked={checked}
           disabled={disabled}
-          onCheckedChange={(v) => {
-            const next = v === true;
-            if (!next) {
-              if (!window.confirm(`Clear "${label}" and its date?`)) return;
-              onChange(false, null);
-            } else {
-              onChange(true, new Date().toISOString());
-            }
-          }}
+          onCheckedChange={(v) => onChange(...outreachCheckChange(v))}
         />
         {label}
       </label>
