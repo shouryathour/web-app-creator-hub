@@ -1,7 +1,7 @@
 # Buzzspear Tracker roadmap
 
-- [ ] Enforce email, LinkedIn and Instagram sending prerequisites across lead edits; verify corrections persist
-- [ ] Diagnose slow navigation and apply confirmed safe performance fixes
+- [x] Enforce email, LinkedIn and Instagram sending prerequisites across lead edits; signed-in select/clear/reload and invalid-write tests passed; temporary lead removed
+- [x] Diagnose slow navigation: capacity healthy; realtime now refreshes only affected views instead of all cached queries; local full loads measured, published speed not verified
 
 - [x] Fix outreach tick corrections; all ten LinkedIn, Instagram, email and Loom ticks passed signed-in select/clear/reload checks using a temporary lead
 

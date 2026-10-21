@@ -982,7 +982,6 @@ export function TodayLeadStream({ kind, range }: { kind: LeadKind; range?: RateR
                                             size="sm"
                                             variant="outline"
                                             className="h-6 text-[10px] px-2 gap-1"
-                                            disabled={outreachDisabled(lead, `${kind}_sent`, canEdit)}
                                             onClick={async () => {
                                               await navigator.clipboard.writeText(text);
                                               toast.success(`Copied "${tpl.name}" to clipboard`);
@@ -994,6 +993,7 @@ export function TodayLeadStream({ kind, range }: { kind: LeadKind; range?: RateR
                                             type="button"
                                             size="sm"
                                             className="h-6 text-[10px] px-2 gap-1"
+                                            disabled={outreachDisabled(lead, `${kind}_sent`, canEdit)}
                                             onClick={async () => {
                                               await navigator.clipboard.writeText(text);
                                               toast.success("Copied message and marking sent");

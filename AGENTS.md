@@ -21,4 +21,4 @@
 - New sign-ups get an access_requests row instead of a workspace; only the owner approves (approve_access) or removes (removeAccessRequest server fn bans the account), because the app is team-only.
 - Paired outreach checkbox controls share outreachCheckChange; unticking clears the flag/date without browser confirmation so corrections work inside embedded previews.
 - Outreach prerequisites live in src/lib/outreach-order.ts and are enforced by a final database validation trigger; existing inconsistent ticks remain clearable without inventing missing activity.
-- Stage automation infers outreach only when no outreach flag in that family changed; email viewed remains independent of replied to prevent undoing corrections or inventing activity.
+- Stage automation infers outreach only on stage-only changes and honors sending prerequisites; email actions never infer another platform and replies never invent views.
