@@ -1,5 +1,6 @@
 // Ported from live chunk TodayLeadStream-DhspyDDE.js
 // Exports: LeadQuickAdd (live `n`), TodayLeadStream (live `t`).
+import { openLeadPeek } from "@/lib/peek";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -60,9 +61,8 @@ async function syncLeadToSheet(_leadId: string): Promise<{ ok: boolean; skipped?
   return { ok: true, skipped: true };
 }
 
-// TODO: live opens a side panel via app-shell useLeadPanel().openLead; repo has no panel.
 function useOpenLead() {
-  return (id: string) => window.open(`/lt/leads/${id}`, "_blank", "noopener");
+  return (id: string) => openLeadPeek(id);
 }
 
 function TagPicker({
