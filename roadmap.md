@@ -1,5 +1,7 @@
 # Buzzspear Tracker roadmap
 
+- [ ] Fix outreach tick corrections and verify LinkedIn, Instagram, email and Loom changes persist after reload using a temporary lead
+
 - [x] Run signed-in lead, contact, follow-up, task, CRM and archive workflows using temporary records; remove test records
 - [x] Review import/export, all 16 Settings sections, Google Sheet status and numerical workflows; fix confirmed defects
 - [x] Run 23 regression tests, verify 18 screens and report tested flows and blocked checks

@@ -19,3 +19,4 @@
 - Full CSV exports read ordered pages with collectExportPages so the Data API row cap cannot silently truncate the file.
 - CRM auto-push rules live only in the SQL function crm_auto_push (called from lead triggers), so imports, edits and stage changes all follow the same rule.
 - New sign-ups get an access_requests row instead of a workspace; only the owner approves (approve_access) or removes (removeAccessRequest server fn bans the account), because the app is team-only.
+- Paired outreach checkbox controls share outreachCheckChange; unticking clears the flag/date without browser confirmation so corrections work inside embedded previews.

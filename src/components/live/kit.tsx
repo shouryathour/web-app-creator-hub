@@ -20,6 +20,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { CalendarIcon, ChevronDown, ChevronRight, Inbox, Loader2, X } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
+import { outreachCheckChange } from "@/lib/outreach-check";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -603,19 +604,14 @@ export function CheckDate({
   onChange: (checked: boolean, at: string | null) => void;
   helper?: ReactNode;
 }) {
-  const dateValue = date ? new Date(date).toISOString().slice(0, 10) : "";
+  const dateValue = toDateInput(date);
   return (
     <div className="flex flex-wrap items-center gap-3 py-1">
       <label className="flex min-w-[180px] items-center gap-2 text-[13px]">
         <Checkbox
           checked={checked}
           disabled={disabled}
-          onCheckedChange={(v) => {
-            if (v !== true) {
-              if (!window.confirm(`Clear "${label}" and its date?`)) return;
-              onChange(false, null);
-            } else onChange(true, new Date().toISOString());
-          }}
+          onCheckedChange={(v) => onChange(...outreachCheckChange(v))}
         />
         {label}
       </label>
