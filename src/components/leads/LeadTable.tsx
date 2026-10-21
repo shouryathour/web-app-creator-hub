@@ -1,3 +1,4 @@
+import { openLeadPeek, peekClick } from "@/lib/peek";
 import { Link } from "@tanstack/react-router";
 import { ArrowDown, ArrowUp, ExternalLink } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -97,7 +98,7 @@ export function LeadTable({
                   <Checkbox checked={selected.has(l.id)} onCheckedChange={() => onToggle(l.id)} />
                 </td>
                 <td className="px-2">
-                  <Link to="/lt/leads/$id" params={{ id: l.id }} className="font-medium hover:underline">
+                  <Link to="/lt/leads/$id" params={{ id: l.id }} onClick={(e) => peekClick(e, () => openLeadPeek(l.id))} className="font-medium hover:underline">
                     {l.company_name}
                   </Link>
                   <span className="ml-1 text-[11px] text-muted-foreground">{l.lead_code}</span>

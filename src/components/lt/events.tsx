@@ -1,4 +1,5 @@
 // Ported from the live app-shell chunk (event pieces: Da, Oa, ka, Aa, ja, Ma, Na, Pa, Fa, Ia, La, Ra, za, Ya).
+import { openLeadPeek, peekClick } from "@/lib/peek";
 import { useEffect, useState, type ComponentType, type ReactNode } from "react";
 import { toast } from "sonner";
 import {

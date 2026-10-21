@@ -1,3 +1,4 @@
+import { openLeadPeek, peekClick } from "@/lib/peek";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ExternalLink } from "lucide-react";
@@ -44,7 +45,7 @@ export function LeadCards({
                   <StagePill stage={stageById(stages, l.stage_id)} />
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Link to="/lt/leads/$id" params={{ id: l.id }} className="text-[13px] font-medium hover:underline">
+                  <Link to="/lt/leads/$id" params={{ id: l.id }} onClick={(e) => peekClick(e, () => openLeadPeek(l.id))} className="text-[13px] font-medium hover:underline">
                     {l.company_name}
                   </Link>
                   <a

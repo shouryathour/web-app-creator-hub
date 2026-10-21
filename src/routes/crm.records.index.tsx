@@ -1,4 +1,5 @@
 // Ported from live chunk crm.records.index-C9212tLO.js.
+import { openRecordPeek } from "@/lib/peek";
 import { useEffect, useMemo, useState, type ComponentType } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
