@@ -69,6 +69,7 @@ import { findDuplicateLead, DUPLICATE_MATCH_LABELS } from "@/lib/live/duplicate-
 import { followupPauseReason, skipPendingFollowups, resumeSkippedFollowups } from "@/lib/live/followup-actions";
 import { useOutreachTemplates, renderTemplate } from "@/lib/live/outreach-templates";
 import { emailStageTarget, senderColor } from "@/lib/email-progress";
+import { canCheckOutreach, outreachDisabled } from "@/lib/outreach-order";
 
 export const Route = createFileRoute("/lt/leads/$id")({
   head: () => ({
@@ -1981,6 +1982,7 @@ function EmailCard({
   if (lead.email_replied) parts.push(`Replied ${fmtDate(lead.email_replied_at)}`);
 
   const tick = (field: "email_sent" | "email_viewed" | "email_replied", c: boolean, d: string | null) => {
+    if (c && !lead[field] && !canCheckOutreach(lead, field)) return;
     const patch: AnyRow = { [field]: c, [`${field}_at`]: d };
     if (c) {
       const flags = {
@@ -2018,14 +2020,14 @@ function EmailCard({
           label="Email viewed"
           checked={lead.email_viewed}
           date={lead.email_viewed_at}
-          disabled={!canEdit}
+          disabled={outreachDisabled(lead, "email_viewed", canEdit)}
           onChange={(c: boolean, d: string | null) => tick("email_viewed", c, d)}
         />
         <CheckDate
           label="Email replied"
           checked={lead.email_replied}
           date={lead.email_replied_at}
-          disabled={!canEdit}
+          disabled={outreachDisabled(lead, "email_replied", canEdit)}
           onChange={(c: boolean, d: string | null) => tick("email_replied", c, d)}
         />
         <Dialog open={askSentiment} onOpenChange={setAskSentiment}>
@@ -2276,7 +2278,9 @@ function OutreachCard({
   const contactedAt = earliest(sentList);
   const replied = replyList.length > 0;
   const repliedAt = earliest(replyList);
-  const msgKind = (cid: string | null) => (kindOf(cid) === "instagram" ? "instagram" : "linkedin");
+  const msgKind = (cid: string | null) => kindOf(cid);
+  const selectedSentField = sentMedium === "email" ? "email_sent" : msgKind(lead.contacted_channel_id) === "instagram" ? "instagram_sent" : msgKind(lead.contacted_channel_id) === "linkedin" ? "linkedin_sent" : null;
+  const selectedReplyField = replyMedium === "email" ? "email_replied" : msgKind(lead.reply_channel_id) === "instagram" ? "instagram_replied" : msgKind(lead.reply_channel_id) === "linkedin" ? "linkedin_replied" : null;
 
   return (
     <CollapsibleCard id="lead.other_channels" title="Outreach">
@@ -2292,14 +2296,14 @@ function OutreachCard({
           label="LinkedIn message sent"
           checked={lead.linkedin_sent}
           date={lead.linkedin_sent_at}
-          disabled={!canEdit}
+          disabled={outreachDisabled(lead, "linkedin_sent", canEdit)}
           onChange={(c: boolean, d: string | null) => onSave({ linkedin_sent: c, linkedin_sent_at: d })}
         />
         <CheckDate
           label="LinkedIn replied"
           checked={lead.linkedin_replied}
           date={lead.linkedin_replied_at}
-          disabled={!canEdit}
+          disabled={outreachDisabled(lead, "linkedin_replied", canEdit)}
           onChange={(c: boolean, d: string | null) => onSave({ linkedin_replied: c, linkedin_replied_at: d })}
         />
         <CheckDate
@@ -2313,7 +2317,7 @@ function OutreachCard({
           label="Instagram replied"
           checked={lead.instagram_replied}
           date={lead.instagram_replied_at}
-          disabled={!canEdit}
+          disabled={outreachDisabled(lead, "instagram_replied", canEdit)}
           onChange={(c: boolean, d: string | null) => onSave({ instagram_replied: c, instagram_replied_at: d })}
         />
         <div className="mt-2 border-t border-border pt-2">
@@ -2322,9 +2326,10 @@ function OutreachCard({
               label="Contacted"
               checked={!!contacted}
               date={contactedAt}
-              disabled={!canEdit}
+              disabled={!canEdit || (!contacted && (!selectedSentField || !canCheckOutreach(lead, selectedSentField)))}
               onChange={(c: boolean, d: string | null) => {
                 if (c) {
+                  if (!selectedSentField || !canCheckOutreach(lead, selectedSentField)) return;
                   if (sentMedium === "email") onSave({ email_sent: true, email_sent_at: d });
                   else if (msgKind(lead.contacted_channel_id) === "instagram") onSave({ instagram_sent: true, instagram_sent_at: d });
                   else onSave({ linkedin_sent: true, linkedin_sent_at: d });
@@ -2353,9 +2358,10 @@ function OutreachCard({
               label="Replied"
               checked={!!replied}
               date={repliedAt}
-              disabled={!canEdit}
+              disabled={!canEdit || (!replied && (!selectedReplyField || !canCheckOutreach(lead, selectedReplyField)))}
               onChange={(c: boolean, d: string | null) => {
                 if (c) {
+                  if (!selectedReplyField || !canCheckOutreach(lead, selectedReplyField)) return;
                   if (replyMedium === "email") onSave({ email_replied: true, email_replied_at: d });
                   else if (msgKind(lead.reply_channel_id) === "instagram") onSave({ instagram_replied: true, instagram_replied_at: d });
                   else onSave({ linkedin_replied: true, linkedin_replied_at: d });
