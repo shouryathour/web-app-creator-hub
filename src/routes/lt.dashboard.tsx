@@ -1,4 +1,5 @@
 // Ported from live chunk lt.dashboard-DBvWXMuV.js
+import { openLeadPeek, peekClick } from "@/lib/peek";
 import type { ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -43,7 +44,7 @@ type ActiveLead = {
 // Live app-shell `r` (Ya): link that opens the lead side panel. TODO: panel; plain link here.
 function LeadLink({ id, className, children }: { id: string; className?: string; children: ReactNode }) {
   return (
-    <Link to="/lt/leads/$id" params={{ id }} className={className}>
+    <Link to="/lt/leads/$id" params={{ id }} onClick={(e) => peekClick(e, () => openLeadPeek(id))} className={className}>
       {children}
     </Link>
   );
