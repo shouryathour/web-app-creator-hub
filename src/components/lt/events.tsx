@@ -307,7 +307,7 @@ export function useLeadPeek() {
 /** Opens the lead peek panel in live. TODO: live uses a LeadPeek context provider; this falls back to a plain link. */
 export function LeadLink({ id, className, children }: { id: string; className?: string; children: ReactNode }) {
   return (
-    <a href={`/lt/leads/${id}`} onClick={(e) => e.stopPropagation()} className={cn("text-left", className)}>
+    <a href={`/lt/leads/${id}`} onClick={(e) => { e.stopPropagation(); peekClick(e, () => openLeadPeek(id)); }} className={cn("text-left", className)}>
       {children}
     </a>
   );

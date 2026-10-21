@@ -176,7 +176,8 @@ function RecordsPage() {
     </button>
   );
 
-  const open = (id: string) => navigate({ to: "/crm/records/$id", params: { id } });
+  const open = (id: string) => openRecordPeek(id);
+  void navigate;
 
   const tableRow = (r: RecordRow) => {
     const s = r.stage_id ? stageById.get(r.stage_id) : undefined;
