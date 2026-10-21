@@ -1,4 +1,5 @@
 // Ported from live chunk crm.records.index-C9212tLO.js.
+import { openRecordPeek } from "@/lib/peek";
 import { useEffect, useMemo, useState, type ComponentType } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -176,7 +177,8 @@ function RecordsPage() {
     </button>
   );
 
-  const open = (id: string) => navigate({ to: "/crm/records/$id", params: { id } });
+  const open = (id: string) => openRecordPeek(id);
+  void navigate;
 
   const tableRow = (r: RecordRow) => {
     const s = r.stage_id ? stageById.get(r.stage_id) : undefined;

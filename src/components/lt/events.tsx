@@ -1,4 +1,5 @@
 // Ported from the live app-shell chunk (event pieces: Da, Oa, ka, Aa, ja, Ma, Na, Pa, Fa, Ia, La, Ra, za, Ya).
+import { openLeadPeek, peekClick } from "@/lib/peek";
 import { useEffect, useState, type ComponentType, type ReactNode } from "react";
 import { toast } from "sonner";
 import {
@@ -307,7 +308,7 @@ export function useLeadPeek() {
 /** Opens the lead peek panel in live. TODO: live uses a LeadPeek context provider; this falls back to a plain link. */
 export function LeadLink({ id, className, children }: { id: string; className?: string; children: ReactNode }) {
   return (
-    <a href={`/lt/leads/${id}`} onClick={(e) => e.stopPropagation()} className={cn("text-left", className)}>
+    <a href={`/lt/leads/${id}`} onClick={(e) => { e.stopPropagation(); peekClick(e, () => openLeadPeek(id)); }} className={cn("text-left", className)}>
       {children}
     </a>
   );

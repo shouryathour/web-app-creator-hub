@@ -1,3 +1,4 @@
+import { GlobalPeek } from "@/components/peek/GlobalPeek";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -174,6 +175,7 @@ function RootComponent() {
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
           <Toaster />
+          <GlobalPeek />
           
         </LegacyAuthProvider>
       </AuthProvider>
