@@ -16,6 +16,8 @@ import { useReportCurrency } from "@/components/crm/report-currency";
 import { dealTotal } from "@/components/crm/earnings";
 import { PRIORITY_COLORS, dealValueLabel } from "@/components/crm/helpers";
 import { invalidateTrackerQueries } from "@/lib/tracker-updates";
+import { fmtDate } from "@/lib/format";
+import { DealPeek } from "@/components/crm/DealPeek";
 
 export const Route = createFileRoute("/crm/pipeline")({
   head: () => ({
