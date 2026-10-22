@@ -11,6 +11,8 @@ import { invalidateTrackerQueries } from "@/lib/tracker-updates";
 import { fmtDate } from "@/lib/format";
 import { dealValueLabel } from "@/components/crm/helpers";
 import type { Stage } from "@/hooks/useLookups";
+import { useState } from "react";
+import { RepliedDialog, isReplyStage } from "@/components/crm/RepliedDialog";
 
 function latest(...dates: (string | null | undefined)[]) {
   const v = dates.filter(Boolean) as string[];
@@ -61,6 +63,7 @@ export function DealPeek({
   onPatch: (recordId: string, patch: Record<string, unknown>) => void;
 }) {
   const qc = useQueryClient();
+  const [replyStage, setReplyStage] = useState<string | null>(null);
   const q = useQuery({
     queryKey: ["crm_record", "peek", recordId],
     enabled: !!recordId,
@@ -106,6 +109,17 @@ export function DealPeek({
   };
 
   return (
+    <>
+    <RepliedDialog
+      leadId={d?.rec?.lead_id ?? null}
+      open={!!replyStage}
+      onCancel={() => setReplyStage(null)}
+      onDone={() => {
+        if (d && replyStage) onStageChange(d.rec.id, replyStage);
+        setReplyStage(null);
+        q.refetch();
+      }}
+    />
     <Sheet open={!!recordId} onOpenChange={(o) => !o && onClose()}>
       <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-[440px]">
         {!d ? (
@@ -122,7 +136,11 @@ export function DealPeek({
                 <select
                   className="h-7 rounded-md border border-border bg-background px-1.5 text-[13px]"
                   value={d.rec.stage_id ?? ""}
-                  onChange={(e) => onStageChange(d.rec.id, e.target.value)}
+                  onChange={(e) => {
+                    const st = stages.find((x) => x.id === e.target.value);
+                    if (isReplyStage(st)) setReplyStage(e.target.value);
+                    else onStageChange(d.rec.id, e.target.value);
+                  }}
                 >
                   {stages.map((s) => (
                     <option key={s.id} value={s.id}>{s.name}</option>
@@ -138,7 +156,7 @@ export function DealPeek({
                   {["low", "medium", "high"].map((p) => <option key={p} value={p}>{p}</option>)}
                 </select>
               </Row>
-              <Row label="Deal value">{dealValueLabel(d.rec)}</Row>
+              <Row label="Deal value">{dealValueLabel(stages.find((x) => x.id === d.rec.stage_id)?.is_won ? d.rec : { ...d.rec, deal_type: "one_time" })}</Row>
               <Row label="Next follow-up">
                 <Input
                   type="date"
@@ -208,5 +226,6 @@ export function DealPeek({
         )}
       </SheetContent>
     </Sheet>
+    </>
   );
 }

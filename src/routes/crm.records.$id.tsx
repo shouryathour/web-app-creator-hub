@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { RepliedDialog, isReplyStage } from "@/components/crm/RepliedDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/live/auth";
 import { useChannels, useProfiles, useStages } from "@/hooks/useLookups";
@@ -333,10 +334,20 @@ function DealCard({
     if (r.deal_type === "retainer") p.estimated_value = m ? Number(m) * (c ? Number(c) : 12) : null;
     return p;
   };
-  const recurring = r.deal_type === "retainer" || r.deal_type === "hybrid";
+  const recurring = isWon && (r.deal_type === "retainer" || r.deal_type === "hybrid");
+  const [pendingReply, setPendingReply] = useState<Patch | null>(null);
 
   return (
     <CollapsibleCard id="crm.header" title="Deal">
+      <RepliedDialog
+        leadId={r.lead_id}
+        open={!!pendingReply}
+        onCancel={() => setPendingReply(null)}
+        onDone={() => {
+          if (pendingReply) onSave(pendingReply);
+          setPendingReply(null);
+        }}
+      />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div>
           <div className="label-text mb-1">Stage</div>
@@ -346,6 +357,10 @@ function DealCard({
             onValueChange={(v) => {
               const stage = stages.find((s) => s.id === v);
               if (!stage) return;
+              if (isReplyStage(stage)) {
+                setPendingReply({ stage_id: v, probability: stage.default_probability ?? r.probability, closed_at: null });
+                return;
+              }
               let closed = null;
               if (stage.is_won || stage.is_lost) {
                 const date = window.prompt("When did this deal close? (YYYY-MM-DD)", new Date().toISOString().slice(0, 10));
@@ -353,7 +368,9 @@ function DealCard({
                 if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(new Date(date).getTime())) return toast.error("Enter a valid date as YYYY-MM-DD");
                 closed = new Date(`${date}T12:00:00`).toISOString();
               }
-              onSave({ stage_id: v, probability: stage.default_probability ?? r.probability, closed_at: closed });
+              const patch: Patch = { stage_id: v, probability: stage.default_probability ?? r.probability, closed_at: closed };
+              if (stage.is_won && r.deal_type !== "retainer" && r.deal_type !== "hybrid") patch.deal_type = "retainer";
+              onSave(patch);
             }}
           >
             <SelectTrigger className="h-8 text-[13px]">
@@ -381,32 +398,34 @@ function DealCard({
             </SelectContent>
           </Select>
         </div>
-        <div>
-          <div className="label-text mb-1">Deal type</div>
-          <Select
-            value={r.deal_type}
-            disabled={!canEdit}
-            onValueChange={(v) =>
-              onSave(
-                v === "retainer" && r.mrr_amount
-                  ? { deal_type: v, estimated_value: Number(r.mrr_amount) * (r.contract_months || 12) }
-                  : { deal_type: v },
-              )
-            }
-          >
-            <SelectTrigger className="h-8 text-[13px]">
-              <SelectValue placeholder="Deal type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="one_time">One time</SelectItem>
-              <SelectItem value="retainer">Retainer (monthly)</SelectItem>
-              <SelectItem value="hybrid">Hybrid (fee + monthly)</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        {r.deal_type !== "retainer" && (
+        {isWon && (
           <div>
-            <div className="label-text mb-1">{r.deal_type === "hybrid" ? "One-time fee" : "Deal value"}</div>
+            <div className="label-text mb-1">Deal type</div>
+            <Select
+              value={r.deal_type}
+              disabled={!canEdit}
+              onValueChange={(v) =>
+                onSave(
+                  v === "retainer" && r.mrr_amount
+                    ? { deal_type: v, estimated_value: Number(r.mrr_amount) * (r.contract_months || 12) }
+                    : { deal_type: v },
+                )
+              }
+            >
+              <SelectTrigger className="h-8 text-[13px]">
+                <SelectValue placeholder="Deal type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="retainer">MRR (monthly)</SelectItem>
+                {r.deal_type === "one_time" && <SelectItem value="one_time">One time</SelectItem>}
+                {r.deal_type === "hybrid" && <SelectItem value="hybrid">Hybrid (fee + monthly)</SelectItem>}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+        {!(isWon && r.deal_type === "retainer") && (
+          <div>
+            <div className="label-text mb-1">{isWon && r.deal_type === "hybrid" ? "One-time fee" : "Deal value"}</div>
             <Input
               type="number"
               className="h-8 text-[13px]"
@@ -457,7 +476,7 @@ function DealCard({
         )}
       </div>
       <div className="mt-3 text-[12px] text-muted-foreground">
-        {dealValueLabel(r)}
+        {dealValueLabel(isWon ? r : { ...r, deal_type: "one_time" })}
         {recurring && r.mrr_amount ? ` = ${money(contractTotal(r), r.currency)} in total` : ""}
       </div>
       {isWon && dealCur !== code && (
