@@ -69,7 +69,6 @@ import {
   Flag,
   Gauge,
   Globe,
-  History,
   ImagePlus,
   Instagram,
   Keyboard,
@@ -2934,7 +2933,6 @@ const GO_TO: Record<string, string> = {
   c: "/crm/records",
   p: "/crm/pipeline",
   r: "/crm/revenue",
-  i: "/crm/invoices",
   s: "/settings",
 };
 
