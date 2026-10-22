@@ -476,7 +476,7 @@ function DealCard({
         )}
       </div>
       <div className="mt-3 text-[12px] text-muted-foreground">
-        {dealValueLabel(r)}
+        {dealValueLabel(isWon ? r : { ...r, deal_type: "one_time" })}
         {recurring && r.mrr_amount ? ` = ${money(contractTotal(r), r.currency)} in total` : ""}
       </div>
       {isWon && dealCur !== code && (

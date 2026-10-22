@@ -11,7 +11,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
-import { useProfiles, useStages } from "@/hooks/useLookups";
+import { useChannels, useCountries, useProfiles, useSenderAccounts, useStages, useTags } from "@/hooks/useLookups";
+import { CollapsibleCard } from "@/components/kit";
+import { useStoredState } from "@/components/crm/filters";
 import {
   DEAL_TYPE_LABELS,
   PRIORITY_COLORS,
@@ -90,17 +92,20 @@ function RecordsPage() {
   const [page, setPage] = useState(0);
   const [sortField, setSortField] = useState<SortField>("next_followup_date");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
-  const [stage, setStage] = useState("all");
-  const [priority, setPriority] = useState("all");
-  const [owner, setOwner] = useState("all");
-  const [dealType, setDealType] = useState("all");
-  const [closeMonth, setCloseMonth] = useState("");
-  const [minValue, setMinValue] = useState("");
-  const [maxValue, setMaxValue] = useState("");
-
+  const EMPTY = { search: "", stage: "all", priority: "all", owner: "all", dealType: "all", closeMonth: "", minValue: "", maxValue: "", country: "all", channel: "all", sender: "all", tag: "all", dateFrom: "", dateTo: "", replied: "all", loom: "all" };
+  const [f, setF] = useStoredState("tracker.crm.records.filters", EMPTY);
+  const flt = { ...EMPTY, ...f };
+  const { stage, priority, owner, dealType, closeMonth, minValue, maxValue } = flt;
+  const set = (k: keyof typeof EMPTY) => (v: string) => setF({ ...flt, [k]: v });
+  const setStage = set("stage"), setPriority = set("priority"), setOwner = set("owner"), setDealType = set("dealType");
+  const setCloseMonth = set("closeMonth"), setMinValue = set("minValue"), setMaxValue = set("maxValue");
+  const { data: countries } = useCountries();
+  const { data: channels } = useChannels();
+  const { data: senders } = useSenderAccounts();
+  const { data: tags } = useTags();
   useEffect(() => {
     setPage(0);
-  }, [stage, priority, owner, dealType, closeMonth, minValue, maxValue]);
+  }, [JSON.stringify(flt)]);
 
   const stageById = useMemo(() => new Map((stages ?? []).map((s) => [s.id, s])), [stages]);
   const profileById = useMemo(() => new Map((profiles ?? []).map((p) => [p.id, p])), [profiles]);
@@ -118,12 +123,22 @@ function RecordsPage() {
     }
     if (minValue) q = q.gte("estimated_value", Number(minValue));
     if (maxValue) q = q.lte("estimated_value", Number(maxValue));
+    const term = flt.search.trim().replace(/[,()%]/g, " ");
+    if (term) q = q.or(`company_name.ilike.%${term}%,primary_contact.ilike.%${term}%,lead_code.ilike.%${term}%`, { foreignTable: "leads" });
+    if (flt.country !== "all") q = q.eq("leads.country_id", flt.country);
+    if (flt.channel !== "all") q = q.eq("leads.channel_id", flt.channel);
+    if (flt.sender !== "all") q = q.eq("leads.sender_account_id", flt.sender);
+    if (flt.dateFrom) q = q.gte("leads.date_added", flt.dateFrom);
+    if (flt.dateTo) q = q.lte("leads.date_added", flt.dateTo);
+    if (flt.loom !== "all") q = q.eq("leads.loom_sent", flt.loom === "yes");
+    if (flt.replied === "yes") q = q.or("email_replied.eq.true,linkedin_replied.eq.true,instagram_replied.eq.true", { foreignTable: "leads" });
+    if (flt.replied === "no") q = q.eq("leads.email_replied", false).eq("leads.linkedin_replied", false).eq("leads.instagram_replied", false);
     return q;
   };
 
   const isColumns = view === "columns";
   const { data, isLoading } = useQuery({
-    queryKey: ["crm_records", view, page, sortField, sortDir, stage, priority, owner, dealType, closeMonth, minValue, maxValue],
+    queryKey: ["crm_records", view, page, sortField, sortDir, JSON.stringify(flt)],
     queryFn: async () => {
       let q = (supabase as any)
         .from("crm_records")
@@ -132,6 +147,10 @@ function RecordsPage() {
           { count: "exact" },
         );
       q = applyFilters(q);
+      if (flt.tag !== "all") {
+        const { data: lt } = await (supabase as any).from("lead_tags").select("lead_id").eq("tag_id", flt.tag);
+        q = q.in("lead_id", (lt ?? []).map((x: any) => x.lead_id).concat("00000000-0000-0000-0000-000000000000"));
+      }
       const sort = SORT_COLUMNS[sortField];
       q = q.order(sort.column, { ascending: sortDir === "asc", foreignTable: sort.foreignTable });
       q = isColumns ? q.limit(1000) : q.range(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE - 1);
@@ -203,7 +222,7 @@ function RecordsPage() {
           </span>
         </td>
         <td className="px-3">{money(r.estimated_value, r.currency)}</td>
-        <td className="px-3">{DEAL_TYPE_LABELS[r.deal_type] ?? r.deal_type}</td>
+        <td className="px-3">{s?.is_won ? (DEAL_TYPE_LABELS[r.deal_type] ?? r.deal_type) : "-"}</td>
         <td className="px-3">{fmtDate(r.expected_close_date)}</td>
         <td className="px-3">{fmtDate(r.last_contacted_at)}</td>
         <td className="px-3">{fmtDate(r.next_followup_date)}</td>
@@ -237,8 +256,39 @@ function RecordsPage() {
     );
   };
 
+  const pick = (label: string, k: keyof typeof EMPTY, opts: { id: string; name: string }[]) => (
+    <div className="flex flex-col gap-1">
+      <span className="label-text">{label}</span>
+      <Select value={flt[k]} onValueChange={set(k)}>
+        <SelectTrigger className="h-8 w-[150px] text-[12px]"><SelectValue /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All</SelectItem>
+          {opts.map((o) => <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>)}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+  const yesNo = [{ id: "yes", name: "Yes" }, { id: "no", name: "No" }];
   const filterBar = (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-wrap items-end gap-2">
+      <div className="flex flex-col gap-1">
+        <span className="label-text">Search</span>
+        <Input className="h-8 w-[220px] text-[12px]" placeholder="Company, contact, code" value={flt.search} onChange={(e) => setF({ ...flt, search: e.target.value })} />
+      </div>
+      {pick("Country", "country", (countries ?? []).map((c: any) => ({ id: c.id, name: c.name })))}
+      {pick("Channel", "channel", (channels ?? []).map((c: any) => ({ id: c.id, name: c.name })))}
+      {pick("Sender account", "sender", (senders ?? []).map((c: any) => ({ id: c.id, name: c.label })))}
+      {pick("Tag", "tag", (tags ?? []).map((c: any) => ({ id: c.id, name: c.name })))}
+      {pick("Has replied", "replied", yesNo)}
+      {pick("Loom sent", "loom", yesNo)}
+      <div className="flex flex-col gap-1">
+        <span className="label-text">Date added</span>
+        <div className="flex items-center gap-1">
+          <Input type="date" className="h-8 w-[135px] text-[12px]" value={flt.dateFrom} onChange={(e) => setF({ ...flt, dateFrom: e.target.value })} />
+          <span className="text-muted-foreground">–</span>
+          <Input type="date" className="h-8 w-[135px] text-[12px]" value={flt.dateTo} onChange={(e) => setF({ ...flt, dateTo: e.target.value })} />
+        </div>
+      </div>
       <Select value={stage} onValueChange={setStage}>
         <SelectTrigger className="h-8 w-[140px] text-[12px]">
           <SelectValue placeholder="Stage" />
@@ -307,6 +357,7 @@ function RecordsPage() {
         onChange={(e) => setMaxValue(e.target.value)}
         className="h-8 w-[110px] text-[12px]"
       />
+      <button className="label-text underline" onClick={() => setF({ ...EMPTY })}>Clear all</button>
     </div>
   );
 
@@ -330,7 +381,7 @@ function RecordsPage() {
   return (
     <AppPage guide="crm-records" module="crm" title="Records" perm="crm.records" actions={viewSwitch}>
       <div className="flex flex-col gap-4">
-        <Card>{filterBar}</Card>
+        <CollapsibleCard id="crm.records.filters" title="Filters" defaultOpen={false}>{filterBar}</CollapsibleCard>
         {isLoading ? (
           <Loading />
         ) : rows.length === 0 ? (
