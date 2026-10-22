@@ -2419,7 +2419,6 @@ export const CRM_NAV: NavItem[] = [
   { to: "/crm/revenue", label: "Revenue", icon: ChartColumn, perm: "crm.revenue", group: "primary" },
   { to: "/crm/todos", label: "To-dos", icon: ListChecks, perm: "crm.todos", group: "secondary" },
   { to: "/crm/followups", label: "Follow-ups", icon: CalendarClock, perm: "crm.followups", group: "secondary" },
-  { to: "/crm/activity", label: "Activity", icon: History, perm: "crm.records", group: "secondary" },
 ];
 
 const CHANNEL_LEAD_PATHS = ["/lt/leads/instagram", "/lt/leads/linkedin", "/lt/leads/email"];
