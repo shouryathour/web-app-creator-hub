@@ -15,20 +15,20 @@ Laid out in two neat rows.
 ## 3. Better calendar in the side panel
 The "Next follow-up" date in the side panel opens the same calendar the rest of the app uses (month and year dropdowns, Today highlighted), not the browser's plain one.
 
-## 4. New "Sample" box on every lead
-On the lead page, below the Loom box, a new Sample box like the Loom one:
-- Sample link
-- Sample created (tick + date)
-- Sample sent (tick + date; needs Sample created first, like the other sending rules)
-Also shown in the side panel. Filters "Sample created" and "Sample sent" are added to the Leads filters and CRM Records filters.
+## 4. "Loom" box renamed "Value"
+The Loom box on the lead page becomes "Value". Nothing in it is removed:
+- **Loom:** link, Loom sent, Loom watched and Watch % stay exactly as they are now.
+- **Sample:** a new link box. No tick. Once a link is pasted, the box turns green so you know a sample was made.
+- **Content audit:** a new link box, green in the same way once filled.
+The side panel shows the Sample and Content audit links too.
 
-## 5. Two new pages in the left menu (Lead Tracker and CRM, under Activity)
-- **Unwatched Looms:** every lead where the Loom was sent but not watched yet, with the sent date and days waiting. One click opens the side panel; you can tick "Loom watched" right there.
-- **Samples:** every lead with a sample, showing the link, created date and sent date, with a filter for Created / Sent / Not sent yet.
-In Lead Tracker these show leads still in the tracker; in CRM they show CRM leads.
+## 5. Filters for Value
+- CRM Records and Leads filters get "Sample sent" (Yes/No) and "Content audit sent" (Yes/No), based on whether a link was added.
+- "Loom watched" (Yes/No) is added next to "Loom sent", so "Loom sent: Yes + Loom watched: No" lists everyone who hasn't watched yet.
+- No new pages or menu sections are added, and no existing section is removed.
 
 ## Technical details
-- Migration: add to `leads` nullable/defaulted columns `sample_url text`, `sample_created boolean default false`, `sample_created_at timestamptz`, `sample_sent boolean default false`, `sample_sent_at timestamptz`; extend `validate_outreach_order` so sample_sent needs sample_created; add `sample_sent: ["sample_created"]` to OUTREACH_PREREQUISITES and test.
-- Add sample columns to CSV export, Google Sheet backup headers and importer field list.
-- New routes `lt.looms.tsx`, `lt.samples.tsx`, `crm.looms.tsx`, `crm.samples.tsx` sharing one component, filtered by `pushed_to_crm`.
+- Migration: add nullable `sample_url text` and `content_audit_url text` to `leads` (no ticks, no data changes).
+- Add both columns to CSV export, Google Sheet backup headers and importer field list.
+- "Sent" filters = link is not empty.
 - DealPeek date uses shadcn Popover + Calendar (`pointer-events-auto`).
