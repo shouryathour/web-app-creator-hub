@@ -2407,7 +2407,6 @@ export const LEAD_NAV: NavItem[] = [
   { to: "/lt/followups", label: "Follow-ups", icon: CalendarClock, perm: "lead.leads", group: "primary" },
   { to: "/lt/todos", label: "To-dos", icon: ListTodo, perm: "lead.leads", group: "primary" },
   { to: "/lt/outreach", label: "Outreach Tracker", icon: Gauge, perm: "lead.outreach_tracker", group: "primary" },
-  { to: "/lt/activity", label: "Activity", icon: History, perm: "lead.leads", group: "secondary" },
   { to: "/lt/ledger", label: "Ledger", icon: ListChecks, perm: "lead.ledger", group: "secondary" },
   { to: "/lt/archive", label: "Archive", icon: Boxes, perm: "lead.archive", group: "secondary" },
   { to: "/lt/data", label: "Import / Export", icon: Database, perm: "lead.import_export", group: "secondary" },
