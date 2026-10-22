@@ -70,6 +70,20 @@ import { followupPauseReason, skipPendingFollowups, resumeSkippedFollowups } fro
 import { useOutreachTemplates, renderTemplate } from "@/lib/live/outreach-templates";
 import { emailStageTarget, senderColor } from "@/lib/email-progress";
 import { canCheckOutreach, outreachDisabled } from "@/lib/outreach-order";
+import { dateOrderIssues } from "@/lib/outreach-dates";
+
+function DateWarnings({ lead, fields }: { lead: Record<string, any>; fields: string[] }) {
+  const issues = dateOrderIssues(lead);
+  const list = fields.filter((f) => issues[f]);
+  if (!list.length) return null;
+  return (
+    <div className="flex flex-col gap-0.5">
+      {list.map((f) => (
+        <div key={f} className="text-[12px] text-negative">⚠ {issues[f]}</div>
+      ))}
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/lt/leads/$id")({
   head: () => ({
@@ -2030,6 +2044,8 @@ function EmailCard({
           disabled={outreachDisabled(lead, "email_replied", canEdit)}
           onChange={(c: boolean, d: string | null) => tick("email_replied", c, d)}
         />
+        <DateWarnings lead={lead} fields={["email_viewed", "email_replied"]} />
+
         <Dialog open={askSentiment} onOpenChange={setAskSentiment}>
           <DialogContent className="sm:max-w-sm">
             <DialogHeader>
@@ -2125,6 +2141,9 @@ function EmailCard({
 function LoomCard({ lead, canEdit, onSave }: { lead: AnyRow; canEdit: boolean; onSave: (p: AnyRow) => void }) {
   const [url, setUrl] = useState(lead.loom_url ?? "");
   const [pct, setPct] = useState(String(lead.loom_watch_percent ?? ""));
+  const [ask, setAsk] = useState(false);
+  const [askDate, setAskDate] = useState("");
+  const [askPct, setAskPct] = useState("");
   useEffect(() => {
     setUrl(lead.loom_url ?? "");
     setPct(String(lead.loom_watch_percent ?? ""));
@@ -2161,8 +2180,59 @@ function LoomCard({ lead, canEdit, onSave }: { lead: AnyRow; canEdit: boolean; o
           checked={lead.loom_watched}
           date={lead.loom_watched_at}
           disabled={!canEdit}
-          onChange={(c: boolean, d: string | null) => onSave({ loom_watched: c, loom_watched_at: d })}
+          onChange={(c: boolean, d: string | null) => {
+            if (c && !lead.loom_watched) {
+              setAskDate(new Date().toISOString().slice(0, 10));
+              setAskPct(String(lead.loom_watch_percent ?? ""));
+              setAsk(true);
+              return;
+            }
+            onSave({ loom_watched: c, loom_watched_at: d });
+          }}
         />
+        <DateWarnings lead={lead} fields={["loom_watched"]} />
+        <Dialog open={ask} onOpenChange={setAsk}>
+          <DialogContent className="sm:max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Loom watched</DialogTitle>
+              <DialogDescription>When did they watch it, and how much?</DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col gap-3">
+              <div>
+                <div className="label-text mb-1">Watched on</div>
+                <Input type="date" className="h-8 text-[13px]" value={askDate} onChange={(e) => setAskDate(e.target.value)} />
+                {askDate && lead.loom_sent_at && askDate < String(lead.loom_sent_at).slice(0, 10) && (
+                  <div className="mt-1 text-[12px] text-negative">This is before the Loom was sent ({String(lead.loom_sent_at).slice(0, 10)}).</div>
+                )}
+              </div>
+              <div>
+                <div className="label-text mb-1">Watch time (%)</div>
+                <div className="flex items-center gap-1.5">
+                  <Input type="number" min={0} max={100} className="h-8 w-[90px] text-[13px]" value={askPct} onChange={(e) => setAskPct(e.target.value)} />
+                  {[25, 50, 75, 100].map((n) => (
+                    <Button key={n} type="button" size="sm" variant={askPct === String(n) ? "default" : "outline"} className="h-8 px-2" onClick={() => setAskPct(String(n))}>
+                      {n}%
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setAsk(false)}>Cancel</Button>
+              <Button
+                disabled={!askDate}
+                onClick={() => {
+                  const v = askPct === "" ? null : Math.max(0, Math.min(100, Number(askPct)));
+                  onSave({ loom_watched: true, loom_watched_at: new Date(askDate + "T12:00:00").toISOString(), loom_watch_percent: v });
+                  setPct(v == null ? "" : String(v));
+                  setAsk(false);
+                }}
+              >
+                Save
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
         <div className="w-[160px]">
           <div className="label-text mb-1">Watch %</div>
           <Input
@@ -2320,6 +2390,7 @@ function OutreachCard({
           disabled={outreachDisabled(lead, "instagram_replied", canEdit)}
           onChange={(c: boolean, d: string | null) => onSave({ instagram_replied: c, instagram_replied_at: d })}
         />
+        <DateWarnings lead={lead} fields={["linkedin_sent", "linkedin_replied", "instagram_replied"]} />
         <div className="mt-2 border-t border-border pt-2">
           <div className="flex flex-wrap items-center gap-3 py-1">
             <CheckDate
