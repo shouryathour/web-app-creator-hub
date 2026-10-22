@@ -914,6 +914,7 @@ export type Database = {
           company_linkedin_url: string | null
           company_name: string
           contacted_channel_id: string | null
+          content_audit_url: string | null
           country_id: string | null
           created_at: string
           created_by: string | null
@@ -957,6 +958,7 @@ export type Database = {
           reply_channel_id: string | null
           reply_sentiment: string | null
           research_notes: string | null
+          sample_url: string | null
           sender_account_id: string | null
           stage_id: string | null
           status: string
@@ -975,6 +977,7 @@ export type Database = {
           company_linkedin_url?: string | null
           company_name: string
           contacted_channel_id?: string | null
+          content_audit_url?: string | null
           country_id?: string | null
           created_at?: string
           created_by?: string | null
@@ -1018,6 +1021,7 @@ export type Database = {
           reply_channel_id?: string | null
           reply_sentiment?: string | null
           research_notes?: string | null
+          sample_url?: string | null
           sender_account_id?: string | null
           stage_id?: string | null
           status?: string
@@ -1036,6 +1040,7 @@ export type Database = {
           company_linkedin_url?: string | null
           company_name?: string
           contacted_channel_id?: string | null
+          content_audit_url?: string | null
           country_id?: string | null
           created_at?: string
           created_by?: string | null
@@ -1079,6 +1084,7 @@ export type Database = {
           reply_channel_id?: string | null
           reply_sentiment?: string | null
           research_notes?: string | null
+          sample_url?: string | null
           sender_account_id?: string | null
           stage_id?: string | null
           status?: string

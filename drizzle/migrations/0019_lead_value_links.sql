@@ -1,0 +1,1 @@
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS sample_url text, ADD COLUMN IF NOT EXISTS content_audit_url text;
