@@ -2390,6 +2390,7 @@ function OutreachCard({
           disabled={outreachDisabled(lead, "instagram_replied", canEdit)}
           onChange={(c: boolean, d: string | null) => onSave({ instagram_replied: c, instagram_replied_at: d })}
         />
+        <DateWarnings lead={lead} fields={["linkedin_sent", "linkedin_replied", "instagram_replied"]} />
         <div className="mt-2 border-t border-border pt-2">
           <div className="flex flex-wrap items-center gap-3 py-1">
             <CheckDate
