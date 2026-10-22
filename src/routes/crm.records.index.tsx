@@ -26,9 +26,9 @@ export const Route = createFileRoute("/crm/records/")({
   head: () => ({
     meta: [
       { title: "Records | CRM | Tracker | Buzzspear" },
-      { name: "description", content: "All CRM deal records with stage, value and owner." },
+      { name: "description", content: "All CRM deal records with stage and value." },
       { property: "og:title", content: "Records | CRM | Tracker | Buzzspear" },
-      { property: "og:description", content: "All CRM deal records with stage, value and owner." },
+      { property: "og:description", content: "All CRM deal records with stage and value." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -92,13 +92,12 @@ function RecordsPage() {
   const [page, setPage] = useState(0);
   const [sortField, setSortField] = useState<SortField>("next_followup_date");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
-  const EMPTY = { search: "", stage: "all", priority: "all", owner: "all", dealType: "all", closeMonth: "", minValue: "", maxValue: "", country: "all", channel: "all", sender: "all", tag: "all", dateFrom: "", dateTo: "", replied: "all", loom: "all" };
+  const EMPTY = { search: "", stage: "all", priority: "all", dealType: "all", country: "all", channel: "all", sender: "all", tag: "all", dateFrom: "", dateTo: "", loom: "all", loomWatched: "all", sample: "all", audit: "all" };
   const [f, setF] = useStoredState("tracker.crm.records.filters", EMPTY);
   const flt = { ...EMPTY, ...f };
-  const { stage, priority, owner, dealType, closeMonth, minValue, maxValue } = flt;
+  const { stage, priority, dealType } = flt;
   const set = (k: keyof typeof EMPTY) => (v: string) => setF({ ...flt, [k]: v });
-  const setStage = set("stage"), setPriority = set("priority"), setOwner = set("owner"), setDealType = set("dealType");
-  const setCloseMonth = set("closeMonth"), setMinValue = set("minValue"), setMaxValue = set("maxValue");
+  const setStage = set("stage"), setPriority = set("priority"), setDealType = set("dealType");
   const { data: countries } = useCountries();
   const { data: channels } = useChannels();
   const { data: senders } = useSenderAccounts();
@@ -113,16 +112,6 @@ function RecordsPage() {
   const applyFilters = (q: any) => {
     if (stage !== "all") q = q.eq("stage_id", stage);
     if (priority !== "all") q = q.eq("priority", priority);
-    if (owner !== "all") q = q.eq("owner_id", owner);
-    if (dealType !== "all") q = q.eq("deal_type", dealType);
-    if (closeMonth) {
-      const [y, m] = closeMonth.split("-").map(Number);
-      const from = new Date(y, m - 1, 1).toISOString().slice(0, 10);
-      const to = new Date(y, m, 0).toISOString().slice(0, 10);
-      q = q.gte("expected_close_date", from).lte("expected_close_date", to);
-    }
-    if (minValue) q = q.gte("estimated_value", Number(minValue));
-    if (maxValue) q = q.lte("estimated_value", Number(maxValue));
     const term = flt.search.trim().replace(/[,()%]/g, " ");
     if (term) q = q.or(`company_name.ilike.%${term}%,primary_contact.ilike.%${term}%,lead_code.ilike.%${term}%`, { foreignTable: "leads" });
     if (flt.country !== "all") q = q.eq("leads.country_id", flt.country);
@@ -131,8 +120,11 @@ function RecordsPage() {
     if (flt.dateFrom) q = q.gte("leads.date_added", flt.dateFrom);
     if (flt.dateTo) q = q.lte("leads.date_added", flt.dateTo);
     if (flt.loom !== "all") q = q.eq("leads.loom_sent", flt.loom === "yes");
-    if (flt.replied === "yes") q = q.or("email_replied.eq.true,linkedin_replied.eq.true,instagram_replied.eq.true", { foreignTable: "leads" });
-    if (flt.replied === "no") q = q.eq("leads.email_replied", false).eq("leads.linkedin_replied", false).eq("leads.instagram_replied", false);
+    if (flt.loomWatched !== "all") q = q.eq("leads.loom_watched", flt.loomWatched === "yes");
+    if (flt.sample === "yes") q = q.not("leads.sample_url", "is", null);
+    if (flt.sample === "no") q = q.is("leads.sample_url", null);
+    if (flt.audit === "yes") q = q.not("leads.content_audit_url", "is", null);
+    if (flt.audit === "no") q = q.is("leads.content_audit_url", null);
     return q;
   };
 
@@ -226,7 +218,6 @@ function RecordsPage() {
         <td className="px-3">{fmtDate(r.expected_close_date)}</td>
         <td className="px-3">{fmtDate(r.last_contacted_at)}</td>
         <td className="px-3">{fmtDate(r.next_followup_date)}</td>
-        <td className="px-3">{ownerName(r.owner_id)}</td>
       </tr>
     );
   };
@@ -250,7 +241,6 @@ function RecordsPage() {
         </div>
         <div className="mt-1 flex items-center justify-between text-[11px] text-muted-foreground">
           <span>Next: {fmtDate(r.next_followup_date) || "-"}</span>
-          <span>{ownerName(r.owner_id)}</span>
         </div>
       </button>
     );
@@ -279,8 +269,10 @@ function RecordsPage() {
       {pick("Channel", "channel", (channels ?? []).map((c: any) => ({ id: c.id, name: c.name })))}
       {pick("Sender account", "sender", (senders ?? []).map((c: any) => ({ id: c.id, name: c.label })))}
       {pick("Tag", "tag", (tags ?? []).map((c: any) => ({ id: c.id, name: c.name })))}
-      {pick("Has replied", "replied", yesNo)}
       {pick("Loom sent", "loom", yesNo)}
+      {pick("Loom watched", "loomWatched", yesNo)}
+      {pick("Sample sent", "sample", yesNo)}
+      {pick("Content audit sent", "audit", yesNo)}
       <div className="flex flex-col gap-1">
         <span className="label-text">Date added</span>
         <div className="flex items-center gap-1">
@@ -313,19 +305,6 @@ function RecordsPage() {
           <SelectItem value="low">Low</SelectItem>
         </SelectContent>
       </Select>
-      <Select value={owner} onValueChange={setOwner}>
-        <SelectTrigger className="h-8 w-[140px] text-[12px]">
-          <SelectValue placeholder="Owner" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All owners</SelectItem>
-          {(profiles ?? []).map((p) => (
-            <SelectItem key={p.id} value={p.id}>
-              {p.full_name || p.email}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
       <Select value={dealType} onValueChange={setDealType}>
         <SelectTrigger className="h-8 w-[130px] text-[12px]">
           <SelectValue placeholder="Deal type" />
@@ -337,26 +316,6 @@ function RecordsPage() {
           <SelectItem value="hybrid">Hybrid</SelectItem>
         </SelectContent>
       </Select>
-      <Input
-        type="month"
-        value={closeMonth}
-        onChange={(e) => setCloseMonth(e.target.value)}
-        className="h-8 w-[150px] text-[12px]"
-      />
-      <Input
-        type="number"
-        placeholder="Min value"
-        value={minValue}
-        onChange={(e) => setMinValue(e.target.value)}
-        className="h-8 w-[110px] text-[12px]"
-      />
-      <Input
-        type="number"
-        placeholder="Max value"
-        value={maxValue}
-        onChange={(e) => setMaxValue(e.target.value)}
-        className="h-8 w-[110px] text-[12px]"
-      />
       <button className="label-text underline" onClick={() => setF({ ...EMPTY })}>Clear all</button>
     </div>
   );
@@ -420,9 +379,6 @@ function RecordsPage() {
                   </th>
                   <th className="px-3 font-medium">
                     <SortHeader label="Next follow-up" field="next_followup_date" />
-                  </th>
-                  <th className="px-3 font-medium">
-                    <SortHeader label="Owner" field="owner" />
                   </th>
                 </tr>
               </thead>

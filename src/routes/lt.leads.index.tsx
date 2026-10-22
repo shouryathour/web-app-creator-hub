@@ -112,6 +112,9 @@ type Filters = {
   dateTo: string;
   hasReplied: string;
   hasLoomSent: string;
+  hasLoomWatched?: string;
+  hasSample?: string;
+  hasAudit?: string;
   whenField: string;
   whenRange: string;
   whenFrom: string;
@@ -130,6 +133,9 @@ const EMPTY_FILTERS: Filters = {
   dateTo: "",
   hasReplied: "",
   hasLoomSent: "",
+  hasLoomWatched: "",
+  hasSample: "",
+  hasAudit: "",
   whenField: "updated_at",
   whenRange: "",
   whenFrom: "",
@@ -314,6 +320,9 @@ function LeadFilters({
         </div>
         <FilterSelect label="Has replied" value={filters.hasReplied} onValue={(v) => set("hasReplied", v)} options={[{ id: "yes", name: "Yes" }, { id: "no", name: "No" }]} />
         <FilterSelect label="Loom sent" value={filters.hasLoomSent} onValue={(v) => set("hasLoomSent", v)} options={[{ id: "yes", name: "Yes" }, { id: "no", name: "No" }]} />
+        <FilterSelect label="Loom watched" value={filters.hasLoomWatched ?? ""} onValue={(v) => set("hasLoomWatched", v)} options={[{ id: "yes", name: "Yes" }, { id: "no", name: "No" }]} />
+        <FilterSelect label="Sample sent" value={filters.hasSample ?? ""} onValue={(v) => set("hasSample", v)} options={[{ id: "yes", name: "Yes" }, { id: "no", name: "No" }]} />
+        <FilterSelect label="Content audit sent" value={filters.hasAudit ?? ""} onValue={(v) => set("hasAudit", v)} options={[{ id: "yes", name: "Yes" }, { id: "no", name: "No" }]} />
         <div className="flex flex-col gap-1">
           <span className="section-label">When</span>
           <div className="flex items-center gap-1">
@@ -888,6 +897,12 @@ function LeadsPage() {
     if (f.hasReplied === "no") q = q.eq("email_replied", false);
     if (f.hasLoomSent === "yes") q = q.eq("loom_sent", true);
     if (f.hasLoomSent === "no") q = q.eq("loom_sent", false);
+    if (f.hasLoomWatched === "yes") q = q.eq("loom_watched", true);
+    if (f.hasLoomWatched === "no") q = q.eq("loom_watched", false);
+    if (f.hasSample === "yes") q = q.not("sample_url", "is", null);
+    if (f.hasSample === "no") q = q.is("sample_url", null);
+    if (f.hasAudit === "yes") q = q.not("content_audit_url", "is", null);
+    if (f.hasAudit === "no") q = q.is("content_audit_url", null);
     q = applyWhen(q, f);
     q = q.eq("archived", false).eq("pushed_to_crm", false);
     return q;
