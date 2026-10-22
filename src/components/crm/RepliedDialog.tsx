@@ -61,9 +61,7 @@ export function RepliedDialog({
       [`${f.sent}_at`]: iso(sent),
       [f.replied]: true,
       [`${f.replied}_at`]: iso(replied),
-      reply_channel_id: undefined,
     };
-    delete patch.reply_channel_id;
     if (platform === "linkedin") {
       patch.linkedin_connection_sent = true;
       patch.linkedin_connection_sent_at = iso(sent);
