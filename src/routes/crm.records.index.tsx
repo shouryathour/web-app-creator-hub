@@ -333,7 +333,7 @@ function RecordsPage() {
         <SelectContent>
           <SelectItem value="all">All deal types</SelectItem>
           <SelectItem value="one_time">One time</SelectItem>
-          <SelectItem value="retainer">Retainer</SelectItem>
+          <SelectItem value="retainer">MRR</SelectItem>
           <SelectItem value="hybrid">Hybrid</SelectItem>
         </SelectContent>
       </Select>
