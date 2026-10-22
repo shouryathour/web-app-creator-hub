@@ -69,7 +69,6 @@ import {
   Flag,
   Gauge,
   Globe,
-  History,
   ImagePlus,
   Instagram,
   Keyboard,
@@ -2407,7 +2406,6 @@ export const LEAD_NAV: NavItem[] = [
   { to: "/lt/followups", label: "Follow-ups", icon: CalendarClock, perm: "lead.leads", group: "primary" },
   { to: "/lt/todos", label: "To-dos", icon: ListTodo, perm: "lead.leads", group: "primary" },
   { to: "/lt/outreach", label: "Outreach Tracker", icon: Gauge, perm: "lead.outreach_tracker", group: "primary" },
-  { to: "/lt/activity", label: "Activity", icon: History, perm: "lead.leads", group: "secondary" },
   { to: "/lt/ledger", label: "Ledger", icon: ListChecks, perm: "lead.ledger", group: "secondary" },
   { to: "/lt/archive", label: "Archive", icon: Boxes, perm: "lead.archive", group: "secondary" },
   { to: "/lt/data", label: "Import / Export", icon: Database, perm: "lead.import_export", group: "secondary" },
@@ -2420,7 +2418,6 @@ export const CRM_NAV: NavItem[] = [
   { to: "/crm/revenue", label: "Revenue", icon: ChartColumn, perm: "crm.revenue", group: "primary" },
   { to: "/crm/todos", label: "To-dos", icon: ListChecks, perm: "crm.todos", group: "secondary" },
   { to: "/crm/followups", label: "Follow-ups", icon: CalendarClock, perm: "crm.followups", group: "secondary" },
-  { to: "/crm/activity", label: "Activity", icon: History, perm: "crm.records", group: "secondary" },
 ];
 
 const CHANNEL_LEAD_PATHS = ["/lt/leads/instagram", "/lt/leads/linkedin", "/lt/leads/email"];
@@ -2936,7 +2933,6 @@ const GO_TO: Record<string, string> = {
   c: "/crm/records",
   p: "/crm/pipeline",
   r: "/crm/revenue",
-  i: "/crm/invoices",
   s: "/settings",
 };
 

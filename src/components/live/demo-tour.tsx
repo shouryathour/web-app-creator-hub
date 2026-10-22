@@ -106,14 +106,6 @@ export const TOUR_STEPS: TourStep[] = [
     body: "Tasks tied to your leads, with in-app due date pickers, so the next step is always written down.",
   },
   {
-    path: "/lt/activity",
-    targets: navTargets("/lt/activity"),
-    perm: "lead.leads",
-    chapter: "Lead Tracker",
-    title: "Activity",
-    body: "A timeline of everything done on your leads, by you and your team.",
-  },
-  {
     path: "/lt/outreach",
     targets: navTargets("/lt/outreach"),
     perm: "lead.outreach_tracker",
@@ -172,15 +164,6 @@ export const TOUR_STEPS: TourStep[] = [
     body: "Drag deals from stage to stage on the board and see the value sitting in each one.",
   },
   {
-    path: "/crm/invoices",
-    targets: navTargets("/crm/invoices"),
-    perm: "crm.records",
-    chapter: "CRM",
-    title: "Invoices",
-    body: "Create, customize, preview and print branded client invoices with saved business profiles, bank details, LUT tax numbers and deal linking.",
-    tip: "Link invoices directly to CRM deals for streamlined revenue tracking.",
-  },
-  {
     path: "/crm/todos",
     targets: navTargets("/crm/todos"),
     perm: "crm.todos",
@@ -195,14 +178,6 @@ export const TOUR_STEPS: TourStep[] = [
     chapter: "CRM",
     title: "CRM follow-ups",
     body: "Clients and deals waiting on a reply or a check-in, sorted by when they are due.",
-  },
-  {
-    path: "/crm/activity",
-    targets: navTargets("/crm/activity"),
-    perm: "crm.records",
-    chapter: "CRM",
-    title: "CRM activity",
-    body: "Everything that happened across your records, in order.",
   },
   {
     path: "/crm/revenue",
