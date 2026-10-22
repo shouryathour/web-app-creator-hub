@@ -43,7 +43,7 @@ const LEAD_EXPORT_COLUMNS = [
   "next_followup_date",
   "archived",
   "email_sent", "email_sent_at", "email_viewed", "email_viewed_at", "email_replied", "email_replied_at", "reply_sentiment",
-  "loom_url", "loom_sent", "loom_sent_at", "loom_watched", "loom_watched_at", "loom_watch_percent",
+  "loom_url", "loom_sent", "loom_sent_at", "loom_watched", "loom_watched_at", "loom_watch_percent", "sample_url", "content_audit_url",
   "linkedin_connection_sent", "linkedin_connection_sent_at", "linkedin_sent", "linkedin_sent_at", "linkedin_replied", "linkedin_replied_at",
   "instagram_sent", "instagram_sent_at", "instagram_replied", "instagram_replied_at",
   "meeting_booked", "meeting_booked_at", "client_closed", "client_closed_at", "last_contacted_at",

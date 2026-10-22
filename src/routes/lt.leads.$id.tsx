@@ -2149,8 +2149,9 @@ function LoomCard({ lead, canEdit, onSave }: { lead: AnyRow; canEdit: boolean; o
     setPct(String(lead.loom_watch_percent ?? ""));
   }, [lead.id]);
   return (
-    <CollapsibleCard id="lead.loom" title="Loom">
+    <CollapsibleCard id="lead.loom" title="Value">
       <div className="flex flex-col gap-3">
+        <div className="label-text">Loom</div>
         <div className="flex items-center gap-2">
           <Input
             placeholder="Loom URL"
@@ -2249,8 +2250,36 @@ function LoomCard({ lead, canEdit, onSave }: { lead: AnyRow; canEdit: boolean; o
             }}
           />
         </div>
+        <ValueLink label="Sample" field="sample_url" lead={lead} canEdit={canEdit} onSave={onSave} />
+        <ValueLink label="Content audit" field="content_audit_url" lead={lead} canEdit={canEdit} onSave={onSave} />
       </div>
     </CollapsibleCard>
+  );
+}
+
+function ValueLink({ label, field, lead, canEdit, onSave }: { label: string; field: string; lead: AnyRow; canEdit: boolean; onSave: (p: AnyRow) => void }) {
+  const [v, setV] = useState(lead[field] ?? "");
+  useEffect(() => setV(lead[field] ?? ""), [lead.id, lead[field]]);
+  const saved = !!lead[field];
+  return (
+    <div className="border-t border-border pt-3">
+      <div className="label-text mb-1">{label}</div>
+      <div className="flex items-center gap-2">
+        <Input
+          placeholder={`${label} link`}
+          className={`h-8 flex-1 text-[13px] ${saved ? "border-positive bg-positive/10 text-positive" : ""}`}
+          value={v}
+          disabled={!canEdit}
+          onChange={(e) => setV(e.target.value)}
+          onBlur={() => v.trim() !== (lead[field] ?? "") && onSave({ [field]: v.trim() || null })}
+        />
+        {saved && (
+          <Button asChild variant="outline" size="sm" className="h-8">
+            <a href={lead[field]} target="_blank" rel="noreferrer">Open</a>
+          </Button>
+        )}
+      </div>
+    </div>
   );
 }
 

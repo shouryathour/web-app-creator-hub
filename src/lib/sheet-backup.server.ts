@@ -108,6 +108,8 @@ const HEADERS = [
   "Additional notes",
   "Created at",
   "Updated at",
+  "Sample link",
+  "Content audit link",
 ];
 
 type Row = Record<string, unknown>;
@@ -169,6 +171,8 @@ function toRow(l: Row): string[] {
     s(l["additional_notes"]),
     day(l["created_at"]),
     day(l["updated_at"]),
+    s(l["sample_url"]),
+    s(l["content_audit_url"]),
   ];
 }
 
@@ -211,6 +215,8 @@ const PULL_FIELDS: Record<string, string> = {
   Instagram: "instagram_url",
   YouTube: "youtube_url",
   "Loom URL": "loom_url",
+  "Sample link": "sample_url",
+  "Content audit link": "content_audit_url",
   "Research notes": "research_notes",
   "Additional notes": "additional_notes",
 };

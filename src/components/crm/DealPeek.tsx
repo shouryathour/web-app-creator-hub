@@ -1,6 +1,9 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { Copy, ExternalLink } from "lucide-react";
+import { CalendarIcon, Copy, ExternalLink } from "lucide-react";
+import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -158,13 +161,27 @@ export function DealPeek({
               </Row>
               <Row label="Deal value">{dealValueLabel(stages.find((x) => x.id === d.rec.stage_id)?.is_won ? d.rec : { ...d.rec, deal_type: "one_time" })}</Row>
               <Row label="Next follow-up">
-                <Input
-                  type="date"
-                  className="h-7 w-[150px] text-[13px]"
-                  value={nextFollowup ? String(nextFollowup).slice(0, 10) : ""}
-                  onChange={(e) => onPatch(d.rec.id, { next_followup_date: e.target.value || null })}
-                />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="h-7 gap-1.5 px-2 text-[13px] font-normal">
+                      <CalendarIcon className="size-3.5" />
+                      {nextFollowup ? fmtDate(nextFollowup) : "Pick date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      captionLayout="dropdown"
+                      selected={nextFollowup ? new Date(`${String(nextFollowup).slice(0, 10)}T12:00:00`) : undefined}
+                      onSelect={(dt) => onPatch(d.rec.id, { next_followup_date: dt ? format(dt, "yyyy-MM-dd") : null })}
+                      initialFocus
+                      className="p-3 pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
               </Row>
+              {lead?.sample_url && <Row label="Sample"><a className="text-positive underline" href={lead.sample_url} target="_blank" rel="noreferrer">Open sample</a></Row>}
+              {lead?.content_audit_url && <Row label="Content audit"><a className="text-positive underline" href={lead.content_audit_url} target="_blank" rel="noreferrer">Open audit</a></Row>}
               <Row label="Follow-ups done">{`${sentFollowups.length} of ${d.followups.length}`}</Row>
               <Row label="Last outreach">{lastOutreach ? fmtDate(lastOutreach) : null}</Row>
             </div>

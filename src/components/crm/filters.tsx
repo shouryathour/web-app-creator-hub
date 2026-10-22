@@ -201,7 +201,7 @@ export function RevenueFilterBar({
           </option>
         ))}
       </select>
-      {owners.length > 1 && (
+      {false && owners.length > 1 && (
         <select
           className={SELECT_CLASS}
           aria-label="Owner"
