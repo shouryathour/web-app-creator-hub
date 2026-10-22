@@ -2149,8 +2149,9 @@ function LoomCard({ lead, canEdit, onSave }: { lead: AnyRow; canEdit: boolean; o
     setPct(String(lead.loom_watch_percent ?? ""));
   }, [lead.id]);
   return (
-    <CollapsibleCard id="lead.loom" title="Loom">
+    <CollapsibleCard id="lead.loom" title="Value">
       <div className="flex flex-col gap-3">
+        <div className="label-text">Loom</div>
         <div className="flex items-center gap-2">
           <Input
             placeholder="Loom URL"
