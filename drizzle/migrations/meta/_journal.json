@@ -141,6 +141,20 @@
       "when": 1792635612710,
       "tag": "0019_lead_value_links",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1793017618866,
+      "tag": "0020_fuzzy_lead_search",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1793017655261,
+      "tag": "0021_fuzzy_search_email_objects",
+      "breakpoints": true
     }
   ]
 }

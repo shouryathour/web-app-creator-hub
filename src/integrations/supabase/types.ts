@@ -1949,6 +1949,17 @@ export type Database = {
           won_this_month: number
         }[]
       }
+      search_leads_fuzzy: {
+        Args: { lim?: number; q: string }
+        Returns: {
+          archived: boolean
+          company_name: string
+          id: string
+          lead_code: string
+          matched: string
+          score: number
+        }[]
+      }
       seed_workspace: { Args: { _ws: string }; Returns: undefined }
       set_crm_stage: {
         Args: { _kind: string; _lead_id: string }
