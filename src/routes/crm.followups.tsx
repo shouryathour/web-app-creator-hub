@@ -43,7 +43,7 @@ function FollowupsPage() {
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from("crm_records")
-        .select("id, next_followup_date, leads(company_name), stage:pipeline_stages(is_won, is_lost)")
+        .select("id, next_followup_date, leads(company_name), stage:stages!crm_records_stage_id_fkey(is_won, is_lost)")
         .order("next_followup_date", { ascending: true, nullsFirst: true });
       if (error) throw error;
       return ((data ?? []) as FollowupRow[]).filter((r) => !r.stage?.is_won && !r.stage?.is_lost);
