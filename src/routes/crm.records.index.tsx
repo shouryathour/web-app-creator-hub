@@ -53,7 +53,6 @@ type RecordRow = CrmRecordRow & {
   leads: (NonNullable<CrmRecordRow["leads"]> & { reply_sentiment?: string | null }) | null;
 };
 
-const PAGE_SIZE = 50;
 const VIEW_KEY = "tracker.crm.records.view";
 
 const SORT_COLUMNS: Record<SortField, { column: string; foreignTable?: string }> = {
@@ -89,7 +88,8 @@ function RecordsPage() {
     window.localStorage.setItem(VIEW_KEY, v);
   };
 
-  const [page, setPage] = useState(0);
+  const [, setPage] = useState(0);
+  const [pageSize, setPageSize] = useStoredState<string>("tracker.crm.records.pageSize", "50");
   const [sortField, setSortField] = useState<SortField>("next_followup_date");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const EMPTY = { search: "", stage: "all", priority: "all", dealType: "all", country: "all", channel: "all", sender: "all", tag: "all", dateFrom: "", dateTo: "", loom: "all", loomWatched: "all", sample: "all", audit: "all" };
@@ -130,7 +130,7 @@ function RecordsPage() {
 
   const isColumns = view === "columns";
   const { data, isLoading } = useQuery({
-    queryKey: ["crm_records", view, page, sortField, sortDir, JSON.stringify(flt)],
+    queryKey: ["crm_records", view, pageSize, sortField, sortDir, JSON.stringify(flt)],
     queryFn: async () => {
       let q = (supabase as any)
         .from("crm_records")
@@ -145,7 +145,7 @@ function RecordsPage() {
       }
       const sort = SORT_COLUMNS[sortField];
       q = q.order(sort.column, { ascending: sortDir === "asc", foreignTable: sort.foreignTable });
-      q = isColumns ? q.limit(1000) : q.range(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE - 1);
+      q = isColumns || pageSize === "all" ? q.limit(1000) : q.range(0, Number(pageSize) - 1);
       const { data, error, count } = await q;
       if (error) throw error;
       return { rows: (data ?? []) as RecordRow[], count: (count ?? 0) as number };
@@ -154,7 +154,6 @@ function RecordsPage() {
 
   const rows = data?.rows ?? [];
   const total = data?.count ?? 0;
-  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   const primaryEmail = (r: RecordRow) => {
     const contacts = r.leads?.lead_contacts ?? [];
@@ -412,16 +411,17 @@ function RecordsPage() {
         {!isColumns && rows.length > 0 && (
           <div className="flex items-center justify-between text-[12px] text-muted-foreground">
             <span>
-              Page {page + 1} of {pages} ({total} records)
+              Showing {rows.length} of {total} records
             </span>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>
-                Previous
-              </Button>
-              <Button variant="outline" size="sm" disabled={page + 1 >= pages} onClick={() => setPage((p) => p + 1)}>
-                Next
-              </Button>
-            </div>
+            <div className="flex items-center gap-2">
+              <span>Show</span>
+              <Select value={pageSize} onValueChange={setPageSize}>
+                <SelectTrigger className="h-8 w-[90px]"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {["25", "50", "100", "250"].map((n) => <SelectItem key={n} value={n}>{n}</SelectItem>)}
+                  <SelectItem value="all">All</SelectItem>
+                </SelectContent>
+              </Select>
           </div>
         )}
       </div>

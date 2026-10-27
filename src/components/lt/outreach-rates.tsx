@@ -192,7 +192,7 @@ export function OutreachRateTiles({
       for (let offset = 0; ; offset += 1000) {
         const { data, error } = await supabase.from("leads")
           .select(["id", "channel_id", "contacted_channel_id", "reply_channel_id", "last_contacted_at", "loom_watch_percent", "reply_sentiment", ...ACTIVITY_FLAGS.flatMap((flag) => [flag, `${flag}_at`])].join(","))
-          .order("id").range(offset, offset + 999);
+          .eq("archived", false).order("id").range(offset, offset + 999);
         if (error) throw error;
         all.push(...(data ?? []) as unknown as RateLead[]);
         if ((data?.length ?? 0) < 1000) break;
