@@ -212,7 +212,7 @@ function DashboardPage() {
           )}
         </div>
         <RangePicker range={range} />
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
           <Metric label="Leads added this week" value={counts?.weekCount ?? 0} />
           <Metric label="Leads added today" value={counts?.todayCount ?? 0} />
           <Metric label="Leads in Leads list" value={(active ?? []).filter((l: any) => !l.pushed_to_crm).length} />
