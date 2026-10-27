@@ -219,6 +219,7 @@ function DashboardPage() {
           <Metric label="Leads in CRM" value={(active ?? []).filter((l: any) => l.pushed_to_crm).length} />
           <Metric label="Overdue follow-ups" value={overdue.length} tone={overdue.length ? "negative" : undefined} />
         </div>
+        <p className="-mb-2 text-xs text-muted-foreground">Outreach rates count every active lead you've reached out to, including those that moved to the CRM. Archived leads are left out.</p>
         <OutreachRateTiles from={from} to={to} />
         <div className="flex flex-col gap-3">
           <FollowupGroup id="dashboard.overdue" title="Overdue" tone="negative" leads={overdue} stages={stages} channelName={channelName} />
