@@ -422,6 +422,7 @@ function RecordsPage() {
                   <SelectItem value="all">All</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
           </div>
         )}
       </div>
