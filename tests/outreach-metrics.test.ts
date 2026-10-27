@@ -16,3 +16,7 @@ test("no activity yields zero without invalid numbers", () => {
   expect(pct(NaN, 2).hasData).toBe(false);
   expect(pct(1, 3).text).toBe("33%");
 });
+test("view rate never passes 100% when views happen without a send in the period", () => {
+  const t = computeTiles([{ email_sent: true, email_viewed: true }, { email_viewed: true }], "all", []);
+  expect(t.find((x) => x.key === "view")!.detail).toBe("1/1");
+});
