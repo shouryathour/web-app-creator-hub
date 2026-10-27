@@ -39,7 +39,7 @@ export function computeTiles(leads: RateLead[], scope: string, channels: any[]):
     if (k === "linkedin")
       tiles.push(tile("connection", "Connection request rate", pool.filter((l) => l.linkedin_connection_sent).length, pool.length));
     tiles.push(tile("sent", `${label} sent rate`, sentCount, pool.length));
-    if (k === "email") tiles.push(tile("view", "Email view rate", pool.filter((l) => l.email_viewed).length, sentCount));
+    if (k === "email") tiles.push(tile("view", "Email view rate", pool.filter((l) => l.email_sent && l.email_viewed).length, sentCount));
   } else if (scope === "all") {
     pool = leads;
     isSent = (l) => anySent(l) || isOther(l.contacted_channel_id);
@@ -49,7 +49,7 @@ export function computeTiles(leads: RateLead[], scope: string, channels: any[]):
     tiles.push(tile("email_sent", "Email sent rate", pool.filter((l) => l.email_sent).length, pool.length));
     tiles.push(tile("instagram_sent", "Instagram sent rate", pool.filter((l) => l.instagram_sent).length, pool.length));
     tiles.push(tile("linkedin_sent", "LinkedIn sent rate", pool.filter((l) => l.linkedin_sent).length, pool.length));
-    tiles.push(tile("view", "Email view rate", pool.filter((l) => l.email_viewed).length, pool.filter((l) => l.email_sent).length));
+    tiles.push(tile("view", "Email view rate", pool.filter((l) => l.email_sent && l.email_viewed).length, pool.filter((l) => l.email_sent).length));
   } else {
     const id = scope;
     const name = channels.find((c) => c.id === id)?.name ?? "Channel";
@@ -59,11 +59,12 @@ export function computeTiles(leads: RateLead[], scope: string, channels: any[]):
     tiles.push(tile("sent", `${name} sent rate`, pool.filter(isSent).length, pool.length));
   }
   const sent = pool.filter(isSent);
-  const replied = pool.filter(isReplied);
-  const loomSent = pool.filter((l) => l.loom_sent);
-  const loomWatched = pool.filter((l) => l.loom_watched);
+  // Each step only counts leads that also did the step before it in this period, so no rate passes 100%.
+  const replied = sent.filter(isReplied);
+  const loomSent = sent.filter((l) => l.loom_sent);
+  const loomWatched = loomSent.filter((l) => l.loom_watched);
   const watchPcts = loomWatched.filter((l) => Number.isFinite(l.loom_watch_percent) && l.loom_watch_percent >= 0 && l.loom_watch_percent <= 100).map((l) => l.loom_watch_percent as number);
-  const meetings = pool.filter((l) => l.meeting_booked);
+  const meetings = replied.filter((l) => l.meeting_booked);
   const avg = watchPcts.length ? watchPcts.reduce((a, b) => a + b, 0) / watchPcts.length : 0;
   tiles.push(tile("reply", "Reply rate", replied.length, sent.length));
   tiles.push(tile("positive", "Positive reply rate", replied.filter((l) => l.reply_sentiment === "positive").length, replied.length));
@@ -79,7 +80,7 @@ export function computeTiles(leads: RateLead[], scope: string, channels: any[]):
     bar: watchPcts.length ? Math.round(avg) : 0,
   });
   tiles.push(tile("meetings", "Meetings booked rate", meetings.length, replied.length));
-  tiles.push(tile("close", "Client close rate", pool.filter((l) => l.client_closed).length, meetings.length));
+  tiles.push(tile("close", "Client close rate", meetings.filter((l) => l.client_closed).length, meetings.length));
   return tiles;
 }
 
