@@ -63,7 +63,7 @@ function DashboardPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("leads")
-        .select("id,company_name,stage_id,channel_id,next_followup_date,archived")
+        .select("id,company_name,stage_id,channel_id,next_followup_date,archived,pushed_to_crm")
         .eq("archived", false);
       if (error) throw error;
       return (data ?? []) as ActiveLead[];
@@ -106,8 +106,8 @@ function DashboardPage() {
     queryKey: ["dashboard-counts", weekStart, today],
     queryFn: async () => {
       const [{ count: weekCount }, { count: todayCount }] = await Promise.all([
-        supabase.from("leads").select("id", { count: "exact", head: true }).eq("archived", false).gte("date_added", weekStart).lte("date_added", today),
-        supabase.from("leads").select("id", { count: "exact", head: true }).eq("archived", false).eq("date_added", today),
+        supabase.from("leads").select("id", { count: "exact", head: true }).eq("archived", false).eq("pushed_to_crm", false).gte("date_added", weekStart).lte("date_added", today),
+        supabase.from("leads").select("id", { count: "exact", head: true }).eq("archived", false).eq("pushed_to_crm", false).eq("date_added", today),
       ]);
       return { weekCount: weekCount ?? 0, todayCount: todayCount ?? 0 };
     },
@@ -212,12 +212,14 @@ function DashboardPage() {
           )}
         </div>
         <RangePicker range={range} />
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
           <Metric label="Leads added this week" value={counts?.weekCount ?? 0} />
           <Metric label="Leads added today" value={counts?.todayCount ?? 0} />
-          <Metric label="Total active leads" value={(active ?? []).length} />
+          <Metric label="Leads in Leads list" value={(active ?? []).filter((l: any) => !l.pushed_to_crm).length} />
+          <Metric label="Leads in CRM" value={(active ?? []).filter((l: any) => l.pushed_to_crm).length} />
           <Metric label="Overdue follow-ups" value={overdue.length} tone={overdue.length ? "negative" : undefined} />
         </div>
+        <p className="-mb-2 text-xs text-muted-foreground">Outreach rates count every active lead you've reached out to, including those that moved to the CRM. Archived leads are left out.</p>
         <OutreachRateTiles from={from} to={to} />
         <div className="flex flex-col gap-3">
           <FollowupGroup id="dashboard.overdue" title="Overdue" tone="negative" leads={overdue} stages={stages} channelName={channelName} />
