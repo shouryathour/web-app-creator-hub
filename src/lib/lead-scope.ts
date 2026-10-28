@@ -9,7 +9,7 @@
  * CSV exports and Google Sheet backups deliberately do NOT use this: they keep
  * every row so nothing is lost from the backup.
  */
-export const CRM_LEAD_EMBED = "leads!inner";
+export const LEAD_INNER_EMBED = "leads!inner";
 
 export function excludeArchivedLeads<T extends { eq: (column: string, value: unknown) => T }>(query: T): T {
   return query.eq("leads.archived", false);
