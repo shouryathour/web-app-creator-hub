@@ -1,5 +1,6 @@
 // Ported from live chunk TodosView-CEdgBG2A.js. Shared by /crm/todos and /lt/todos.
 import { useMemo, useState } from "react";
+import { LEAD_INNER_EMBED, excludeArchivedLeads } from "@/lib/lead-scope";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";

@@ -1,6 +1,7 @@
 // Ported from the activity + to-do widgets bundled inside the live app-shell chunk
 // (xa, Sa, Ca, wa, Da, Oa, ka, Aa, ja, Ma, Na, Pa, Fa, Ia, La, Ra, za, Ya).
 import { useEffect, useState, type ComponentType, type ReactNode } from "react";
+import { LEAD_INNER_EMBED, excludeArchivedLeads } from "@/lib/lead-scope";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Activity,
