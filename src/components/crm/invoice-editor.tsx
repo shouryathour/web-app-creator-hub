@@ -1,4 +1,5 @@
 // Ported from live chunk crm.invoices-CGKC86lD.js (je). Full invoice builder with live preview.
+import { confirmDialog } from "@/components/confirm-dialog";
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { useBlocker } from "@tanstack/react-router";
 import {
@@ -846,7 +847,7 @@ export function InvoiceEditor({
               variant="outline"
               size="sm"
               onClick={() => {
-                if (confirm("Are you sure you want to delete this invoice?")) onDelete(inv.id);
+                void confirmDialog("Delete this invoice?").then((ok) => ok && onDelete(inv.id));
               }}
               className="gap-1.5 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive"
               title="Delete this invoice"

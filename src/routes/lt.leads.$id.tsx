@@ -220,7 +220,7 @@ function PersonalizedMessageCard({ lead, canEdit, onSave }: { lead: AnyRow; canE
       onSave({ message_angle: chosen });
     }
   };
-  const removeAngle = (a: string) => {
+  const removeAngle = async (a: string) => {
     if (await confirmDialog(`Remove the angle "${a}" from the list? Leads already using it keep it.`))
       void persist(angles.filter((x) => x !== a));
   };
@@ -244,7 +244,7 @@ function PersonalizedMessageCard({ lead, canEdit, onSave }: { lead: AnyRow; canE
   const blur = () => {
     if (msg !== (lead.personalized_message ?? "")) onSave({ personalized_message: msg || null });
   };
-  const onTemplate = (t: AnyRow | null) => {
+  const onTemplate = async (t: AnyRow | null) => {
     setTemplateId(t?.id ?? null);
     if (!t) return onSave({ outreach_template_id: null });
     const body = renderTemplate(t.body, { name: lead.primary_contact, company: lead.company_name });
