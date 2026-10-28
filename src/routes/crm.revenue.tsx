@@ -76,9 +76,11 @@ function RevenuePage() {
   const { data: records, isLoading } = useQuery({
     queryKey: ["crm_records_revenue"],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("crm_records")
-        .select(`id,lead_id,stage_id,owner_id,${REVENUE_FIELDS},leads(company_name)`);
+      const { data, error } = await excludeArchivedLeads(
+        (supabase as any)
+          .from("crm_records")
+          .select(`id,lead_id,stage_id,owner_id,${REVENUE_FIELDS},${CRM_LEAD_EMBED}(company_name)`),
+      );
       if (error) throw error;
       return (data ?? []) as RevenueRecord[];
     },

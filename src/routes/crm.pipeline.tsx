@@ -57,10 +57,9 @@ function PipelinePage() {
   const query = useQuery({
     queryKey: ["crm_pipeline_records"],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("crm_records")
-        .select("*, leads(company_name)")
-        .order("updated_at", { ascending: false });
+      const { data, error } = await excludeArchivedLeads(
+        (supabase as any).from("crm_records").select(`*, ${CRM_LEAD_EMBED}(company_name)`),
+      ).order("updated_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as PipelineRecord[];
     },

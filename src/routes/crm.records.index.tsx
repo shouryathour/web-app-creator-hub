@@ -110,6 +110,7 @@ function RecordsPage() {
   const profileById = useMemo(() => new Map((profiles ?? []).map((p) => [p.id, p])), [profiles]);
 
   const applyFilters = (q: any) => {
+    q = excludeArchivedLeads(q);
     if (stage !== "all") q = q.eq("stage_id", stage);
     if (priority !== "all") q = q.eq("priority", priority);
     const term = flt.search.trim().replace(/[,()%]/g, " ");
