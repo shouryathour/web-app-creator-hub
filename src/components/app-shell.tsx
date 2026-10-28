@@ -2279,7 +2279,6 @@ function LeadPeek({ id, onClose }: { id: string; onClose: () => void }) {
             <p className="text-[12.5px] text-muted-foreground">No notes yet.</p>
           )}
         </section>
-        <LeadTodosCard leadId={id} canEdit={canEdit} cardId="lead.peek.todos" />
         <section>
           <PeekSectionLabel>Activity</PeekSectionLabel>
           {events?.length ? (
@@ -2406,7 +2405,6 @@ export const LEAD_NAV: NavItem[] = [
   { to: "/lt/dashboard", label: "Dashboard", icon: LayoutDashboard, perm: "lead.dashboard", group: "primary" },
   { to: "/lt/leads", label: "Leads", icon: Table2, perm: "lead.leads", group: "primary" },
   { to: "/lt/followups", label: "Follow-ups", icon: CalendarClock, perm: "lead.leads", group: "primary" },
-  { to: "/lt/todos", label: "To-dos", icon: ListTodo, perm: "lead.leads", group: "primary" },
   { to: "/lt/outreach", label: "Outreach Tracker", icon: Gauge, perm: "lead.outreach_tracker", group: "primary" },
   { to: "/lt/ledger", label: "Ledger", icon: ListChecks, perm: "lead.ledger", group: "secondary" },
   { to: "/lt/archive", label: "Archive", icon: Boxes, perm: "lead.archive", group: "secondary" },
@@ -2418,7 +2416,6 @@ export const CRM_NAV: NavItem[] = [
   { to: "/crm/records", label: "Records", icon: Table2, perm: "crm.records", group: "primary" },
   { to: "/crm/pipeline", label: "Pipeline", icon: Columns3, perm: "crm.pipeline", group: "primary" },
   { to: "/crm/revenue", label: "Revenue", icon: ChartColumn, perm: "crm.revenue", group: "primary" },
-  { to: "/crm/todos", label: "To-dos", icon: ListChecks, perm: "crm.todos", group: "secondary" },
   { to: "/crm/followups", label: "Follow-ups", icon: CalendarClock, perm: "crm.followups", group: "secondary" },
 ];
 

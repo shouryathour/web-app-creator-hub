@@ -1451,7 +1451,6 @@ function LeadDetailPage() {
               supabase.from("lead_contacts").delete().eq("id", cid).then(done as never);
             }}
           />
-          <LeadTasksCard leadId={id} canEdit={canEdit} />
           <NotesCard lead={lead} canEdit={canEdit} onSave={onSave} />
           <EmailCard
             lead={lead}

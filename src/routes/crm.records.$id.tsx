@@ -147,9 +147,7 @@ function CrmRecordPage() {
         />
         <ContactsCard leadId={lead?.id} contacts={lead?.lead_contacts ?? []} canEdit={canEdit} recordId={id} />
         {lead && <OutreachCard lead={lead} />}
-        {lead && <LeadTasksCard leadId={lead.id} canEdit={canEdit} cardId="crm.todos.card" />}
         <DatesCard record={record} canEdit={canEdit} onSave={(p) => save.mutate(p)} />
-        <ContactLogCard recordId={id} logs={logQ.data ?? []} channels={(channels ?? []) as any[]} canEdit={canEdit} />
         <CollapsibleCard id="crm.notes" title="Notes">
           <Textarea
             defaultValue={record.notes ?? ""}

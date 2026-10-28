@@ -1,17 +1,8 @@
-// Ported from live chunk crm.todos-GTkfHEui.js.
-import { createFileRoute } from "@tanstack/react-router";
-import { TodosView } from "@/components/crm/TodosView";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
+// To-dos were removed from the app; old links land on the dashboard.
 export const Route = createFileRoute("/crm/todos")({
-  head: () => ({
-    meta: [
-      { title: "To-dos | CRM | Tracker | Buzzspear" },
-      { name: "description", content: "Every open task across your leads and deals, grouped by due date." },
-      { property: "og:title", content: "To-dos | CRM | Tracker | Buzzspear" },
-      { property: "og:description", content: "Every open task across your leads and deals, grouped by due date." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
-  component: () => <TodosView module="crm" perm="crm.todos" />,
+  beforeLoad: () => {
+    throw redirect({ to: "/crm/dashboard" });
+  },
 });
