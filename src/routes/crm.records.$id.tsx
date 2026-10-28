@@ -128,6 +128,15 @@ function CrmRecordPage() {
   return (
     <AppPage {...pageProps} title={lead?.company_name ?? "Record"} actions={<SavedIndicator saved={saved} />}>
       <div className="flex flex-col gap-4">
+        {lead?.archived && (
+          <div className="rounded-lg border border-negative/40 bg-negative/10 px-3 py-2 text-[13px]">
+            This lead is archived, so its deal is hidden from CRM lists, the pipeline and revenue totals.{" "}
+            <Link to="/lt/archive" className="underline underline-offset-2">
+              Open the archive
+            </Link>{" "}
+            to restore it.
+          </div>
+        )}
         {lead && <LeadSummary lead={lead} />}
         <DealCard
           record={record}

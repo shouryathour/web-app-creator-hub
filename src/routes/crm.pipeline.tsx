@@ -1,5 +1,6 @@
 // Ported from live chunk crm.pipeline-BrAdr9E4.js.
 import { useEffect, useState } from "react";
+import { CRM_LEAD_EMBED, excludeArchivedLeads } from "@/lib/crm-scope";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Eye, EyeOff } from "lucide-react";
@@ -57,10 +58,9 @@ function PipelinePage() {
   const query = useQuery({
     queryKey: ["crm_pipeline_records"],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("crm_records")
-        .select("*, leads(company_name)")
-        .order("updated_at", { ascending: false });
+      const { data, error } = await excludeArchivedLeads(
+        (supabase as any).from("crm_records").select(`*, ${CRM_LEAD_EMBED}(company_name)`),
+      ).order("updated_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as PipelineRecord[];
     },
