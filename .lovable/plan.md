@@ -19,6 +19,16 @@
 - All ~30 browser "app.buzzspear.co says…" confirmations (delete follow-up, clear follow-ups, delete lead, delete tag/stage/template/sender, untick, push to CRM, etc.) become a centered in-app dialog in the app's style: clear title, short explanation, Cancel and a red "Delete" (or matching action) button, keyboard Enter/Escape support.
 - Restyle the existing in-app dialogs (Loom watched, reply details, log follow-up, close date) to match: consistent spacing, title + description, aligned buttons.
 
+## 5. Simpler lead page: one Outreach section
+- Merge the separate "Email" and "Outcome" cards into the **Outreach** card, in this order:
+  - Email sent (with date)
+  - Email viewed (with date)
+  - Email replied (with date) + Positive / Negative / Neutral
+  - Outcome: Meeting booked, Client closed (with dates)
+- LinkedIn, Instagram and channel/sender pickers stay inside the same Outreach card, below the email rows, so nothing is lost.
+- All existing rules stay: viewed/replied need sent first, positive replies go to CRM, date-order warnings.
+- Move the single Notes box to the bottom of the page, directly below Tags.
+
 ## Technical details
 - New `useConfirm()` hook + `<ConfirmProvider>` mounted in root, built on shadcn AlertDialog, returning `Promise<boolean>`; replace every `window.confirm` (rg list) with `await confirm({...})`.
 - Migration: `update leads set research_notes = additional_notes where coalesce(research_notes,'')='' and coalesce(additional_notes,'')<>''` (merge with blank line if both ever set); UI uses `research_notes` as the Notes field; `additional_notes` column kept but unused.
