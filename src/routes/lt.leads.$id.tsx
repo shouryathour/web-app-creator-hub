@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // Ported from live chunk lt.leads._id-KGC4i_M0.js
+import { confirmDialog } from "@/components/confirm-dialog";
 import { useEffect, useRef, useState, type KeyboardEvent, type RefObject } from "react";
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -220,7 +221,7 @@ function PersonalizedMessageCard({ lead, canEdit, onSave }: { lead: AnyRow; canE
     }
   };
   const removeAngle = (a: string) => {
-    if (window.confirm(`Remove the angle "${a}" from the list? Leads already using it keep it.`))
+    if (await confirmDialog(`Remove the angle "${a}" from the list? Leads already using it keep it.`))
       void persist(angles.filter((x) => x !== a));
   };
   const onKey = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -247,7 +248,7 @@ function PersonalizedMessageCard({ lead, canEdit, onSave }: { lead: AnyRow; canE
     setTemplateId(t?.id ?? null);
     if (!t) return onSave({ outreach_template_id: null });
     const body = renderTemplate(t.body, { name: lead.primary_contact, company: lead.company_name });
-    const replace = body.trim() && (!msg.trim() || window.confirm("Replace the current message with this template?"));
+    const replace = body.trim() && (!msg.trim() || await confirmDialog("Replace the current message with this template?"));
     if (replace) setMsg(body);
     onSave({ outreach_template_id: t.id, ...(replace ? { personalized_message: body } : {}) });
   };
@@ -946,7 +947,7 @@ function FollowupsCard({
   };
 
   const clearAll = async () => {
-    if (!window.confirm("Clear all follow-ups? Dates, channels, sent marks and notes are removed and the list goes back to 5.")) return;
+    if (!await confirmDialog("Clear all follow-ups? Dates, channels, sent marks and notes are removed and the list goes back to 5.")) return;
     const keep = sorted.filter((f) => f.sequence_number <= 5).map((f) => f.id);
     const drop = sorted.filter((f) => f.sequence_number > 5).map((f) => f.id);
     const res = await Promise.all([
@@ -967,7 +968,7 @@ function FollowupsCard({
   };
 
   const remove = async (f: AnyRow) => {
-    if (!isBlank(f) && !window.confirm(`Delete follow-up #${f.sequence_number}?`)) return;
+    if (!isBlank(f) && !await confirmDialog(`Delete follow-up #${f.sequence_number}?`)) return;
     const { error } = await supabase.rpc("delete_followup", { _id: f.id });
     if (error) return toast.error(error.message);
     invalidate();
@@ -1327,7 +1328,7 @@ function LeadDetailPage() {
     mutationFn: async () => {
       if (
         leadQ.data?.reply_sentiment !== "positive" &&
-        !window.confirm("This lead does not have a positive reply. Only positive replies normally go to the CRM. Push it anyway?")
+        !await confirmDialog("This lead does not have a positive reply. Only positive replies normally go to the CRM. Push it anyway?")
       )
         return false;
       const { error } = await (supabase.rpc as any)("ensure_crm_record", { _lead_id: id });
@@ -1351,7 +1352,7 @@ function LeadDetailPage() {
     const l = leadQ.data;
     if (!l) return;
     const extra = l.pushed_to_crm ? "\n\nIts CRM record will be deleted too." : "";
-    if (!window.confirm(`Delete "${l.company_name}" permanently? This cannot be undone.${extra}`)) return;
+    if (!await confirmDialog(`Delete "${l.company_name}" permanently? This cannot be undone.${extra}`)) return;
     const { data, error } = await supabase.from("leads").delete().eq("id", id).select("id");
     if (error) return toast.error(error.message ?? "Could not delete the lead");
     if (!data?.length) return toast.error("Only admins can delete leads.");

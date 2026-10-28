@@ -1,3 +1,4 @@
+import { confirmDialog } from "@/components/confirm-dialog";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Plus, Trash2, Star } from "lucide-react";
@@ -49,7 +50,7 @@ export function FollowupTemplatesCard() {
   };
 
   const remove = async (id: string) => {
-    if (!window.confirm("Delete this follow-up template?")) return;
+    if (!await confirmDialog("Delete this follow-up template?")) return;
     const { error } = await supabase.from("followup_templates").delete().eq("id", id);
     if (error) return window.alert(error.message);
     invalidate();

@@ -1,4 +1,5 @@
 // Ported from the live app-shell chunk (event pieces: Da, Oa, ka, Aa, ja, Ma, Na, Pa, Fa, Ia, La, Ra, za, Ya).
+import { confirmDialog } from "@/components/confirm-dialog";
 import { openLeadPeek, peekClick } from "@/lib/peek";
 import { useEffect, useState, type ComponentType, type ReactNode } from "react";
 import { toast } from "sonner";
@@ -213,7 +214,7 @@ export function useEventActions(onDone?: () => void) {
     },
     remove: async (e: LeadEvent, untick?: (patch: Record<string, unknown>) => Promise<void>) => {
       if (
-        !window.confirm(
+        !await confirmDialog(
           `Delete "${eventLabel(e)}"${e.leads?.company_name ? ` for ${e.leads.company_name}` : ""}? It also stops counting in the Ledger and Outreach Tracker.`,
         )
       )
@@ -226,7 +227,7 @@ export function useEventActions(onDone?: () => void) {
           const { data } = await supabase.from("leads").select(flag.field).eq("id", e.lead_id).maybeSingle();
           if (
             (data as Record<string, unknown> | null)?.[flag.field] === true &&
-            window.confirm(`"${flag.label}" is still ticked on this lead. Untick it too?`)
+            await confirmDialog(`"${flag.label}" is still ticked on this lead. Untick it too?`)
           ) {
             const patch = { [flag.field]: false, [`${flag.field}_at`]: null };
             if (untick) await untick(patch);

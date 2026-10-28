@@ -1,5 +1,6 @@
 // Ported from the activity + to-do widgets bundled inside the live app-shell chunk
 // (xa, Sa, Ca, wa, Da, Oa, ka, Aa, ja, Ma, Na, Pa, Fa, Ia, La, Ra, za, Ya).
+import { confirmDialog } from "@/components/confirm-dialog";
 import { useEffect, useState, type ComponentType, type ReactNode } from "react";
 import { LEAD_INNER_EMBED, excludeArchivedLeads } from "@/lib/lead-scope";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -416,7 +417,7 @@ export function useActivityEdits(onDone?: () => void) {
     },
     remove: async (e: LeadEvent, patchLead?: (patch: Record<string, unknown>) => Promise<unknown>) => {
       if (
-        !window.confirm(
+        !await confirmDialog(
           `Delete "${activityLabel(e)}"${e.leads?.company_name ? ` for ${e.leads.company_name}` : ""}? It also stops counting in the Ledger and Outreach Tracker.`,
         )
       )
@@ -427,7 +428,7 @@ export function useActivityEdits(onDone?: () => void) {
         const flag = FLAG_FIELDS[e.event_type];
         if (flag && e.lead_id) {
           const { data } = await db.from("leads").select(flag.field).eq("id", e.lead_id).maybeSingle();
-          if (data?.[flag.field] === true && window.confirm(`"${flag.label}" is still ticked on this lead. Untick it too?`)) {
+          if (data?.[flag.field] === true && await confirmDialog(`"${flag.label}" is still ticked on this lead. Untick it too?`)) {
             const patch = { [flag.field]: false, [`${flag.field}_at`]: null };
             if (patchLead) await patchLead(patch);
             else await db.from("leads").update(patch).eq("id", e.lead_id);

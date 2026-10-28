@@ -2,6 +2,7 @@
 // Live chunk: app-shell-DE-EaUp2.js
 // The app frame (sidebar, header, command palette, shortcuts)
 // plus the shared pieces other chunks import from it.
+import { confirmDialog } from "@/components/confirm-dialog";
 import { LEAD_INNER_EMBED, excludeArchivedLeads } from "@/lib/lead-scope";
 //
 // Export mapping (live letter -> name here):
@@ -1492,7 +1493,7 @@ export function useLeadEventActions(onChange?: () => void) {
     },
     remove: async (e: any, patchLead?: (patch: Record<string, unknown>) => Promise<unknown>) => {
       if (
-        !window.confirm(
+        !await confirmDialog(
           `Delete "${eventLabel(e)}"${e.leads?.company_name ? ` for ${e.leads.company_name}` : ""}? It also stops counting in the Ledger and Outreach Tracker.`,
         )
       )
@@ -1505,7 +1506,7 @@ export function useLeadEventActions(onChange?: () => void) {
           const { data } = await db.from("leads").select(flag.field).eq("id", e.lead_id).maybeSingle();
           if (
             (data as any)?.[flag.field] === true &&
-            window.confirm(`"${flag.label}" is still ticked on this lead. Untick it too?`)
+            await confirmDialog(`"${flag.label}" is still ticked on this lead. Untick it too?`)
           ) {
             const patch = { [flag.field]: false, [`${flag.field}_at`]: null };
             if (patchLead) await patchLead(patch);

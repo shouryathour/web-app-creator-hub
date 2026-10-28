@@ -1,5 +1,6 @@
 // Ported from live chunk TodayLeadStream-DhspyDDE.js
 // Exports: LeadQuickAdd (live `n`), TodayLeadStream (live `t`).
+import { confirmDialog } from "@/components/confirm-dialog";
 import { openLeadPeek } from "@/lib/peek";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { Link } from "@tanstack/react-router";
@@ -112,7 +113,7 @@ function TagPicker({
     qc.invalidateQueries({ queryKey: ["tags"] });
   };
   const remove = async (id: string, name: string) => {
-    if (!window.confirm(`Delete the tag "${name}"? It will be removed from all leads.`)) return;
+    if (!await confirmDialog(`Delete the tag "${name}"? It will be removed from all leads.`)) return;
     const { error } = await supabase.from("tags").delete().eq("id", id);
     if (error) return toast.error(error.message);
     onChange(selected.filter((x) => x !== id));

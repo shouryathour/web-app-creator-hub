@@ -1,4 +1,5 @@
 // Ported from live chunk lt.followups-BRy1o7RC.js
+import { confirmDialog } from "@/components/confirm-dialog";
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -188,7 +189,7 @@ function FollowupsPage() {
   };
   const bulkStop = async () => {
     if (selected.length === 0) return;
-    if (!window.confirm(`Stop and cancel follow-ups for all ${selected.length} selected items?`)) return;
+    if (!await confirmDialog(`Stop and cancel follow-ups for all ${selected.length} selected items?`)) return;
     setBulkBusy(true);
     try {
       const { error } = await supabase

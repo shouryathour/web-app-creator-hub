@@ -1,4 +1,5 @@
 // Ported from live chunk lt.leads.index-Bpm776UG.js
+import { confirmDialog } from "@/components/confirm-dialog";
 import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -1017,7 +1018,7 @@ function LeadsPage() {
     setSelected(new Set());
   };
   const bulkDelete = async () => {
-    if (!window.confirm(`Delete ${selected.size} lead(s)? This cannot be undone.`)) return;
+    if (!await confirmDialog(`Delete ${selected.size} lead(s)? This cannot be undone.`)) return;
     const { error } = await supabase.from("leads").delete().in("id", ids());
     if (error) return toast.error(error.message);
     void invalidateTrackerQueries(qc, ["leads"]);

@@ -1,3 +1,4 @@
+import { confirmDialog } from "@/components/confirm-dialog";
 import { useRef, useState } from "react";
 import { senderColor } from "@/lib/email-progress";
 import { useQueryClient } from "@tanstack/react-query";
@@ -180,7 +181,7 @@ export function SenderAccountsSettings() {
 
   const deleteChannel = async (id: string, name: string) => {
     if (
-      !window.confirm(
+      !await confirmDialog(
         `Delete channel "${name}"? Any sender accounts associated with this channel will also be permanently deleted.`,
       )
     )
@@ -213,7 +214,7 @@ export function SenderAccountsSettings() {
   };
 
   const deleteAccount = async (id: string) => {
-    if (!window.confirm("Delete this sender account?")) return;
+    if (!await confirmDialog("Delete this sender account?")) return;
     const { error } = await db.from("sender_accounts").delete().eq("id", id);
     if (error) return toast.error(error.message);
     invalidateAccounts();

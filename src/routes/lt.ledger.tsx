@@ -1,4 +1,5 @@
 // Ported from live chunk lt.ledger-C7W2LCx6.js
+import { confirmDialog } from "@/components/confirm-dialog";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -403,7 +404,7 @@ function LedgerPage() {
   const removeEntry = async (e: LedgerEvent) => {
     const label = e.meta?.label || eventName(e.event_type);
     if (
-      !window.confirm(
+      !await confirmDialog(
         `Delete "${label}"${e.leads?.company_name ? ` for ${e.leads.company_name}` : ""}? It stops counting in the Ledger and Outreach Tracker.`,
       )
     )
