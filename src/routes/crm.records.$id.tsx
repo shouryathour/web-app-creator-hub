@@ -15,7 +15,7 @@ import { RepliedDialog, isReplyStage } from "@/components/crm/RepliedDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/live/auth";
 import { useChannels, useProfiles, useStages } from "@/hooks/useLookups";
-import { LeadTasksCard } from "@/components/tasks/tasks";
+import { promptDate } from "@/components/confirm-dialog";
 import { CopyButton, LinkInput, VerifyToggle } from "@/components/crm/copy-button";
 import { dealTotal } from "@/components/crm/earnings";
 import { DIRECTION_LABELS, dealValueLabel } from "@/components/crm/helpers";
@@ -352,7 +352,7 @@ function DealCard({
           <Select
             value={r.stage_id ?? undefined}
             disabled={!canEdit}
-            onValueChange={(v) => {
+            onValueChange={async (v) => {
               const stage = stages.find((s) => s.id === v);
               if (!stage) return;
               if (isReplyStage(stage)) {
@@ -361,9 +361,8 @@ function DealCard({
               }
               let closed = null;
               if (stage.is_won || stage.is_lost) {
-                const date = window.prompt("When did this deal close? (YYYY-MM-DD)", new Date().toISOString().slice(0, 10));
+                const date = await promptDate(stage.is_won ? "When did you close this client?" : "When was this deal lost?");
                 if (date === null) return;
-                if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(new Date(date).getTime())) return toast.error("Enter a valid date as YYYY-MM-DD");
                 closed = new Date(`${date}T12:00:00`).toISOString();
               }
               const patch: Patch = { stage_id: v, probability: stage.default_probability ?? r.probability, closed_at: closed };
@@ -396,136 +395,7 @@ function DealCard({
             </SelectContent>
           </Select>
         </div>
-        {isWon && (
-          <div>
-            <div className="label-text mb-1">Deal type</div>
-            <Select
-              value={r.deal_type}
-              disabled={!canEdit}
-              onValueChange={(v) =>
-                onSave(
-                  v === "retainer" && r.mrr_amount
-                    ? { deal_type: v, estimated_value: Number(r.mrr_amount) * (r.contract_months || 12) }
-                    : { deal_type: v },
-                )
-              }
-            >
-              <SelectTrigger className="h-8 text-[13px]">
-                <SelectValue placeholder="Deal type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="retainer">MRR (monthly)</SelectItem>
-                {r.deal_type === "one_time" && <SelectItem value="one_time">One time</SelectItem>}
-                {r.deal_type === "hybrid" && <SelectItem value="hybrid">Hybrid (fee + monthly)</SelectItem>}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-        {!(isWon && r.deal_type === "retainer") && (
-          <div>
-            <div className="label-text mb-1">{isWon && r.deal_type === "hybrid" ? "One-time fee" : "Deal value"}</div>
-            <Input
-              type="number"
-              className="h-8 text-[13px]"
-              value={value}
-              disabled={!canEdit}
-              onChange={(e) => setValue(e.target.value)}
-              onBlur={() => onSave({ estimated_value: value ? Number(value) : null })}
-            />
-          </div>
-        )}
-        <div>
-          <div className="label-text mb-1">Currency</div>
-          <Input
-            className="h-8 w-[90px] text-[13px]"
-            value={currency}
-            maxLength={3}
-            disabled={!canEdit}
-            onChange={(e) => setCurrency(e.target.value.toUpperCase())}
-            onBlur={() => currency !== r.currency && onSave({ currency })}
-          />
-        </div>
-        {recurring && (
-          <>
-            <div>
-              <div className="label-text mb-1">Monthly amount</div>
-              <Input
-                type="number"
-                className="h-8 text-[13px]"
-                value={mrr}
-                disabled={!canEdit}
-                onChange={(e) => setMrr(e.target.value)}
-                onBlur={() => onSave(recurringPatch(mrr, months))}
-              />
-            </div>
-            <div>
-              <div className="label-text mb-1">Contract length (months)</div>
-              <Input
-                type="number"
-                className="h-8 text-[13px]"
-                placeholder="Blank = ongoing (counted as 12)"
-                value={months}
-                disabled={!canEdit}
-                onChange={(e) => setMonths(e.target.value)}
-                onBlur={() => onSave(recurringPatch(mrr, months))}
-              />
-            </div>
-          </>
-        )}
       </div>
-      <div className="mt-3 text-[12px] text-muted-foreground">
-        {dealValueLabel(isWon ? r : { ...r, deal_type: "one_time" })}
-        {recurring && r.mrr_amount ? ` = ${money(contractTotal(r), r.currency)} in total` : ""}
-      </div>
-      {isWon && dealCur !== code && (
-        <div className="mt-3 space-y-3 rounded-md border border-amber-300/60 bg-amber-50 p-3 text-[12px] text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
-          <div>
-            <span className="font-medium">Exchange rate locked at close.</span> Closed on {fmtDate(r.closed_at)}
-            {dealCur !== "USD" && r.usd_rate_at_close ? ` at 1 USD = ${fmtRate(Number(r.usd_rate_at_close))} ${dealCur}` : ""}.{" "}
-            Your CRM totals in {code} always use the rate from that day, not today's. If you change the value or monthly
-            amount now, it is converted at the same closing rate.
-          </div>
-          <div className="flex flex-wrap items-end gap-2">
-            <div>
-              <div className="label-text mb-1">
-                {r.deal_type === "hybrid"
-                  ? `One-time fee received (${code})`
-                  : r.deal_type === "retainer"
-                    ? `Total received (${code})`
-                    : `Amount received (${code})`}
-              </div>
-              <Input
-                type="number"
-                className="h-8 w-[160px] bg-background text-[13px]"
-                placeholder={String(Math.round(fx.value(r) * 100) / 100)}
-                value={received}
-                disabled={!canEdit}
-                onChange={(e) => setReceived(e.target.value)}
-                onBlur={() => {
-                  if (received === "") {
-                    if (r.usd_value_manual) onSave({ usd_value_manual: false });
-                    return;
-                  }
-                  if (!manualInCode || Number(received) !== Number(r.received_amount))
-                    onSave({ usd_value_manual: true, received_amount: Number(received), received_currency: code });
-                }}
-              />
-            </div>
-            {r.usd_value_manual && canEdit && (
-              <Button variant="outline" size="sm" className="h-8" onClick={() => onSave({ usd_value_manual: false })}>
-                Use closing rate instead
-              </Button>
-            )}
-            <div className="pb-1.5">
-              Counted in revenue as <span className="font-medium">{fx.fmt(dealTotal(r, fx as any))}</span>
-              {r.usd_value_manual ? " (amount you entered)" : " (converted at the closing rate)"}.
-            </div>
-          </div>
-          <div className="text-amber-800/80 dark:text-amber-200/70">
-            Optional: type exactly what reached your account in {code}, and that amount is used instead.
-          </div>
-        </div>
-      )}
     </CollapsibleCard>
   );
 }
