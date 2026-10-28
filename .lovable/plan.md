@@ -29,6 +29,11 @@
 - All existing rules stay: viewed/replied need sent first, positive replies go to CRM, date-order warnings.
 - Move the single Notes box to the bottom of the page, directly below Tags.
 
+## 6. Closing a client: no contract or money questions
+- When a deal is marked Won/Closed, only ask the close date. No contract length, no deal type, no monthly value.
+- CRM Revenue/Dashboard focus on **clients closed per month** (count), with a monthly goal view. Money totals are hidden.
+- Existing saved values stay stored; they are just no longer asked or shown.
+
 ## Technical details
 - New `useConfirm()` hook + `<ConfirmProvider>` mounted in root, built on shadcn AlertDialog, returning `Promise<boolean>`; replace every `window.confirm` (rg list) with `await confirm({...})`.
 - Migration: `update leads set research_notes = additional_notes where coalesce(research_notes,'')='' and coalesce(additional_notes,'')<>''` (merge with blank line if both ever set); UI uses `research_notes` as the Notes field; `additional_notes` column kept but unused.
