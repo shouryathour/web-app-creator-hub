@@ -146,7 +146,7 @@ function CrmDashboardPage() {
       })
       .filter((s) => stageMode === "all" || (!s.stage.is_won && !s.stage.is_lost));
   }, [stages, filtered, fx, stageMode]);
-  const maxStageValue = Math.max(1, ...byStage.map((s) => s.value));
+  const maxStageValue = Math.max(1, ...byStage.map((s) => s.count));
 
   const recent = useMemo(
     () =>
@@ -172,103 +172,10 @@ function CrmDashboardPage() {
             <RevenueFilterBar value={filters} onChange={setFilters} owners={owners} />
             <MetricPickerRow
               storageKey="crm.dash.cards"
-              defaults={["open", "thisMonth", "mrr", "winRate", "lost", "avgDeal"]}
+              defaults={["open", "winRate", "lost"]}
               metrics={metrics}
               className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6"
             />
-            <p className="label-text -mt-2">
-              All totals in {fx.code}. Click any card's title to choose what it shows.{" "}
-              <a
-                href="https://tracker.infosized.co/guide#crm-dashboard"
-                target="_blank"
-                rel="noreferrer"
-                className="underline"
-              >
-                What do these numbers mean?
-              </a>
-            </p>
-
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-              <Card
-                title={`Money ${donutWord} by deal type`}
-                className="lg:col-span-1"
-                actions={
-                  <SmallSelect
-                    label="Won, open or lost"
-                    value={donut}
-                    onChange={setDonut}
-                    options={[
-                      { value: "won", label: "Won" },
-                      { value: "open", label: "Open" },
-                      { value: "lost", label: "Lost" },
-                    ]}
-                  />
-                }
-              >
-                {byType.length === 0 ? (
-                  <EmptyState
-                    title={`No ${donutWord} deals here`}
-                    hint="Deals appear here split into one time, retainer and hybrid."
-                  />
-                ) : (
-                  <div className="relative h-64 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={byType}
-                          dataKey="value"
-                          nameKey="name"
-                          innerRadius={60}
-                          outerRadius={90}
-                          paddingAngle={2}
-                        >
-                          {byType.map((d, i) => (
-                            <Cell key={d.name} fill={DONUT_COLORS[i % DONUT_COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip formatter={(v: number) => fx.fmt(v)} contentStyle={{ fontSize: 12 }} />
-                      </PieChart>
-                    </ResponsiveContainer>
-                    <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                      <div className="text-[11px] text-muted-foreground">Total {donutWord}</div>
-                      <div className="text-[18px] font-semibold">{fx.fmt(donutTotal)}</div>
-                    </div>
-                  </div>
-                )}
-                {byType.length > 0 && (
-                  <div className="mt-3 flex flex-wrap justify-center gap-3 text-[12px]">
-                    {byType.map((d, i) => (
-                      <span key={d.name} className="flex items-center gap-1.5">
-                        <span
-                          className="inline-block size-2 rounded-full"
-                          style={{ backgroundColor: DONUT_COLORS[i % DONUT_COLORS.length] }}
-                        />
-                        {d.name}: {fx.fmt(d.value)}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </Card>
-
-              <Card
-                title="Earned by month"
-                className="lg:col-span-2"
-                actions={
-                  <SmallSelect
-                    label="Which months"
-                    value={chart}
-                    onChange={setChart}
-                    options={[
-                      { value: "last12", label: "Last 12 months" },
-                      { value: "year", label: `This year (${new Date().getFullYear()})` },
-                    ]}
-                  />
-                }
-              >
-                <RevenueBarChart currency={fx.code} data={monthly} showExpected={false} />
-              </Card>
-            </div>
-
             <Card
               title={<WithHelp section="pipeline">Pipeline by stage</WithHelp>}
               actions={
@@ -287,7 +194,7 @@ function CrmDashboardPage() {
                 <EmptyState title="No stages configured" hint="Add stages to the CRM board to see a breakdown." />
               ) : (
                 <div className="flex flex-col gap-2">
-                  {byStage.map(({ stage, count, value }) => (
+                  {byStage.map(({ stage, count }) => (
                     <div key={stage.id} className="flex items-center gap-3">
                       <div className="w-40 shrink-0">
                         <Pill color={stage.color}>{stage.name}</Pill>
@@ -296,13 +203,13 @@ function CrmDashboardPage() {
                         <div
                           className="h-full rounded-full"
                           style={{
-                            width: `${Math.max(2, (value / maxStageValue) * 100)}%`,
+                            width: `${Math.max(2, (count / maxStageValue) * 100)}%`,
                             backgroundColor: stage.color ?? "var(--color-info)",
                           }}
                         />
                       </div>
                       <div className="w-28 shrink-0 text-right text-[12px] text-muted-foreground">
-                        {count} · {fx.fmt(value)}
+                        {count} deal{count === 1 ? "" : "s"}
                       </div>
                     </div>
                   ))}

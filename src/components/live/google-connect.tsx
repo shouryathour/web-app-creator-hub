@@ -7,6 +7,7 @@
 // Internal (not exported by the chunk): LegacySheetConnect, GoogleLogo.
 // Server calls are stubs, see src/lib/live/google.functions.ts and
 // src/lib/live/sheets.functions.ts.
+import { confirmDialog } from "@/components/confirm-dialog";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -265,7 +266,7 @@ export function GoogleConnectCard() {
               variant="outline"
               onClick={async () => {
                 if (
-                  !window.confirm(
+                  !await confirmDialog(
                     "Disconnect Google? Backups to your sheet will stop. The sheet itself stays in your Google Drive.",
                   )
                 )

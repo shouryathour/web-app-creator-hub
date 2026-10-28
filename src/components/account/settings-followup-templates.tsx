@@ -1,3 +1,4 @@
+import { confirmDialog } from "@/components/confirm-dialog";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -195,7 +196,7 @@ export function FollowupTemplatesSettings() {
     }
   };
   const remove = async (id: string) => {
-    if (!window.confirm("Delete this follow-up template?")) return;
+    if (!await confirmDialog("Delete this follow-up template?")) return;
     const { error } = await db.from("followup_templates").delete().eq("id", id);
     if (error) return toast.error(error.message);
     void refresh();

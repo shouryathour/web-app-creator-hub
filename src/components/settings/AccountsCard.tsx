@@ -1,3 +1,4 @@
+import { confirmDialog } from "@/components/confirm-dialog";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Plus, Trash2 } from "lucide-react";
@@ -59,7 +60,7 @@ export function AccountsCard() {
   };
 
   const deleteAccount = async (id: string) => {
-    if (!window.confirm("Delete this sender account?")) return;
+    if (!await confirmDialog("Delete this sender account?")) return;
     const { error } = await supabase.from("sender_accounts").delete().eq("id", id);
     if (error) return window.alert(error.message);
     invalidateAccounts();

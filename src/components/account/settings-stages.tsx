@@ -1,3 +1,4 @@
+import { confirmDialog } from "@/components/confirm-dialog";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { GripVertical, Plus, Trash2 } from "lucide-react";
@@ -56,7 +57,7 @@ function StageBoard({ board }: { board: "lead" | "crm" }) {
       setDeleteTarget(stage);
       setReplacementId("");
     } else {
-      if (!window.confirm(`Delete stage "${stage.name}"?`)) return;
+      if (!await confirmDialog(`Delete stage "${stage.name}"?`)) return;
       await performDelete(stage.id);
     }
   };

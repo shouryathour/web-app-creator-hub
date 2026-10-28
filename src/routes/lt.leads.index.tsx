@@ -1,4 +1,5 @@
 // Ported from live chunk lt.leads.index-Bpm776UG.js
+import { confirmDialog, promptDate } from "@/components/confirm-dialog";
 import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -1017,7 +1018,7 @@ function LeadsPage() {
     setSelected(new Set());
   };
   const bulkDelete = async () => {
-    if (!window.confirm(`Delete ${selected.size} lead(s)? This cannot be undone.`)) return;
+    if (!await confirmDialog(`Delete ${selected.size} lead(s)? This cannot be undone.`)) return;
     const { error } = await supabase.from("leads").delete().in("id", ids());
     if (error) return toast.error(error.message);
     void invalidateTrackerQueries(qc, ["leads"]);
@@ -1033,7 +1034,7 @@ function LeadsPage() {
     ]);
   };
   const bulkFollowup = async () => {
-    const d = window.prompt("Follow-up date (YYYY-MM-DD)", todayISO());
+    const d = await promptDate("Set follow-up date", todayISO());
     if (!d) return;
     if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || Number.isNaN(new Date(d).getTime())) return toast.error("Enter a date as YYYY-MM-DD");
     const { error } = await supabase.from("leads").update({ next_followup_date: d } as never).in("id", ids());

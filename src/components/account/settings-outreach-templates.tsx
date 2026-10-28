@@ -1,3 +1,4 @@
+import { confirmDialog } from "@/components/confirm-dialog";
 import { useMemo, useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -145,7 +146,7 @@ export function OutreachTemplatesSettings() {
   };
 
   const remove = async (t: Template) => {
-    if (!window.confirm(`Delete the template "${t.name}"? Leads that used it keep their message.`)) return;
+    if (!await confirmDialog(`Delete the template "${t.name}"? Leads that used it keep their message.`)) return;
     const { error } = await db.from("outreach_templates").delete().eq("id", t.id);
     if (error) return toast.error(error.message);
     setOpenId(null);

@@ -1,3 +1,4 @@
+import { confirmDialog } from "@/components/confirm-dialog";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createServerFn, useServerFn } from "@tanstack/react-start";
@@ -173,7 +174,7 @@ export function UsersSettings() {
 
   const removeMember = async (m: Member) => {
     if (
-      !window.confirm(
+      !await confirmDialog(
         `Remove ${m.full_name || m.email} from this workspace? Their leads and activity stay in the workspace.`,
       )
     )

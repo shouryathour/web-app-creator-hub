@@ -2,6 +2,7 @@
 // Live chunk: app-shell-DE-EaUp2.js
 // The app frame (sidebar, header, command palette, shortcuts)
 // plus the shared pieces other chunks import from it.
+import { confirmDialog } from "@/components/confirm-dialog";
 import { LEAD_INNER_EMBED, excludeArchivedLeads } from "@/lib/lead-scope";
 //
 // Export mapping (live letter -> name here):
@@ -1492,7 +1493,7 @@ export function useLeadEventActions(onChange?: () => void) {
     },
     remove: async (e: any, patchLead?: (patch: Record<string, unknown>) => Promise<unknown>) => {
       if (
-        !window.confirm(
+        !await confirmDialog(
           `Delete "${eventLabel(e)}"${e.leads?.company_name ? ` for ${e.leads.company_name}` : ""}? It also stops counting in the Ledger and Outreach Tracker.`,
         )
       )
@@ -1505,7 +1506,7 @@ export function useLeadEventActions(onChange?: () => void) {
           const { data } = await db.from("leads").select(flag.field).eq("id", e.lead_id).maybeSingle();
           if (
             (data as any)?.[flag.field] === true &&
-            window.confirm(`"${flag.label}" is still ticked on this lead. Untick it too?`)
+            await confirmDialog(`"${flag.label}" is still ticked on this lead. Untick it too?`)
           ) {
             const patch = { [flag.field]: false, [`${flag.field}_at`]: null };
             if (patchLead) await patchLead(patch);
@@ -2278,7 +2279,6 @@ function LeadPeek({ id, onClose }: { id: string; onClose: () => void }) {
             <p className="text-[12.5px] text-muted-foreground">No notes yet.</p>
           )}
         </section>
-        <LeadTodosCard leadId={id} canEdit={canEdit} cardId="lead.peek.todos" />
         <section>
           <PeekSectionLabel>Activity</PeekSectionLabel>
           {events?.length ? (
@@ -2405,7 +2405,6 @@ export const LEAD_NAV: NavItem[] = [
   { to: "/lt/dashboard", label: "Dashboard", icon: LayoutDashboard, perm: "lead.dashboard", group: "primary" },
   { to: "/lt/leads", label: "Leads", icon: Table2, perm: "lead.leads", group: "primary" },
   { to: "/lt/followups", label: "Follow-ups", icon: CalendarClock, perm: "lead.leads", group: "primary" },
-  { to: "/lt/todos", label: "To-dos", icon: ListTodo, perm: "lead.leads", group: "primary" },
   { to: "/lt/outreach", label: "Outreach Tracker", icon: Gauge, perm: "lead.outreach_tracker", group: "primary" },
   { to: "/lt/ledger", label: "Ledger", icon: ListChecks, perm: "lead.ledger", group: "secondary" },
   { to: "/lt/archive", label: "Archive", icon: Boxes, perm: "lead.archive", group: "secondary" },
@@ -2416,8 +2415,7 @@ export const CRM_NAV: NavItem[] = [
   { to: "/crm/dashboard", label: "Dashboard", icon: LayoutDashboard, perm: "crm.records", group: "primary" },
   { to: "/crm/records", label: "Records", icon: Table2, perm: "crm.records", group: "primary" },
   { to: "/crm/pipeline", label: "Pipeline", icon: Columns3, perm: "crm.pipeline", group: "primary" },
-  { to: "/crm/revenue", label: "Revenue", icon: ChartColumn, perm: "crm.revenue", group: "primary" },
-  { to: "/crm/todos", label: "To-dos", icon: ListChecks, perm: "crm.todos", group: "secondary" },
+  { to: "/crm/revenue", label: "Clients closed", icon: ChartColumn, perm: "crm.revenue", group: "primary" },
   { to: "/crm/followups", label: "Follow-ups", icon: CalendarClock, perm: "crm.followups", group: "secondary" },
 ];
 

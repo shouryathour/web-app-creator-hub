@@ -164,7 +164,6 @@ export function DealPeek({
                   {["low", "medium", "high"].map((p) => <option key={p} value={p}>{p}</option>)}
                 </select>
               </Row>
-              <Row label="Deal value">{dealValueLabel(stages.find((x) => x.id === d.rec.stage_id)?.is_won ? d.rec : { ...d.rec, deal_type: "one_time" })}</Row>
               <Row label="Next follow-up">
                 <Popover>
                   <PopoverTrigger asChild>

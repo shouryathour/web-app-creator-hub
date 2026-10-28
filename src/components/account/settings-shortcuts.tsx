@@ -1,3 +1,4 @@
+import { confirmDialog } from "@/components/confirm-dialog";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -124,7 +125,7 @@ export function ShortcutsSettings() {
         size="sm"
         className="w-fit"
         onClick={async () => {
-          if (!user || !window.confirm("Reset all shortcuts to defaults?")) return;
+          if (!user || !await confirmDialog("Reset all shortcuts to defaults?")) return;
           const { error } = await supabase.from("shortcuts").delete().eq("user_id", user.id);
           if (error) return window.alert(error.message);
           void qc.invalidateQueries({ queryKey: ["shortcuts", user.id] });

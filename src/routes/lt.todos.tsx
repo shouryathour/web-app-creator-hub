@@ -1,13 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { TodosView } from "@/components/lt/todos-view";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
+// To-dos were removed from the app; old links land on the dashboard.
 export const Route = createFileRoute("/lt/todos")({
-  head: () => ({ meta: [{ title: "To-dos | Lead Tracker | Buzzspear" },
-      { name: "description", content: "Manage your team’s lead tasks in Buzzspear." },
-      { property: "og:title", content: "To-dos | Lead Tracker | Buzzspear" },
-      { property: "og:description", content: "Manage your team’s lead tasks in Buzzspear." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ] }),
-  component: () => <TodosView module="lead" perm="lead.leads" />,
+  beforeLoad: () => {
+    throw redirect({ to: "/lt/dashboard" });
+  },
 });

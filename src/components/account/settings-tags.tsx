@@ -1,3 +1,4 @@
+import { confirmDialog } from "@/components/confirm-dialog";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -70,7 +71,7 @@ export function TagsSettings() {
   };
 
   const remove = async (id: string) => {
-    if (!window.confirm("Delete this tag? It will be removed from all leads.")) return;
+    if (!await confirmDialog("Delete this tag? It will be removed from all leads.")) return;
     const { error } = await db.from("tags").delete().eq("id", id);
     if (error) return toast.error(error.message);
     setSelected((s) => s.filter((x) => x !== id));
@@ -81,7 +82,7 @@ export function TagsSettings() {
   const removeSelected = async () => {
     if (selected.length === 0) return;
     if (
-      !window.confirm(
+      !await confirmDialog(
         `Are you sure you want to delete ${selected.length} tag${selected.length === 1 ? "" : "s"}? They will be removed from all leads.`,
       )
     )
@@ -103,7 +104,7 @@ export function TagsSettings() {
   const removeUnused = async () => {
     const unused = (tags ?? []).filter((t) => (usage?.[t.id] ?? 0) === 0);
     if (unused.length === 0) return toast.info("No unused tags found. All tags are linked to at least 1 lead.");
-    if (!window.confirm(`Delete all ${unused.length} unused tag${unused.length === 1 ? "" : "s"} (tags with 0 leads)?`))
+    if (!await confirmDialog(`Delete all ${unused.length} unused tag${unused.length === 1 ? "" : "s"} (tags with 0 leads)?`))
       return;
     setBusy(true);
     try {

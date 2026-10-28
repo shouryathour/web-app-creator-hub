@@ -36,3 +36,6 @@
 - [x] Team-only sign-in with owner approval; welcome/invite/create-workspace removed
 - [x] Email + password sign-in on /auth beside Google; password set for shourya@buzzspear.com
 - [x] Hide Activity from both sidebars and the command palette, keep both pages reachable by address; guided tour no longer points at Activity or the removed invoice page
+- [x] Remove to-dos, contact log, Research/Additional notes (merged into Notes below Tags); in-app dialogs instead of browser pop-ups
+- [x] One Outreach section on lead page (email, reply sentiment, outcome, channels)
+- [x] Closing a client only asks the date; Revenue became "Clients closed" per month with a goal

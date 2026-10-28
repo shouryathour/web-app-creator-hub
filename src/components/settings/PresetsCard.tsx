@@ -1,3 +1,4 @@
+import { confirmDialog } from "@/components/confirm-dialog";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Copy, Plus, Trash2 } from "lucide-react";
@@ -49,7 +50,7 @@ export function PresetsCard() {
   };
 
   const remove = async (id: string) => {
-    if (!window.confirm("Delete this preset?")) return;
+    if (!await confirmDialog("Delete this preset?")) return;
     const { error } = await supabase.from("permission_presets").delete().eq("id", id);
     if (error) return window.alert(error.message);
     invalidate();
