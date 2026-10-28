@@ -1,5 +1,6 @@
 // Ported from live chunk ActivityView-BlPm54Ia.js. Shared by /crm/activity and /lt/activity.
 import { useMemo, useState } from "react";
+import { LEAD_INNER_EMBED, excludeArchivedLeads } from "@/lib/lead-scope";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -79,9 +80,13 @@ export function ActivityView({ module, perm }: { module: ModuleKey; perm: string
   const { data, isLoading } = useQuery({
     queryKey: ["activity-all", since],
     queryFn: async () => {
-      let q = (supabase as any)
-        .from("lead_events")
-        .select("id, event_type, occurred_at, meta, lead_id, leads(company_name, lead_code), profiles(full_name, email)")
+      let q = excludeArchivedLeads(
+        (supabase as any)
+          .from("lead_events")
+          .select(
+            `id, event_type, occurred_at, meta, lead_id, ${LEAD_INNER_EMBED}(company_name, lead_code), profiles(full_name, email)`,
+          ),
+      )
         .order("occurred_at", { ascending: false })
         .limit(2000);
       if (since) q = q.gte("occurred_at", since);

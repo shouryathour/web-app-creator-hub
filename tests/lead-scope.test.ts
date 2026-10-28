@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { CRM_LEAD_EMBED, excludeArchivedLeads } from "../src/lib/crm-scope";
+import { LEAD_INNER_EMBED, excludeArchivedLeads } from "../src/lib/lead-scope";
 
 function fakeQuery() {
   const calls: Array<[string, unknown]> = [];
@@ -30,6 +30,6 @@ describe("CRM archived-lead scope", () => {
   });
 
   test("requires the inner-join lead embed, because a plain embed makes the filter a no-op", () => {
-    expect(CRM_LEAD_EMBED).toBe("leads!inner");
+    expect(LEAD_INNER_EMBED).toBe("leads!inner");
   });
 });

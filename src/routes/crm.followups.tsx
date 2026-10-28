@@ -1,6 +1,6 @@
 // Ported from live chunk crm.followups-Xn82thxd.js.
 import { useState } from "react";
-import { CRM_LEAD_EMBED, excludeArchivedLeads } from "@/lib/crm-scope";
+import { LEAD_INNER_EMBED, excludeArchivedLeads } from "@/lib/lead-scope";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -46,7 +46,7 @@ function FollowupsPage() {
         (supabase as any)
           .from("crm_records")
           .select(
-            `id, next_followup_date, ${CRM_LEAD_EMBED}(company_name), stage:stages!crm_records_stage_id_fkey(is_won, is_lost)`,
+            `id, next_followup_date, ${LEAD_INNER_EMBED}(company_name), stage:stages!crm_records_stage_id_fkey(is_won, is_lost)`,
           ),
       ).order("next_followup_date", { ascending: true, nullsFirst: true });
       if (error) throw error;

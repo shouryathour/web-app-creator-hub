@@ -2,6 +2,7 @@
 // Live chunk: app-shell-DE-EaUp2.js
 // The app frame (sidebar, header, command palette, shortcuts)
 // plus the shared pieces other chunks import from it.
+import { LEAD_INNER_EMBED, excludeArchivedLeads } from "@/lib/lead-scope";
 //
 // Export mapping (live letter -> name here):
 //   t  -> AppShell (also exported as AppPage for older routes)
@@ -1149,7 +1150,7 @@ export function VisuallyHidden({ style, ...props }: ComponentProps<"span">) {
 
 /* ================================================================== tasks */
 
-export const TASK_SELECT = "*, leads(id,company_name,lead_code)";
+export const TASK_SELECT = `*, ${LEAD_INNER_EMBED}(id,company_name,lead_code)`;
 
 export function useTaskMutations(onChange?: () => void) {
   const qc = useQueryClient();

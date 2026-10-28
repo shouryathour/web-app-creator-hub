@@ -1,6 +1,6 @@
 // Ported from live chunk crm.dashboard-CDSAsWKm.js.
 import { useMemo } from "react";
-import { CRM_LEAD_EMBED, excludeArchivedLeads } from "@/lib/crm-scope";
+import { LEAD_INNER_EMBED, excludeArchivedLeads } from "@/lib/lead-scope";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
@@ -66,7 +66,7 @@ function CrmDashboardPage() {
       const { data, error } = await excludeArchivedLeads(
         (supabase as any)
           .from("crm_records")
-          .select(`id,stage_id,owner_id,created_at,${REVENUE_FIELDS},${CRM_LEAD_EMBED}(company_name,primary_contact)`),
+          .select(`id,stage_id,owner_id,created_at,${REVENUE_FIELDS},${LEAD_INNER_EMBED}(company_name,primary_contact)`),
       )
         .order("created_at", { ascending: false })
         .limit(2000);

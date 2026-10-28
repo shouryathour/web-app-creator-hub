@@ -1,5 +1,6 @@
 // Ported from live chunk TodosView-CEdgBG2A.js. Shared by /crm/todos and /lt/todos.
 import { useMemo, useState } from "react";
+import { LEAD_INNER_EMBED, excludeArchivedLeads } from "@/lib/lead-scope";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -180,9 +181,9 @@ export function TodosView({ module, perm }: { module: ModuleKey; perm: string })
   const { data, isLoading } = useQuery({
     queryKey: ["lead_tasks", "all"],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("lead_tasks")
-        .select(TASK_SELECT)
+      const { data, error } = await excludeArchivedLeads(
+        (supabase as any).from("lead_tasks").select(TASK_SELECT),
+      )
         .order("due_date", { ascending: true, nullsFirst: false })
         .limit(1000);
       if (error) throw error;

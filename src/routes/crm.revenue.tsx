@@ -1,6 +1,6 @@
 // Ported from live chunk crm.revenue-CHeAOlG8.js.
 import { useMemo, useState } from "react";
-import { CRM_LEAD_EMBED, excludeArchivedLeads } from "@/lib/crm-scope";
+import { LEAD_INNER_EMBED, excludeArchivedLeads } from "@/lib/lead-scope";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { AppPage } from "@/components/app-shell";
@@ -80,7 +80,7 @@ function RevenuePage() {
       const { data, error } = await excludeArchivedLeads(
         (supabase as any)
           .from("crm_records")
-          .select(`id,lead_id,stage_id,owner_id,${REVENUE_FIELDS},${CRM_LEAD_EMBED}(company_name)`),
+          .select(`id,lead_id,stage_id,owner_id,${REVENUE_FIELDS},${LEAD_INNER_EMBED}(company_name)`),
       );
       if (error) throw error;
       return (data ?? []) as RevenueRecord[];
