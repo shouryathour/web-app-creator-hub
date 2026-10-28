@@ -12,14 +12,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/live/auth";
 import { useStages } from "@/hooks/useLookups";
 import { useStoredState } from "@/components/crm/filters";
+import { useReportCurrency } from "@/components/crm/report-currency";
+import { REVENUE_FIELDS, monthKey, type EarningsDeal } from "@/components/crm/earnings";
+import { monthEarnings, monthlyClientAmount } from "@/lib/monthly-earnings";
+import { EarningsChart } from "@/components/crm/revenue/EarningsChart";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/crm/revenue")({
   head: () => ({
     meta: [
-      { title: "Clients closed | CRM | Buzzspear" },
-      { name: "description", content: "How many clients you closed each month against your goal." },
-      { property: "og:title", content: "Clients closed | CRM | Buzzspear" },
-      { property: "og:description", content: "How many clients you closed each month against your goal." },
+      { title: "Revenue & clients | CRM | Buzzspear" },
+      { name: "description", content: "Monthly earnings, client contributions and closed-client goals in Buzzspear." },
+      { property: "og:title", content: "Revenue & clients | CRM | Buzzspear" },
+      { property: "og:description", content: "Monthly earnings, client contributions and closed-client goals in Buzzspear." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -31,6 +36,8 @@ function RevenuePage() {
   const { can } = useAuth();
   const allowed = can("crm.revenue");
   const [year, setYear] = useState(() => new Date().getFullYear());
+  const [selectedIndex, setSelectedIndex] = useState(() => new Date().getMonth());
+  const fx = useReportCurrency();
   const [goal, setGoal] = useStoredState("crm.clients.monthlyGoal", 4);
   const { data: stages } = useStages("crm");
   const { data: records, isLoading } = useQuery({
@@ -39,10 +46,10 @@ function RevenuePage() {
       const { data, error } = await excludeArchivedLeads(
         (supabase as any)
           .from("crm_records")
-          .select(`id,lead_id,stage_id,closed_at,${LEAD_INNER_EMBED}(company_name)`),
+          .select(`id,lead_id,stage_id,${REVENUE_FIELDS},${LEAD_INNER_EMBED}(company_name)`),
       );
       if (error) throw error;
-      return (data ?? []) as { id: string; lead_id: string; stage_id: string | null; closed_at: string | null; leads: { company_name: string } | null }[];
+      return (data ?? []) as (EarningsDeal & { id: string; lead_id: string; stage_id: string | null; closed_at: string | null; leads: { company_name: string } | null })[];
     },
     enabled: allowed,
   });
@@ -53,6 +60,15 @@ function RevenuePage() {
   const months = useMemo(() => clientsByMonth(won, year), [won, year]);
   const thisMonth = new Date().getMonth();
   const undated = won.filter((r) => !r.closed_at);
+  const chart = MONTHS.map((label, index) => {
+    const month = `${year}-${String(index + 1).padStart(2, "0")}`;
+    const earnings = monthEarnings(won, month, fx);
+    return { month, label, value: earnings.total, clients: earnings.clients.length };
+  });
+  const selectedMonth = `${year}-${String(selectedIndex + 1).padStart(2, "0")}`;
+  const selected = monthEarnings(won, selectedMonth, fx);
+  const previous = monthEarnings(won, monthKey(new Date(year, selectedIndex - 1, 1)), fx);
+  const difference = selected.total - previous.total;
 
   if (!allowed)
     return (
@@ -62,11 +78,35 @@ function RevenuePage() {
     );
 
   return (
-    <AppPage module="crm" title="Clients closed" perm="crm.revenue">
+    <AppPage module="crm" title="Revenue & clients" perm="crm.revenue">
       {isLoading || !stages ? (
         <Loading />
       ) : (
         <div className="flex flex-col gap-4">
+          <Card title="Earned by month" actions={
+            <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
+              <SelectTrigger className="h-8 w-28" aria-label="Earnings year"><SelectValue /></SelectTrigger>
+              <SelectContent>{Array.from({ length: 7 }, (_, i) => new Date().getFullYear() - i).map((y) => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}</SelectContent>
+            </Select>
+          }>
+            <EarningsChart data={chart} currency={fx.code} onSelect={(month) => setSelectedIndex(Number(month.slice(5)) - 1)} />
+          </Card>
+          <Card title={`${MONTHS[selectedIndex]} ${year} · client breakdown`} actions={
+            <Select value={String(selectedIndex)} onValueChange={(v) => setSelectedIndex(Number(v))}>
+              <SelectTrigger className="h-8 w-28" aria-label="Breakdown month"><SelectValue /></SelectTrigger>
+              <SelectContent>{MONTHS.map((m, i) => <SelectItem key={m} value={String(i)}>{m}</SelectItem>)}</SelectContent>
+            </Select>
+          }>
+            <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <div><div className="label-text">Earned · {fx.code}</div><div className="text-2xl font-semibold">{fx.fmt(selected.total)}</div></div>
+              <div><div className="label-text">Average per client · {selected.clients.length} clients</div><div className="text-2xl font-semibold">{fx.fmt(selected.average)}</div></div>
+              <div><div className="label-text">Compared with previous month</div><div className={difference < 0 ? "text-2xl font-semibold text-negative" : "text-2xl font-semibold text-positive"}>{difference > 0 ? "+" : ""}{fx.fmt(difference)}</div></div>
+            </div>
+            {selected.clients.length ? <ul className="divide-y divide-border text-[13px]">{selected.clients.map((r) => <li key={r.id} className="flex items-center justify-between gap-3 py-3">
+              <a href={`/crm/records/${r.id}`} className="min-w-0 font-medium hover:underline">{r.leads?.company_name ?? "Unnamed"}</a>
+              <span className="shrink-0">{monthlyClientAmount(r, fx) ? fx.fmt(monthlyClientAmount(r, fx)) : "Amount not recorded"}</span>
+            </li>)}</ul> : <EmptyState title="No clients closed this month" />}
+          </Card>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <Card title="This month">
               <div className="text-3xl font-semibold">
