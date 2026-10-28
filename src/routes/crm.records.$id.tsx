@@ -159,18 +159,9 @@ function CrmRecordPage() {
             }}
           />
         </CollapsibleCard>
-        {lead && (
-          <CollapsibleCard id="crm.lead-notes" title="Lead research and notes" defaultOpen={false}>
-            <div className="flex flex-col gap-3 text-[13px] whitespace-pre-wrap">
-              <div>
-                <div className="label-text mb-1">Research</div>
-                <div className="text-muted-foreground">{lead.research_notes || "Nothing recorded."}</div>
-              </div>
-              <div>
-                <div className="label-text mb-1">Additional notes</div>
-                <div className="text-muted-foreground">{lead.additional_notes || "Nothing recorded."}</div>
-              </div>
-            </div>
+        {lead?.research_notes && (
+          <CollapsibleCard id="crm.lead-notes" title="Lead notes" defaultOpen={false}>
+            <div className="text-[13px] whitespace-pre-wrap text-muted-foreground">{lead.research_notes}</div>
           </CollapsibleCard>
         )}
       </div>
