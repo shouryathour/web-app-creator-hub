@@ -1,6 +1,6 @@
 // Ported from live chunk crm.revenue-CHeAOlG8.js.
 import { useMemo, useState } from "react";
-import { CRM_LEAD_EMBED, excludeArchivedLeads } from "@/lib/crm-scope";
+import { CRM_LEAD_EMBED, excludeArchivedLeads } from "@/lib/lead-scope";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { AppPage } from "@/components/app-shell";

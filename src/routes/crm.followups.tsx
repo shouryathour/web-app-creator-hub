@@ -1,6 +1,6 @@
 // Ported from live chunk crm.followups-Xn82thxd.js.
 import { useState } from "react";
-import { CRM_LEAD_EMBED, excludeArchivedLeads } from "@/lib/crm-scope";
+import { CRM_LEAD_EMBED, excludeArchivedLeads } from "@/lib/lead-scope";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";

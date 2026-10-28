@@ -1,6 +1,6 @@
 // Ported from live chunk crm.pipeline-BrAdr9E4.js.
 import { useEffect, useState } from "react";
-import { CRM_LEAD_EMBED, excludeArchivedLeads } from "@/lib/crm-scope";
+import { CRM_LEAD_EMBED, excludeArchivedLeads } from "@/lib/lead-scope";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Eye, EyeOff } from "lucide-react";

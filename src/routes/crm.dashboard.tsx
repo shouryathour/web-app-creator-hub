@@ -1,6 +1,6 @@
 // Ported from live chunk crm.dashboard-CDSAsWKm.js.
 import { useMemo } from "react";
-import { CRM_LEAD_EMBED, excludeArchivedLeads } from "@/lib/crm-scope";
+import { CRM_LEAD_EMBED, excludeArchivedLeads } from "@/lib/lead-scope";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";

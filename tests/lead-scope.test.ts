@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { CRM_LEAD_EMBED, excludeArchivedLeads } from "../src/lib/crm-scope";
+import { CRM_LEAD_EMBED, excludeArchivedLeads } from "../src/lib/lead-scope";
 
 function fakeQuery() {
   const calls: Array<[string, unknown]> = [];
