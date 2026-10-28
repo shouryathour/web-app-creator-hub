@@ -1,5 +1,7 @@
 # Buzzspear Tracker roadmap
 
+- [ ] Restore editable money tracking, monthly earnings graph and per-client month breakdown without changing existing data; verify saving and calculations
+
 - [x] Hide archived leads from CRM records, pipeline, dashboard, revenue, follow-ups and from To-dos and Activity in both sections; verified 67 of 117 deals remain and activity drops 930 to 740
 - [x] Enforce email, LinkedIn and Instagram sending prerequisites across lead edits; signed-in select/clear/reload and invalid-write tests passed; temporary lead removed
 - [x] Diagnose slow navigation: capacity healthy; realtime now refreshes only affected views instead of all cached queries; local full loads measured, published speed not verified
