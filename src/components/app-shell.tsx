@@ -2,6 +2,7 @@
 // Live chunk: app-shell-DE-EaUp2.js
 // The app frame (sidebar, header, command palette, shortcuts)
 // plus the shared pieces other chunks import from it.
+import { LEAD_INNER_EMBED, excludeArchivedLeads } from "@/lib/lead-scope";
 //
 // Export mapping (live letter -> name here):
 //   t  -> AppShell (also exported as AppPage for older routes)

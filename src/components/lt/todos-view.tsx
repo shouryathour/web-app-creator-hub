@@ -1,5 +1,6 @@
 // Ported from live chunk TodosView-CEdgBG2A.js
 import { useMemo, useState, type FormEvent } from "react";
+import { LEAD_INNER_EMBED, excludeArchivedLeads } from "@/lib/lead-scope";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, Plus } from "lucide-react";
 import { AppPage, type ModuleKey } from "@/components/app-shell";
