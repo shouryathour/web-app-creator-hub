@@ -2480,7 +2480,7 @@ function OutreachCard({
   );
 }
 
-function OutreachSection({ title, children }: { title: string; children: React.ReactNode }) {
+function OutreachSection({ title, children }: { title: string; children: import("react").ReactNode }) {
   return (
     <div className="flex flex-col gap-2 border-t border-border pt-4 first:border-t-0 first:pt-0">
       <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{title}</div>
