@@ -133,6 +133,11 @@ export function DealPeek({
               <SheetTitle className="text-[20px]">{lead?.company_name}</SheetTitle>
               <div className="label-text">{lead?.lead_code}</div>
             </SheetHeader>
+            {lead?.archived && (
+              <div className="rounded-lg border border-negative/40 bg-negative/10 px-3 py-2 text-[12px]">
+                This lead is archived — its deal is hidden from CRM lists, the pipeline and revenue totals.
+              </div>
+            )}
 
             <div>
               <Row label="Stage">
