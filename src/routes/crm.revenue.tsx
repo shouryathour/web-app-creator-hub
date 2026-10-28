@@ -92,7 +92,7 @@ function RevenuePage() {
           </div>
           <Card
             title="Clients closed by month"
-            action={
+            actions={
               <div className="flex items-center gap-1">
                 <Button variant="outline" size="sm" className="h-7" onClick={() => setYear(year - 1)}>
                   {year - 1}

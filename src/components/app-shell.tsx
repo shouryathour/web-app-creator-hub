@@ -2415,7 +2415,7 @@ export const CRM_NAV: NavItem[] = [
   { to: "/crm/dashboard", label: "Dashboard", icon: LayoutDashboard, perm: "crm.records", group: "primary" },
   { to: "/crm/records", label: "Records", icon: Table2, perm: "crm.records", group: "primary" },
   { to: "/crm/pipeline", label: "Pipeline", icon: Columns3, perm: "crm.pipeline", group: "primary" },
-  { to: "/crm/revenue", label: "Revenue", icon: ChartColumn, perm: "crm.revenue", group: "primary" },
+  { to: "/crm/revenue", label: "Clients closed", icon: ChartColumn, perm: "crm.revenue", group: "primary" },
   { to: "/crm/followups", label: "Follow-ups", icon: CalendarClock, perm: "crm.followups", group: "secondary" },
 ];
 
