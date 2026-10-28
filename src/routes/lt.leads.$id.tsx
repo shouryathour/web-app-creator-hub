@@ -1451,7 +1451,8 @@ function LeadDetailPage() {
               supabase.from("lead_contacts").delete().eq("id", cid).then(done as never);
             }}
           />
-          <NotesCard lead={lead} canEdit={canEdit} onSave={onSave} />
+          <CollapsibleCard id="lead.outreach_all" title="Outreach">
+            <div className="flex flex-col gap-4">
           <EmailCard
             lead={lead}
             canEdit={canEdit}
@@ -1460,6 +1461,10 @@ function LeadDetailPage() {
             channels={(channels ?? []) as AnyRow[]}
             senderAccounts={(senderAccounts ?? []) as AnyRow[]}
           />
+          <OutcomeCard lead={lead} canEdit={canEdit} onSave={onSave} leadId={id} crmRecord={crmRecord} />
+          <OutreachCard lead={lead} channels={(channels ?? []) as AnyRow[]} canEdit={canEdit} onSave={onSave} />
+            </div>
+          </CollapsibleCard>
           <LoomCard lead={lead} canEdit={canEdit} onSave={onSave} />
           <FollowupsCard
             followups={followups}
@@ -1484,9 +1489,8 @@ function LeadDetailPage() {
               supabase.from("lead_followups").insert({ lead_id: id, sequence_number: seq } as never).then(done as never);
             }}
           />
-          <OutreachCard lead={lead} channels={(channels ?? []) as AnyRow[]} canEdit={canEdit} onSave={onSave} />
-          <OutcomeCard lead={lead} canEdit={canEdit} onSave={onSave} leadId={id} crmRecord={crmRecord} />
           <TagsCard tags={(tags ?? []) as AnyRow[]} leadTagIds={leadTagIds} canEdit={canEdit} leadId={id} invalidate={invalidate} />
+          <NotesCard lead={lead} canEdit={canEdit} onSave={onSave} />
         </div>
         <div className="flex flex-col gap-4">
           <ActivityCard
@@ -2005,7 +2009,7 @@ function EmailCard({
   };
 
   return (
-    <CollapsibleCard id="lead.email" title="Email">
+    <OutreachSection title="Email">
       <div className="flex flex-col gap-1">
         <CheckDate
           label="Email sent"
@@ -2118,7 +2122,7 @@ function EmailCard({
         {parts.length > 0 && <div className="mt-1 text-[12px] text-muted-foreground">{parts.join(" · ")}</div>}
         <div className="label-text mt-1">{MANUAL_HELPER}</div>
       </div>
-    </CollapsibleCard>
+    </OutreachSection>
   );
 }
 
@@ -2366,7 +2370,7 @@ function OutreachCard({
   const selectedReplyField = replyMedium === "email" ? "email_replied" : msgKind(lead.reply_channel_id) === "instagram" ? "instagram_replied" : msgKind(lead.reply_channel_id) === "linkedin" ? "linkedin_replied" : null;
 
   return (
-    <CollapsibleCard id="lead.other_channels" title="Outreach">
+    <OutreachSection title="LinkedIn, Instagram & channels">
       <div className="flex flex-col gap-1">
         <CheckDate
           label="LinkedIn connection request sent"
@@ -2472,7 +2476,16 @@ function OutreachCard({
           <div className="label-text mt-1">{MANUAL_HELPER}</div>
         </div>
       </div>
-    </CollapsibleCard>
+    </OutreachSection>
+  );
+}
+
+function OutreachSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-2 border-t border-border pt-4 first:border-t-0 first:pt-0">
+      <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{title}</div>
+      {children}
+    </div>
   );
 }
 
@@ -2490,7 +2503,7 @@ function OutcomeCard({
   crmRecord: AnyRow | null;
 }) {
   return (
-    <CollapsibleCard id="lead.outcome" title="Outcome">
+    <OutreachSection title="Outcome">
       <div className="flex flex-col gap-1">
         <CheckDate
           label="Meeting booked"
@@ -2506,27 +2519,10 @@ function OutcomeCard({
           disabled={!canEdit}
           onChange={async (c: boolean, d: string | null) => {
             onSave({ client_closed: c, client_closed_at: d });
-            if (!c) return;
-            const v = window.prompt("Set deal value?");
-            if (v === null || v.trim() === "") return;
-            const n = Number(v);
-            if (Number.isNaN(n)) return;
-            const { error } = await (supabase.rpc as any)("ensure_crm_record", { _lead_id: leadId });
-            if (error) {
-              toast.error(error.message ?? "Failed to create CRM record");
-              return;
-            }
-            const { data } = await supabase.from("crm_records").select("id").eq("lead_id", leadId).maybeSingle();
-            const rid = (data as AnyRow | null)?.id ?? crmRecord?.id;
-            if (rid) {
-              const { error: e2 } = await supabase.from("crm_records").update({ estimated_value: n } as never).eq("id", rid);
-              if (e2) toast.error(e2.message ?? "Failed to set deal value");
-              else toast.success("Deal value set");
-            }
-          }}
+                    }}
         />
       </div>
-    </CollapsibleCard>
+    </OutreachSection>
   );
 }
 
