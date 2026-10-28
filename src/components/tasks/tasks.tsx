@@ -32,7 +32,7 @@ export type LeadTask = {
   leads?: { id: string; company_name: string; lead_code: string } | null;
 };
 
-export const TASK_SELECT = "*, leads(id,company_name,lead_code)";
+export const TASK_SELECT = `*, ${LEAD_INNER_EMBED}(id,company_name,lead_code)`;
 
 export function useTaskActions(onDone?: () => void) {
   const qc = useQueryClient();

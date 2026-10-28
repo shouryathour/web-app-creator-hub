@@ -79,9 +79,13 @@ export function ActivityView({ module, perm }: { module: ModuleKey; perm?: strin
   const { data, isLoading } = useQuery({
     queryKey: ["activity-all", since],
     queryFn: async () => {
-      let q = supabase
-        .from("lead_events")
-        .select("id, event_type, occurred_at, meta, lead_id, leads(company_name, lead_code), profiles(full_name, email)")
+      let q = excludeArchivedLeads(
+        (supabase as any)
+          .from("lead_events")
+          .select(
+            `id, event_type, occurred_at, meta, lead_id, ${LEAD_INNER_EMBED}(company_name, lead_code), profiles(full_name, email)`,
+          ),
+      )
         .order("occurred_at", { ascending: false })
         .limit(2000);
       if (since) q = q.gte("occurred_at", since);

@@ -1149,7 +1149,7 @@ export function VisuallyHidden({ style, ...props }: ComponentProps<"span">) {
 
 /* ================================================================== tasks */
 
-export const TASK_SELECT = "*, leads(id,company_name,lead_code)";
+export const TASK_SELECT = `*, ${LEAD_INNER_EMBED}(id,company_name,lead_code)`;
 
 export function useTaskMutations(onChange?: () => void) {
   const qc = useQueryClient();
