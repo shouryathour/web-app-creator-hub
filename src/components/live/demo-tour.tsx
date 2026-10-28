@@ -98,14 +98,6 @@ export const TOUR_STEPS: TourStep[] = [
     body: "Who you need to message again and when. Overdue and due today come first, so nobody slips through.",
   },
   {
-    path: "/lt/todos",
-    targets: navTargets("/lt/todos"),
-    perm: "lead.leads",
-    chapter: "Lead Tracker",
-    title: "To-dos",
-    body: "Tasks tied to your leads, with in-app due date pickers, so the next step is always written down.",
-  },
-  {
     path: "/lt/outreach",
     targets: navTargets("/lt/outreach"),
     perm: "lead.outreach_tracker",
@@ -162,14 +154,6 @@ export const TOUR_STEPS: TourStep[] = [
     chapter: "CRM",
     title: "Pipeline",
     body: "Drag deals from stage to stage on the board and see the value sitting in each one.",
-  },
-  {
-    path: "/crm/todos",
-    targets: navTargets("/crm/todos"),
-    perm: "crm.todos",
-    chapter: "CRM",
-    title: "CRM to-dos",
-    body: "Tasks for your deals and clients, separate from your lead work.",
   },
   {
     path: "/crm/followups",
