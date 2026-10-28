@@ -22,4 +22,4 @@
 - Paired outreach checkbox controls share outreachCheckChange; unticking clears the flag/date without browser confirmation so corrections work inside embedded previews.
 - Outreach prerequisites live in src/lib/outreach-order.ts and are enforced by a final database validation trigger; existing inconsistent ticks remain clearable without inventing missing activity.
 - Stage automation infers outreach only on stage-only changes and honors sending prerequisites; email actions never infer another platform and replies never invent views.
-- CRM deal queries exclude archived leads through excludeArchivedLeads and LEAD_INNER_EMBED in src/lib/lead-scope.ts (a plain lead embed makes the filter a no-op, so the embed must stay inner); CSV exports and Sheet backups intentionally keep archived rows.
+- Multi-lead list views (CRM deals, to-dos, activity) exclude archived leads through excludeArchivedLeads and LEAD_INNER_EMBED in src/lib/lead-scope.ts (a plain lead embed makes the filter a no-op, so the embed must stay inner); CSV exports and Sheet backups intentionally keep archived rows.

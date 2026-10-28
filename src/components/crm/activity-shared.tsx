@@ -39,7 +39,7 @@ const db = supabase as any;
 
 /* ------------------------------------------------------------------ to-dos */
 
-export const TASK_SELECT = "*, leads(id,company_name,lead_code)";
+export const TASK_SELECT = `*, ${LEAD_INNER_EMBED}(id,company_name,lead_code)`;
 
 export type LeadTask = {
   id: string;
