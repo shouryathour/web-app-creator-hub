@@ -1937,36 +1937,20 @@ function LinkRow({ link, canEdit, invalidate }: { link: AnyRow; canEdit: boolean
 }
 
 function NotesCard({ lead, canEdit, onSave }: { lead: AnyRow; canEdit: boolean; onSave: (p: AnyRow) => void }) {
-  const [research, setResearch] = useState(lead.research_notes ?? "");
-  const [additional, setAdditional] = useState(lead.additional_notes ?? "");
+  const [notes, setNotes] = useState(lead.research_notes ?? "");
   useEffect(() => {
-    setResearch(lead.research_notes ?? "");
-    setAdditional(lead.additional_notes ?? "");
+    setNotes(lead.research_notes ?? "");
   }, [lead.id]);
   return (
-    <CollapsibleCard id="lead.notes" title="Research and notes">
-      <div className="flex flex-col gap-4">
-        <div>
-          <div className="label-text mb-1">Research notes</div>
-          <Textarea
-            className="min-h-[100px] text-[13px]"
-            value={research}
-            disabled={!canEdit}
-            onChange={(e) => setResearch(e.target.value)}
-            onBlur={() => research !== (lead.research_notes ?? "") && onSave({ research_notes: research || null })}
-          />
-        </div>
-        <div>
-          <div className="label-text mb-1">Additional notes</div>
-          <Textarea
-            className="min-h-[100px] text-[13px]"
-            value={additional}
-            disabled={!canEdit}
-            onChange={(e) => setAdditional(e.target.value)}
-            onBlur={() => additional !== (lead.additional_notes ?? "") && onSave({ additional_notes: additional || null })}
-          />
-        </div>
-      </div>
+    <CollapsibleCard id="lead.notes" title="Notes">
+      <Textarea
+        className="min-h-[120px] text-[13px]"
+        value={notes}
+        placeholder="Anything worth remembering about this lead"
+        disabled={!canEdit}
+        onChange={(e) => setNotes(e.target.value)}
+        onBlur={() => notes !== (lead.research_notes ?? "") && onSave({ research_notes: notes || null })}
+      />
     </CollapsibleCard>
   );
 }
