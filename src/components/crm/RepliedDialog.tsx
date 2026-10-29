@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { DateField } from "@/components/date-field";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -95,17 +96,17 @@ export function RepliedDialog({
           </div>
           <label className="block">
             <div className="label-text mb-1">When did you send it?</div>
-            <Input type="date" value={sent} onChange={(e) => setSent(e.target.value)} />
+            <DateField className="w-full" value={sent} onChange={(v) => setSent(v)} />
           </label>
           {platform === "email" && (
             <label className="block">
               <div className="label-text mb-1">When did they view it?</div>
-              <Input type="date" value={viewed} onChange={(e) => setViewed(e.target.value)} />
+              <DateField className="w-full" value={viewed} onChange={(v) => setViewed(v)} />
             </label>
           )}
           <label className="block">
             <div className="label-text mb-1">When did they reply?</div>
-            <Input type="date" value={replied} onChange={(e) => setReplied(e.target.value)} />
+            <DateField className="w-full" value={replied} onChange={(v) => setReplied(v)} />
           </label>
           {order && <div className="text-[12px] text-destructive">A date is before the send date — check the dates.</div>}
         </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { DateField } from "@/components/date-field";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronDown, Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -38,13 +39,12 @@ function FollowupRow({
   return (
     <div className="grid grid-cols-1 items-center gap-2 rounded-md border border-border p-2 sm:grid-cols-6">
       <div className="text-[12px] text-muted-foreground">#{fu.sequence_number}</div>
-      <Input
-        type="date"
-        className="h-8 text-[13px]"
+      <DateField
+        className="w-full"
         disabled={!canEdit}
-        defaultValue={toDateInput(fu.scheduled_date)}
-        onBlur={(e) => {
-          const v = e.target.value ? new Date(e.target.value + "T12:00:00").toISOString() : null;
+        value={toDateInput(fu.scheduled_date)}
+        onChange={(d) => {
+          const v = d ? new Date(d + "T12:00:00").toISOString() : null;
           if (v !== fu.scheduled_date) onChange({ scheduled_date: v });
         }}
       />
@@ -75,13 +75,12 @@ function FollowupRow({
         />
         Sent
       </label>
-      <Input
-        type="date"
-        className="h-8 text-[13px]"
+      <DateField
+        className="w-full"
         disabled={!canEdit || fu.status !== "sent"}
         value={toDateInput(fu.sent_at)}
-        onChange={(e) => {
-          const v = e.target.value ? new Date(e.target.value + "T12:00:00").toISOString() : null;
+        onChange={(d) => {
+          const v = d ? new Date(d + "T12:00:00").toISOString() : null;
           onChange({ sent_at: v });
         }}
       />

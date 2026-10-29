@@ -1,4 +1,5 @@
 // Ported from live chunk crm.followups-Xn82thxd.js.
+import { DateField } from "@/components/date-field";
 import { useState } from "react";
 import { LEAD_INNER_EMBED, excludeArchivedLeads } from "@/lib/lead-scope";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -180,15 +181,15 @@ function LogDialog({ record, onLog }: { record: FollowupRow; onLog: (v: LogInput
         <div className="flex flex-col gap-3 text-[13px]">
           <label className="flex flex-col gap-1">
             When did you follow up?
-            <Input type="date" value={followedUp} onChange={(e) => setFollowedUp(e.target.value)} />
+            <DateField className="w-full" value={followedUp} onChange={(v) => setFollowedUp(v)} />
           </label>
           <label className="flex flex-col gap-1">
             Last contact on
-            <Input type="date" value={lastContact} onChange={(e) => setLastContact(e.target.value)} />
+            <DateField className="w-full" value={lastContact} onChange={(v) => setLastContact(v)} />
           </label>
           <label className="flex flex-col gap-1">
             Next follow-up
-            <Input type="date" value={next} onChange={(e) => setNext(e.target.value)} />
+            <DateField className="w-full" value={next} onChange={(v) => setNext(v)} />
           </label>
           <div className="flex gap-1.5">
             {[3, 7, 14].map((d) => (

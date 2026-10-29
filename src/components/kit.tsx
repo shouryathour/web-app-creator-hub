@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { DateField } from "@/components/date-field";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -189,13 +190,11 @@ export function CheckDate({
         />
         {label}
       </label>
-      <Input
-        type="date"
-        className="h-8 w-[160px] text-[13px]"
+      <DateField
+        className="w-[160px]"
         value={dateValue}
         disabled={disabled || !checked}
-        onChange={(e) => {
-          const v = e.target.value;
+        onChange={(v) => {
           onChange(true, v ? new Date(v + "T12:00:00").toISOString() : null);
         }}
       />

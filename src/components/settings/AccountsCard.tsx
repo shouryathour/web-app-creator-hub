@@ -1,4 +1,5 @@
 import { confirmDialog } from "@/components/confirm-dialog";
+import { DateField } from "@/components/date-field";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Plus, Trash2 } from "lucide-react";
@@ -145,30 +146,15 @@ export function AccountsCard() {
                     <>
                       <label className="flex items-center gap-1 text-[12px] text-muted-foreground">
                         Started
-                        <Input
-                          type="date"
-                          defaultValue={a.warmup_started_at?.slice(0, 10) ?? ""}
-                          className="h-8 w-[140px] text-[13px]"
-                          onBlur={(e) => updateAccount(a.id, { warmup_started_at: e.target.value || null })}
-                        />
+                        <DateField className="w-[140px]" value={a.warmup_started_at?.slice(0, 10) ?? ""} onChange={(v) => updateAccount(a.id, { warmup_started_at: v || null })} />
                       </label>
                       <label className="flex items-center gap-1 text-[12px] text-muted-foreground">
                         Ready
-                        <Input
-                          type="date"
-                          defaultValue={a.warmup_ready_date ?? ""}
-                          className="h-8 w-[140px] text-[13px]"
-                          onBlur={(e) => updateAccount(a.id, { warmup_ready_date: e.target.value || null })}
-                        />
+                        <DateField className="w-[140px]" value={a.warmup_ready_date ?? ""} onChange={(v) => updateAccount(a.id, { warmup_ready_date: v || null })} />
                       </label>
                       <label className="flex items-center gap-1 text-[12px] text-muted-foreground">
                         Reminder
-                        <Input
-                          type="date"
-                          defaultValue={a.warmup_reminder_date ?? ""}
-                          className="h-8 w-[140px] text-[13px]"
-                          onBlur={(e) => updateAccount(a.id, { warmup_reminder_date: e.target.value || null })}
-                        />
+                        <DateField className="w-[140px]" value={a.warmup_reminder_date ?? ""} onChange={(v) => updateAccount(a.id, { warmup_reminder_date: v || null })} />
                       </label>
                     </>
                   )}
