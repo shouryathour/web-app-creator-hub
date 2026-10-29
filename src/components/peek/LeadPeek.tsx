@@ -1,5 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { DateField } from "@/components/date-field";
+import { invalidateTrackerQueries } from "@/lib/tracker-updates";
 import { Copy, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -8,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { fmtDate } from "@/lib/format";
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
+  if (children == null || children === "" || children === false) return null;
   return (
     <div className="grid grid-cols-[130px_1fr] items-center gap-2 py-1 text-[13px]">
       <div className="text-muted-foreground">{label}</div>
@@ -32,6 +34,7 @@ function CopyText({ value }: { value: string | null }) {
 const d = (v?: string | null) => (v ? fmtDate(v) : null);
 
 export function LeadPeek({ leadId, onClose }: { leadId: string | null; onClose: () => void }) {
+  const qc = useQueryClient();
   const q = useQuery({
     queryKey: ["leads", "peek", leadId],
     enabled: !!leadId,
@@ -61,6 +64,15 @@ export function LeadPeek({ leadId, onClose }: { leadId: string | null; onClose: 
     ? [lead.email_sent_at, lead.last_contacted_at, ...sent.map((f: any) => f.sent_at)]
         .filter(Boolean).sort((a: string, b: string) => +new Date(b) - +new Date(a))[0]
     : null;
+  const saveLastOutreach = async (v: string) => {
+    if (!lead) return;
+    const iso = v ? new Date(`${v}T12:00:00`).toISOString() : null;
+    const { error } = await (supabase as any).from("leads").update({ last_contacted_at: iso }).eq("id", lead.id);
+    if (error) return toast.error(error.message);
+    toast.success("Last outreach updated");
+    invalidateTrackerQueries(qc, ["leads", "crm_records"]);
+    q.refetch();
+  };
   const nextDue = (data?.followups ?? []).find((f: any) => !f.sent_at && f.due_date)?.due_date ?? lead?.next_followup_date;
 
   return (
@@ -83,26 +95,30 @@ export function LeadPeek({ leadId, onClose }: { leadId: string | null; onClose: 
               <Row label="Sender">{lead.sender_accounts?.label}</Row>
               <Row label="Follow-ups done">{`${sent.length} of ${data!.followups.length}`}</Row>
               <Row label="Next follow-up">{d(nextDue)}</Row>
-              <Row label="Last outreach">{d(lastOutreach)}</Row>
+              <Row label="Last outreach">
+                <DateField className="h-7" value={lastOutreach ? String(lastOutreach).slice(0, 10) : ""} onChange={saveLastOutreach} />
+              </Row>
               <Row label="Added">{d(lead.date_added ?? lead.created_at)}</Row>
             </div>
 
             <div>
               <div className="label-text mb-1">People ({data!.contacts.length})</div>
               <Row label="Name">{primary?.person_name}</Row>
-              <Row label="Email"><CopyText value={primary?.email ?? null} /></Row>
-              <Row label="LinkedIn"><CopyText value={primary?.linkedin_url ?? null} /></Row>
-              <Row label="Website"><CopyText value={lead.website ?? null} /></Row>
+              <Row label="Email">{primary?.email ? <CopyText value={primary.email} /> : null}</Row>
+              <Row label="LinkedIn">{primary?.linkedin_url ? <CopyText value={primary.linkedin_url} /> : null}</Row>
+              <Row label="Website">{lead.website ? <CopyText value={lead.website} /> : null}</Row>
             </div>
 
+            {(lead.email_sent_at || lead.email_viewed_at || lead.email_replied_at || lead.meeting_booked_at) && (
             <div>
               <div className="label-text mb-1">Email</div>
               <Row label="Sent">{d(lead.email_sent_at)}</Row>
               <Row label="Viewed">{d(lead.email_viewed_at)}</Row>
               <Row label="Replied">{d(lead.email_replied_at)}</Row>
-              <Row label="Reply mood"><span className="capitalize">{lead.reply_sentiment}</span></Row>
+              <Row label="Reply mood">{lead.reply_sentiment ? <span className="capitalize">{lead.reply_sentiment}</span> : null}</Row>
               <Row label="Call booked">{d(lead.meeting_booked_at)}</Row>
             </div>
+            )}
 
             <div>
               <div className="label-text mb-1">Recent activity</div>
@@ -118,17 +134,17 @@ export function LeadPeek({ leadId, onClose }: { leadId: string | null; onClose: 
               )}
             </div>
 
-            <div className="flex gap-2">
-              <Button asChild variant="outline" className="flex-1">
-                <Link to="/lt/leads/$id" params={{ id: lead.id }} onClick={onClose}>
-                  <ExternalLink className="size-3.5" /> Open full page
-                </Link>
+            <div className="grid grid-cols-2 gap-2">
+              <Button asChild variant="outline">
+                <a href={`/lt/leads/${lead.id}`} target="_blank" rel="noreferrer">
+                  <ExternalLink className="size-3.5" /> Open Lead Tracker
+                </a>
               </Button>
-              {data?.crmId && (
-                <Button asChild variant="outline" className="flex-1">
-                  <Link to="/crm/records/$id" params={{ id: data.crmId }} onClick={onClose}>CRM record</Link>
-                </Button>
-              )}
+              <Button asChild variant="outline">
+                <a href={data?.crmId ? `/crm/records/${data.crmId}` : `/lt/leads/${lead.id}`} target="_blank" rel="noreferrer">
+                  <ExternalLink className="size-3.5" /> Open full page
+                </a>
+              </Button>
             </div>
           </div>
         )}
