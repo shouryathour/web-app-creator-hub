@@ -38,10 +38,8 @@ function ModulePicker() {
     let cancelled = false;
     void needsOnboarding({ onboarded: user?.user_metadata?.onboarded, role: workspace?.role }).then((onboard) => {
       if (cancelled) return;
-      if (lead && !crm) return void navigate({ to: "/lt/dashboard" });
-      if (crm && !lead) return void navigate({ to: "/crm/records" });
-      if (lead && crm)
-        return void navigate({ to: profile?.default_module === "crm" ? "/crm/records" : "/lt/dashboard" });
+      const dest = firstAllowedPath(can, profile?.default_module === "crm" ? "crm" : null);
+      if (dest) return void navigate({ to: dest, replace: true });
       setShowPicker(true);
     });
     return () => {
