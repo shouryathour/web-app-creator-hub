@@ -1593,18 +1593,6 @@ function LeadHeader({
                 ))}
               </SelectContent>
             </Select>
-            <Select value={lead.status} disabled={!canEdit} onValueChange={(v) => onSave({ status: v })}>
-              <SelectTrigger className="h-8 w-[150px] text-[13px]">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                {STATUS_OPTIONS.map((s) => (
-                  <SelectItem key={s} value={s}>
-                    {STATUS_LABELS[s] ?? s}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
             <Select value={lead.priority ?? undefined} disabled={!canEdit} onValueChange={(v) => onSave({ priority: v })}>
               <SelectTrigger className="h-8 w-[130px] text-[13px]">
                 <SelectValue placeholder="Priority" />
