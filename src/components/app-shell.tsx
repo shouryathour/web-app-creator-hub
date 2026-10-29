@@ -42,6 +42,7 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { firstAllowedPath } from "@/lib/landing";
 import { TRACKER_INVALIDATIONS, invalidateTrackerQueries } from "@/lib/tracker-updates";
 import { ProfileImage } from "@/components/account/profile-image";
 import {
@@ -2997,6 +2998,14 @@ export function AppShell({
     if (!loading && !session) void navigate({ to: "/auth" });
   }, [loading, session, navigate]);
 
+  const blocked = !!perm && !!profile?.is_active && !can(perm);
+  const fallback = blocked ? firstAllowedPath(can, profile?.default_module === "crm" ? "crm" : null) : null;
+  useEffect(() => {
+    if (!blocked || !fallback) return;
+    toast("You don't have access to that page");
+    void navigate({ to: fallback, replace: true });
+  }, [blocked, fallback, navigate]);
+
   // Warm up Settings in the background so opening it from the menu is instant.
   useEffect(() => {
     const t = window.setTimeout(() => {
@@ -3017,7 +3026,8 @@ export function AppShell({
       }
       if (mod && (e.key === "1" || e.key === "2")) {
         e.preventDefault();
-        void navigate({ to: e.key === "1" ? "/lt/dashboard" : "/crm/records" });
+        const dest = firstAllowedPath(can, null, e.key === "1" ? "lead" : "crm");
+        if (dest) void navigate({ to: dest });
         return;
       }
       if (e.key === "?") {
@@ -3054,10 +3064,21 @@ export function AppShell({
   if (loading) return <Loading page />;
   if (!session) return <Loading page label="Redirecting" />;
   if (profile && !workspace) return <NoWorkspace />;
-  if (perm && profile?.is_active && !can(perm))
+  if (blocked && fallback) return <Loading page />;
+  if (blocked)
     return (
-      <div className="p-10 text-center text-[13px] text-muted-foreground">
-        You do not have access to this page. Ask an admin to grant it in Settings.
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-10 text-center text-[13px] text-muted-foreground">
+        <p>You don't have access to any pages yet. Ask an admin to grant access in Settings.</p>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={async () => {
+            await supabase.auth.signOut();
+            void navigate({ to: "/auth", replace: true });
+          }}
+        >
+          Sign out
+        </Button>
       </div>
     );
 
