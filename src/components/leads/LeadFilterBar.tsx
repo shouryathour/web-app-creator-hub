@@ -1,4 +1,5 @@
 import { CollapsibleCard } from "@/components/kit";
+import { DateField } from "@/components/date-field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { LeadFilters } from "./filters";
@@ -62,9 +63,9 @@ export function LeadFilterBar({
         <div className="flex flex-col gap-1">
           <span className="label-text">Date added</span>
           <div className="flex items-center gap-1">
-            <Input type="date" className="h-8 w-[135px] text-[13px]" value={filters.dateFrom} onChange={(e) => set("dateFrom", e.target.value)} />
+            <DateField className="h-8 w-[135px] text-[13px]" value={filters.dateFrom} onChange={(v) => set("dateFrom", v)} />
             <span className="text-muted-foreground">–</span>
-            <Input type="date" className="h-8 w-[135px] text-[13px]" value={filters.dateTo} onChange={(e) => set("dateTo", e.target.value)} />
+            <DateField className="h-8 w-[135px] text-[13px]" value={filters.dateTo} onChange={(v) => set("dateTo", v)} />
           </div>
         </div>
         <Picker label="Has replied" value={filters.hasReplied} onValue={(v) => set("hasReplied", v as LeadFilters["hasReplied"])} options={[{ id: "yes", name: "Yes" }, { id: "no", name: "No" }]} />

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Loader2, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/live/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ProfileImage } from "./profile-image";
+import { getLeadClickMode, setLeadClickMode, type LeadClickMode } from "@/lib/peek";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // localStorage key for the remembered lead view (live lead-view chunk).
@@ -176,6 +177,7 @@ export function AccountSettings() {
             </SelectContent>
           </Select>
         </div>
+        <LeadClickSetting />
       </div>
       <Button size="sm" className="w-fit" onClick={save} disabled={saving}>
         {saving ? "Saving..." : "Save profile"}
@@ -208,6 +210,32 @@ export function AccountSettings() {
           </Button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function LeadClickSetting() {
+  const [mode, setMode] = useState<LeadClickMode>("panel");
+  useEffect(() => setMode(getLeadClickMode()), []);
+  return (
+    <div>
+      <div className="label-text mb-1">Clicking a lead opens</div>
+      <Select
+        value={mode}
+        onValueChange={(v) => {
+          setMode(v as LeadClickMode);
+          setLeadClickMode(v as LeadClickMode);
+          toast.success("Saved");
+        }}
+      >
+        <SelectTrigger className="h-9 text-[13px]">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="panel">Side panel</SelectItem>
+          <SelectItem value="tab">Full page in a new tab</SelectItem>
+        </SelectContent>
+      </Select>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { DateField } from "@/components/date-field";
 // Ported from live chunk lt.leads._id-KGC4i_M0.js
 import { confirmDialog } from "@/components/confirm-dialog";
 import { useEffect, useRef, useState, type KeyboardEvent, type RefObject } from "react";
@@ -1592,18 +1593,6 @@ function LeadHeader({
                 ))}
               </SelectContent>
             </Select>
-            <Select value={lead.status} disabled={!canEdit} onValueChange={(v) => onSave({ status: v })}>
-              <SelectTrigger className="h-8 w-[150px] text-[13px]">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                {STATUS_OPTIONS.map((s) => (
-                  <SelectItem key={s} value={s}>
-                    {STATUS_LABELS[s] ?? s}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
             <Select value={lead.priority ?? undefined} disabled={!canEdit} onValueChange={(v) => onSave({ priority: v })}>
               <SelectTrigger className="h-8 w-[130px] text-[13px]">
                 <SelectValue placeholder="Priority" />
@@ -2189,7 +2178,7 @@ function LoomCard({ lead, canEdit, onSave }: { lead: AnyRow; canEdit: boolean; o
             <div className="flex flex-col gap-3">
               <div>
                 <div className="label-text mb-1">Watched on</div>
-                <Input type="date" className="h-8 text-[13px]" value={askDate} onChange={(e) => setAskDate(e.target.value)} />
+                <DateField className="h-8 text-[13px]" value={askDate} onChange={(v) => setAskDate(v)} />
                 {askDate && lead.loom_sent_at && askDate < String(lead.loom_sent_at).slice(0, 10) && (
                   <div className="mt-1 text-[12px] text-negative">This is before the Loom was sent ({String(lead.loom_sent_at).slice(0, 10)}).</div>
                 )}

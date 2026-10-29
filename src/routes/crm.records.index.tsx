@@ -1,4 +1,5 @@
 // Ported from live chunk crm.records.index-C9212tLO.js.
+import { DateField } from "@/components/date-field";
 import { openRecordPeek } from "@/lib/peek";
 import { LEAD_INNER_EMBED, excludeArchivedLeads } from "@/lib/lead-scope";
 import { useEffect, useMemo, useState, type ComponentType } from "react";
@@ -277,9 +278,9 @@ function RecordsPage() {
       <div className="flex flex-col gap-1">
         <span className="label-text">Date added</span>
         <div className="flex items-center gap-1">
-          <Input type="date" className="h-8 w-[135px] text-[12px]" value={flt.dateFrom} onChange={(e) => setF({ ...flt, dateFrom: e.target.value })} />
+          <DateField className="w-[135px] text-[12px]" value={flt.dateFrom} onChange={(v) => setF({ ...flt, dateFrom: v })} />
           <span className="text-muted-foreground">–</span>
-          <Input type="date" className="h-8 w-[135px] text-[12px]" value={flt.dateTo} onChange={(e) => setF({ ...flt, dateTo: e.target.value })} />
+          <DateField className="w-[135px] text-[12px]" value={flt.dateTo} onChange={(v) => setF({ ...flt, dateTo: v })} />
         </div>
       </div>
       <Select value={stage} onValueChange={setStage}>

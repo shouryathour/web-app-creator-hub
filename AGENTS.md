@@ -26,3 +26,4 @@
 - Confirmations and date questions use confirmDialog/promptDate from src/components/confirm-dialog.tsx (host mounted in __root); never window.confirm/prompt, because browser pop-ups look broken inside the app.
 - Lead notes live only in leads.research_notes (shown as "Notes"); a trigger folds any additional_notes write into it so imports and old tools never hide text.
 - Close-month earnings use src/lib/monthly-earnings.ts rather than contract scheduling helpers, so monthly charts and client breakdowns share exact amounts without inventing future payments; money edits reuse existing CRM fields.
+- All date inputs use DateField from src/components/date-field.tsx (popover calendar); never native type="date", so every picker looks the same.

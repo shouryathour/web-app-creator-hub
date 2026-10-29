@@ -147,7 +147,7 @@ function CrmRecordPage() {
           companyName={lead?.company_name}
         />
         <ContactsCard leadId={lead?.id} contacts={lead?.lead_contacts ?? []} canEdit={canEdit} recordId={id} />
-        <DealMoney record={record} canEdit={canEdit} saving={save.isPending} onSave={(patch) => save.mutate(patch)} />
+        {(() => { const st = (stages ?? []).find((x: any) => x.id === record.stage_id) as any; return st && (st.is_won || /client|closed|won/i.test(st.name)); })() && <DealMoney record={record} canEdit={canEdit} saving={save.isPending} onSave={(patch) => save.mutate(patch)} />}
         {lead && <OutreachCard lead={lead} />}
         <DatesCard record={record} canEdit={canEdit} onSave={(p) => save.mutate(p)} />
         <CollapsibleCard id="crm.notes" title="Notes">

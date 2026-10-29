@@ -2079,7 +2079,7 @@ function LeadPeek({ id, onClose }: { id: string; onClose: () => void }) {
         <StagePill stage={stage} />
         <span className="flex-1" />
         <Button asChild size="sm" className="h-8">
-          <Link to="/lt/leads/$id" params={{ id }} onClick={onClose}>
+          <Link to="/lt/leads/$id" params={{ id }} target="_blank" rel="noreferrer">
             <PencilLine />
             Open full page
           </Link>

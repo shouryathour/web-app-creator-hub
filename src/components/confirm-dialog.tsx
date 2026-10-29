@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { DateField } from "@/components/date-field";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -83,13 +84,7 @@ export function ConfirmHost() {
           )}
         </AlertDialogHeader>
         {isDate && (
-          <Input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && date && ok()}
-            className="h-9"
-          />
+          <DateField value={date} onChange={setDate} className="h-9 w-full" />
         )}
         <AlertDialogFooter className="gap-2">
           <AlertDialogCancel onClick={() => close(isDate ? null : false)}>{p?.cancelLabel ?? "Cancel"}</AlertDialogCancel>

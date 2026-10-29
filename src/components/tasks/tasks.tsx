@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { DateField } from "@/components/date-field";
 import { LEAD_INNER_EMBED, excludeArchivedLeads } from "@/lib/lead-scope";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -164,7 +165,7 @@ export function TaskComposer({
           if (e.key === "Enter") submit();
         }}
       />
-      <Input type="date" className="h-8 w-[150px] text-[13px]" value={due} onChange={(e) => setDue(e.target.value)} />
+      <DateField className="h-8 w-[150px] text-[13px]" value={due} onChange={(v) => setDue(v)} />
       <Select value={assignee || undefined} onValueChange={setAssignee}>
         <SelectTrigger className="h-8 w-[160px] text-[12px]">
           <SelectValue placeholder="Owner" />
