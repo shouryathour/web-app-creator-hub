@@ -2405,7 +2405,7 @@ type NavItem = { to: string; label: string; icon: LucideIcon; perm: string; grou
 export const LEAD_NAV: NavItem[] = [
   { to: "/lt/dashboard", label: "Dashboard", icon: LayoutDashboard, perm: "lead.dashboard", group: "primary" },
   { to: "/lt/leads", label: "Leads", icon: Table2, perm: "lead.leads", group: "primary" },
-  { to: "/lt/followups", label: "Follow-ups", icon: CalendarClock, perm: "lead.leads", group: "primary" },
+  { to: "/lt/followups", label: "Follow-ups", icon: CalendarClock, perm: "lead.followups", group: "primary" },
   { to: "/lt/outreach", label: "Outreach Tracker", icon: Gauge, perm: "lead.outreach_tracker", group: "primary" },
   { to: "/lt/ledger", label: "Ledger", icon: ListChecks, perm: "lead.ledger", group: "secondary" },
   { to: "/lt/archive", label: "Archive", icon: Boxes, perm: "lead.archive", group: "secondary" },

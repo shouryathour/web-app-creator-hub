@@ -11,6 +11,7 @@ export const PERMISSION_GROUPS = [
     keys: [
       { key: "lead.dashboard", label: "Dashboard" },
       { key: "lead.leads", label: "Leads" },
+      { key: "lead.followups", label: "Follow-ups" },
       { key: "lead.lead_create", label: "Create leads" },
       { key: "lead.lead_edit", label: "Edit leads" },
       { key: "lead.lead_delete", label: "Delete leads" },
