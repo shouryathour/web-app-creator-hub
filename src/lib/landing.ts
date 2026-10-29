@@ -2,6 +2,7 @@
 export const LEAD_PAGES: { to: string; perm: string }[] = [
   { to: "/lt/dashboard", perm: "lead.dashboard" },
   { to: "/lt/leads", perm: "lead.leads" },
+  { to: "/lt/followups", perm: "lead.followups" },
   { to: "/lt/outreach", perm: "lead.outreach_tracker" },
   { to: "/lt/ledger", perm: "lead.ledger" },
   { to: "/lt/archive", perm: "lead.archive" },

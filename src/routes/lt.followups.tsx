@@ -220,7 +220,7 @@ function FollowupsPage() {
 
   return (
     // live: guide="followups" (repo AppPage has no guide prop)
-    <AppPage module="lead" title="Follow-ups" perm="lead.leads">
+    <AppPage module="lead" title="Follow-ups" perm="lead.followups">
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center justify-between gap-2 pro-card p-3">
           <div className="flex flex-wrap items-center gap-2">
