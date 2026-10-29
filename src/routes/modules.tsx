@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { firstAllowedPath } from "@/lib/landing";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Boxes, Columns3 } from "lucide-react";
 import { useAuth } from "@/lib/live/auth";
