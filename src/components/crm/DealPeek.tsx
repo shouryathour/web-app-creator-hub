@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { DateField } from "@/components/date-field";
 import { CalendarIcon, Copy, ExternalLink } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
@@ -24,6 +24,7 @@ function latest(...dates: (string | null | undefined)[]) {
 }
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
+  if (children == null || children === "" || children === false) return null;
   return (
     <div className="grid grid-cols-[130px_1fr] items-center gap-2 py-1 text-[13px]">
       <div className="text-muted-foreground">{label}</div>
@@ -103,6 +104,21 @@ export function DealPeek({
     ? latest(lead.email_sent_at, lead.last_contacted_at, d?.rec.last_contacted_at, ...sentFollowups.map((f: any) => f.sent_at))
     : null;
   const nextFollowup = d?.rec.next_followup_date ?? lead?.next_followup_date ?? null;
+
+  const saveLastOutreach = async (v: string) => {
+    if (!d) return;
+    const iso = v ? new Date(`${v}T12:00:00`).toISOString() : null;
+    const sb = supabase as any;
+    const [a, b] = await Promise.all([
+      sb.from("leads").update({ last_contacted_at: iso }).eq("id", d.rec.lead_id),
+      sb.from("crm_records").update({ last_contacted_at: iso }).eq("id", d.rec.id),
+    ]);
+    const err = a.error ?? b.error;
+    if (err) return toast.error(err.message);
+    toast.success("Last outreach updated");
+    invalidateTrackerQueries(qc, ["leads", "crm_records"]);
+    q.refetch();
+  };
 
   const completeTask = async (id: string) => {
     const { error } = await (supabase as any).from("lead_tasks").update({ completed_at: new Date().toISOString() }).eq("id", id);
@@ -187,42 +203,35 @@ export function DealPeek({
               {lead?.sample_url && <Row label="Sample"><a className="text-positive underline" href={lead.sample_url} target="_blank" rel="noreferrer">Open sample</a></Row>}
               {lead?.content_audit_url && <Row label="Content audit"><a className="text-positive underline" href={lead.content_audit_url} target="_blank" rel="noreferrer">Open audit</a></Row>}
               <Row label="Follow-ups done">{`${sentFollowups.length} of ${d.followups.length}`}</Row>
-              <Row label="Last outreach">{lastOutreach ? fmtDate(lastOutreach) : null}</Row>
+              <Row label="Last outreach">
+                <DateField
+                  className="h-7"
+                  value={lastOutreach ? String(lastOutreach).slice(0, 10) : ""}
+                  onChange={(v) => saveLastOutreach(v)}
+                />
+              </Row>
             </div>
 
             <div>
               <div className="label-text mb-1">Contact</div>
               <Row label="Name">{primary?.person_name || null}</Row>
-              <Row label="Email"><CopyText value={primary?.email ?? null} /></Row>
-              <Row label="LinkedIn"><CopyText value={primary?.linkedin_url ?? null} /></Row>
+              <Row label="Email">{primary?.email ? <CopyText value={primary.email} /> : null}</Row>
+              <Row label="LinkedIn">{primary?.linkedin_url ? <CopyText value={primary.linkedin_url} /> : null}</Row>
               <Row label="Channel">{lead?.channels?.name ?? null}</Row>
               <Row label="Sender">{lead?.sender_accounts?.label ?? null}</Row>
             </div>
 
+            {(lead?.email_sent_at || lead?.email_viewed_at || lead?.email_replied_at || lead?.meeting_booked_at || d.rec.closed_at) && (
             <div>
               <div className="label-text mb-1">Email</div>
               <Row label="Sent">{lead?.email_sent_at ? fmtDate(lead.email_sent_at) : null}</Row>
               <Row label="Viewed">{lead?.email_viewed_at ? fmtDate(lead.email_viewed_at) : null}</Row>
               <Row label="Replied">{lead?.email_replied_at ? fmtDate(lead.email_replied_at) : null}</Row>
-              <Row label="Reply mood"><span className="capitalize">{lead?.reply_sentiment ?? ""}</span></Row>
+              <Row label="Reply mood">{lead?.reply_sentiment ? <span className="capitalize">{lead.reply_sentiment}</span> : null}</Row>
               <Row label="Call booked">{lead?.meeting_booked_at ? fmtDate(lead.meeting_booked_at) : null}</Row>
               <Row label="Closed">{d.rec.closed_at ? fmtDate(d.rec.closed_at) : null}</Row>
             </div>
-
-            <div>
-              <div className="label-text mb-1">Open to-dos</div>
-              {d.tasks.length === 0 ? (
-                <div className="text-[13px] text-muted-foreground">None</div>
-              ) : (
-                d.tasks.map((t: any) => (
-                  <label key={t.id} className="flex items-center gap-2 py-1 text-[13px]">
-                    <Checkbox onCheckedChange={() => completeTask(t.id)} />
-                    <span className="flex-1 truncate">{t.title}</span>
-                    {t.due_date && <span className="label-text">{fmtDate(t.due_date)}</span>}
-                  </label>
-                ))
-              )}
-            </div>
+            )}
 
             <div>
               <div className="label-text mb-1">Recent activity</div>
@@ -238,11 +247,18 @@ export function DealPeek({
               )}
             </div>
 
-            <Button asChild variant="outline" className="w-full">
-              <Link to="/crm/records/$id" params={{ id: d.rec.id }}>
-                <ExternalLink className="size-3.5" /> Open full page
-              </Link>
-            </Button>
+            <div className="grid grid-cols-2 gap-2">
+              <Button asChild variant="outline">
+                <a href={`/lt/leads/${d.rec.lead_id}`} target="_blank" rel="noreferrer">
+                  <ExternalLink className="size-3.5" /> Open Lead Tracker
+                </a>
+              </Button>
+              <Button asChild variant="outline">
+                <a href={`/crm/records/${d.rec.id}`} target="_blank" rel="noreferrer">
+                  <ExternalLink className="size-3.5" /> Open full page
+                </a>
+              </Button>
+            </div>
           </div>
         )}
       </SheetContent>
