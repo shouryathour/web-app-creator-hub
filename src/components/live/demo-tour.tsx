@@ -81,15 +81,6 @@ export const TOUR_STEPS: TourStep[] = [
     tip: "Press N on any Lead Tracker page to add a new lead.",
   },
   {
-    path: "/lt/leads/instagram",
-    targets: ["nav:/lt/leads/instagram", "page-title"],
-    perm: "lead.leads",
-    chapter: "Lead Tracker",
-    title: "Rapid entry & Today stream",
-    body: "Instagram, LinkedIn and Email each have a rapid entry workflow with live stream tracking, one-click follow-up dates (+2d, +3d, +1w), message template copying, and company peek drawers.",
-    tip: "Click any company name in the stream to slide open the lead preview.",
-  },
-  {
     path: "/lt/followups",
     targets: navTargets("/lt/followups"),
     perm: "lead.leads",

@@ -1,30 +1,8 @@
-// Ported from live chunk lt.leads.instagram-*.js
-import { createFileRoute } from "@tanstack/react-router";
-import { AppPage } from "@/components/app-shell";
-import { LeadQuickAdd, TodayLeadStream } from "@/components/lt/today-lead-stream";
-import { ChannelOutreachRates, useRateRange } from "@/components/lt/outreach-rates";
+// Old per-channel page; all leads now live in All Leads.
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/lt/leads/instagram")({
-  head: () => ({ meta: [{ title: "Instagram Leads | Lead Tracker | Buzzspear" },
-      { name: "description", content: "Add and manage Instagram leads in Buzzspear." },
-      { property: "og:title", content: "Instagram Leads | Lead Tracker | Buzzspear" },
-      { property: "og:description", content: "Add and manage Instagram leads in Buzzspear." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ] }),
-  component: InstagramLeadsPage,
+  beforeLoad: () => {
+    throw redirect({ to: "/lt/leads", replace: true });
+  },
 });
-
-function InstagramLeadsPage() {
-  const range = useRateRange("week");
-  return (
-    // live: guide="rapid-entry" (repo AppPage has no guide prop)
-    <AppPage module="lead" title="Instagram Leads" perm="lead.leads">
-      <div className="flex flex-col gap-4">
-        <LeadQuickAdd kind="instagram" />
-        <ChannelOutreachRates kind="instagram" label="Instagram" range={range} />
-        <TodayLeadStream kind="instagram" range={range} />
-      </div>
-    </AppPage>
-  );
-}

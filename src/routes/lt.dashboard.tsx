@@ -221,6 +221,7 @@ function DashboardPage() {
         </div>
         <p className="-mb-2 text-xs text-muted-foreground">Outreach rates count every active lead you've reached out to, including those that moved to the CRM. Archived leads are left out.</p>
         <OutreachRateTiles from={from} to={to} />
+        <CrmSnapshot />
         <div className="flex flex-col gap-3">
           <FollowupGroup id="dashboard.overdue" title="Overdue" tone="negative" leads={overdue} stages={stages} channelName={channelName} />
           <FollowupGroup id="dashboard.due_today" title="Due today" tone="warning" leads={dueToday} stages={stages} channelName={channelName} />
@@ -315,5 +316,39 @@ function FollowupGroup({
         ))}
       </div>
     </CollapsibleCard>
+  );
+}
+
+function CrmSnapshot() {
+  const { data } = useQuery({
+    queryKey: ["leads", "dashboard-crm-snapshot"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("leads")
+        .select("reply_sentiment,loom_watched,meeting_booked,client_closed")
+        .eq("archived", false)
+        .eq("pushed_to_crm", true);
+      if (error) throw error;
+      const rows = data ?? [];
+      return {
+        total: rows.length,
+        positive: rows.filter((r) => r.reply_sentiment === "positive").length,
+        loom: rows.filter((r) => r.loom_watched).length,
+        meetings: rows.filter((r) => r.meeting_booked).length,
+        closed: rows.filter((r) => r.client_closed).length,
+      };
+    },
+  });
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="section-label">In CRM</div>
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+        <Metric label="Moved to CRM" value={data?.total ?? 0} />
+        <Metric label="Positive replies" value={data?.positive ?? 0} />
+        <Metric label="Watched Loom" value={data?.loom ?? 0} />
+        <Metric label="Calls booked" value={data?.meetings ?? 0} />
+        <Metric label="Clients closed" value={data?.closed ?? 0} />
+      </div>
+    </div>
   );
 }

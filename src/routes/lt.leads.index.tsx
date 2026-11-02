@@ -1,4 +1,5 @@
 // Ported from live chunk lt.leads.index-Bpm776UG.js
+import { ProspectBadge } from "@/hooks/useProspectNumbers";
 import { confirmDialog, promptDate } from "@/components/confirm-dialog";
 import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -580,6 +581,7 @@ function LeadsTable({
                       <LeadLink id={r.id} className="font-semibold tracking-tight hover:underline hover:underline-offset-4">
                         {r.company_name}
                       </LeadLink>
+                      <ProspectBadge id={r.id} />
                       <span className="ml-1.5 font-mono text-[11px] text-faint">{r.lead_code}</span>
                       <Link
                         to="/lt/leads/$id"

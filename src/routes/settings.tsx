@@ -44,6 +44,7 @@ import { DataSettings } from "@/components/account/settings-data";
 import { ImportMappingsSettings } from "@/components/account/settings-import-mappings";
 import { AutoBackupSettings } from "@/components/account/settings-auto-backup";
 import { ContactSettings } from "@/components/account/settings-contact";
+import { AiUsageSettings } from "@/components/ai/ai-usage";
 import { DangerZoneSettings } from "@/components/account/settings-danger-zone";
 
 export const Route = createFileRoute("/settings")({
@@ -214,6 +215,14 @@ function SettingsPage() {
             lede: "Column mappings saved from past imports.",
             show: canData,
             body: <ImportMappingsSettings />,
+          },
+          {
+            id: "ai_usage",
+            title: "AI usage",
+            icon: Bolt,
+            lede: "What your Ask AI chats cost, by day and by chat.",
+            show: can("ai.chat"),
+            body: <AiUsageSettings />,
           },
           {
             id: "google_sheet",

@@ -2,6 +2,7 @@
 // Live chunk: app-shell-DE-EaUp2.js
 // The app frame (sidebar, header, command palette, shortcuts)
 // plus the shared pieces other chunks import from it.
+import { ProspectBadge } from "@/hooks/useProspectNumbers";
 import { confirmDialog } from "@/components/confirm-dialog";
 import { LEAD_INNER_EMBED, excludeArchivedLeads } from "@/lib/lead-scope";
 //
@@ -2076,6 +2077,7 @@ function LeadPeek({ id, onClose }: { id: string; onClose: () => void }) {
   return (
     <>
       <div className="flex items-center gap-2 border-b border-border px-4 py-3">
+        <ProspectBadge id={lead.id} />
         <span className="font-mono text-[11px] text-faint">{lead.lead_code}</span>
         <StagePill stage={stage} />
         <span className="flex-1" />
@@ -2410,6 +2412,7 @@ export const LEAD_NAV: NavItem[] = [
   { to: "/lt/ledger", label: "Ledger", icon: ListChecks, perm: "lead.ledger", group: "secondary" },
   { to: "/lt/archive", label: "Archive", icon: Boxes, perm: "lead.archive", group: "secondary" },
   { to: "/lt/data", label: "Import / Export", icon: Database, perm: "lead.import_export", group: "secondary" },
+  { to: "/ai", label: "Ask AI", icon: Bot, perm: "ai.chat", group: "secondary" },
 ];
 
 export const CRM_NAV: NavItem[] = [
@@ -2418,6 +2421,7 @@ export const CRM_NAV: NavItem[] = [
   { to: "/crm/pipeline", label: "Pipeline", icon: Columns3, perm: "crm.pipeline", group: "primary" },
   { to: "/crm/revenue", label: "Revenue & clients", icon: ChartColumn, perm: "crm.revenue", group: "primary" },
   { to: "/crm/followups", label: "Follow-ups", icon: CalendarClock, perm: "crm.followups", group: "secondary" },
+  { to: "/ai", label: "Ask AI", icon: Bot, perm: "ai.chat", group: "secondary" },
 ];
 
 const CHANNEL_LEAD_PATHS = ["/lt/leads/instagram", "/lt/leads/linkedin", "/lt/leads/email"];
@@ -2797,11 +2801,7 @@ function SidebarContent({
           {items
             .filter((i) => i.group !== "secondary")
             .map((i) =>
-              module === "lead" && i.to === "/lt/leads" ? (
-                <LeadsNavGroup key={i.to} item={i} collapsed={collapsed} onNavigate={onNavigate} />
-              ) : (
-                link(i)
-              ),
+              link(i),
             )}
           {items.some((i) => i.group === "secondary") && (
             <>

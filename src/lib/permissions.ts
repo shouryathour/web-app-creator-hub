@@ -33,6 +33,10 @@ export const PERMISSION_GROUPS: { label: string; keys: { key: string; label: str
     ],
   },
   {
+    label: "AI",
+    keys: [{ key: "ai.chat", label: "Ask AI chat" }],
+  },
+  {
     label: "Settings",
     keys: [
       { key: "settings.view", label: "View settings" },

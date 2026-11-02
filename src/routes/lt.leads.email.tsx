@@ -1,30 +1,8 @@
-// Ported from live chunk lt.leads.email-*.js
-import { createFileRoute } from "@tanstack/react-router";
-import { AppPage } from "@/components/app-shell";
-import { LeadQuickAdd, TodayLeadStream } from "@/components/lt/today-lead-stream";
-import { ChannelOutreachRates, useRateRange } from "@/components/lt/outreach-rates";
+// Old per-channel page; all leads now live in All Leads.
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/lt/leads/email")({
-  head: () => ({ meta: [{ title: "Email Leads | Lead Tracker | Buzzspear" },
-      { name: "description", content: "Add and manage email leads in Buzzspear." },
-      { property: "og:title", content: "Email Leads | Lead Tracker | Buzzspear" },
-      { property: "og:description", content: "Add and manage email leads in Buzzspear." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ] }),
-  component: EmailLeadsPage,
+  beforeLoad: () => {
+    throw redirect({ to: "/lt/leads", replace: true });
+  },
 });
-
-function EmailLeadsPage() {
-  const range = useRateRange("week");
-  return (
-    // live: guide="rapid-entry" (repo AppPage has no guide prop)
-    <AppPage module="lead" title="Email Leads" perm="lead.leads">
-      <div className="flex flex-col gap-4">
-        <LeadQuickAdd kind="email" />
-        <ChannelOutreachRates kind="email" label="Email" range={range} />
-        <TodayLeadStream kind="email" range={range} />
-      </div>
-    </AppPage>
-  );
-}

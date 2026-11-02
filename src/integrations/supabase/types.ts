@@ -52,6 +52,95 @@ export type Database = {
           },
         ]
       }
+      ai_messages: {
+        Row: {
+          cost_usd: number
+          created_at: string
+          id: string
+          input_tokens: number
+          model: string | null
+          msg_id: string
+          output_tokens: number
+          parts: Json
+          role: string
+          thread_id: string
+        }
+        Insert: {
+          cost_usd?: number
+          created_at?: string
+          id?: string
+          input_tokens?: number
+          model?: string | null
+          msg_id: string
+          output_tokens?: number
+          parts?: Json
+          role: string
+          thread_id: string
+        }
+        Update: {
+          cost_usd?: number
+          created_at?: string
+          id?: string
+          input_tokens?: number
+          model?: string | null
+          msg_id?: string
+          output_tokens?: number
+          parts?: Json
+          role?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "ai_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_threads: {
+        Row: {
+          created_at: string
+          id: string
+          title: string
+          updated_at: string
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          workspace_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_threads_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_threads_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_settings: {
         Row: {
           created_at: string
@@ -1933,6 +2022,13 @@ export type Database = {
       is_ws_member: { Args: { _ws: string }; Returns: boolean }
       make_workspace: { Args: { _name: string; _uid: string }; Returns: string }
       next_lead_code: { Args: never; Returns: string }
+      prospect_numbers: {
+        Args: never
+        Returns: {
+          id: string
+          n: number
+        }[]
+      }
       reject_access: { Args: { _user: string }; Returns: undefined }
       remove_crm_record: { Args: { _lead_id: string }; Returns: undefined }
       revenue_summary: {

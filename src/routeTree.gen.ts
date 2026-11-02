@@ -15,6 +15,8 @@ import { Route as ClipRouteImport } from './routes/clip'
 import { Route as ModulesRouteImport } from './routes/modules'
 import { Route as PendingRouteImport } from './routes/pending'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as AiIndexRouteImport } from './routes/ai.index'
+import { Route as AiThreadIdRouteImport } from './routes/ai.$threadId'
 import { Route as AuthCompleteRouteImport } from './routes/auth_.complete'
 import { Route as CrmActivityRouteImport } from './routes/crm.activity'
 import { Route as CrmDashboardRouteImport } from './routes/crm.dashboard'
@@ -30,6 +32,7 @@ import { Route as LtFollowupsRouteImport } from './routes/lt.followups'
 import { Route as LtLedgerRouteImport } from './routes/lt.ledger'
 import { Route as LtOutreachRouteImport } from './routes/lt.outreach'
 import { Route as LtTodosRouteImport } from './routes/lt.todos'
+import { Route as ApiAiChatRouteImport } from './routes/api/ai/chat'
 import { Route as CrmRecordsIndexRouteImport } from './routes/crm.records.index'
 import { Route as CrmRecordsIdRouteImport } from './routes/crm.records.$id'
 import { Route as LtLeadsIndexRouteImport } from './routes/lt.leads.index'
@@ -67,6 +70,16 @@ const PendingRoute = PendingRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiIndexRoute = AiIndexRouteImport.update({
+  id: '/ai/',
+  path: '/ai/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiThreadIdRoute = AiThreadIdRouteImport.update({
+  id: '/ai/$threadId',
+  path: '/ai/$threadId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthCompleteRoute = AuthCompleteRouteImport.update({
@@ -144,6 +157,11 @@ const LtTodosRoute = LtTodosRouteImport.update({
   path: '/lt/todos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAiChatRoute = ApiAiChatRouteImport.update({
+  id: '/api/ai/chat',
+  path: '/api/ai/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CrmRecordsIndexRoute = CrmRecordsIndexRouteImport.update({
   id: '/crm/records/',
   path: '/crm/records/',
@@ -193,6 +211,7 @@ export interface FileRoutesByFullPath {
   '/modules': typeof ModulesRoute
   '/pending': typeof PendingRoute
   '/settings': typeof SettingsRoute
+  '/ai/$threadId': typeof AiThreadIdRoute
   '/auth/complete': typeof AuthCompleteRoute
   '/crm/activity': typeof CrmActivityRoute
   '/crm/dashboard': typeof CrmDashboardRoute
@@ -208,6 +227,8 @@ export interface FileRoutesByFullPath {
   '/lt/ledger': typeof LtLedgerRoute
   '/lt/outreach': typeof LtOutreachRoute
   '/lt/todos': typeof LtTodosRoute
+  '/ai/': typeof AiIndexRoute
+  '/api/ai/chat': typeof ApiAiChatRoute
   '/crm/records/$id': typeof CrmRecordsIdRoute
   '/lt/leads/$id': typeof LtLeadsIdRoute
   '/lt/leads/email': typeof LtLeadsEmailRoute
@@ -224,6 +245,7 @@ export interface FileRoutesByTo {
   '/modules': typeof ModulesRoute
   '/pending': typeof PendingRoute
   '/settings': typeof SettingsRoute
+  '/ai/$threadId': typeof AiThreadIdRoute
   '/auth/complete': typeof AuthCompleteRoute
   '/crm/activity': typeof CrmActivityRoute
   '/crm/dashboard': typeof CrmDashboardRoute
@@ -239,6 +261,8 @@ export interface FileRoutesByTo {
   '/lt/ledger': typeof LtLedgerRoute
   '/lt/outreach': typeof LtOutreachRoute
   '/lt/todos': typeof LtTodosRoute
+  '/ai': typeof AiIndexRoute
+  '/api/ai/chat': typeof ApiAiChatRoute
   '/crm/records/$id': typeof CrmRecordsIdRoute
   '/lt/leads/$id': typeof LtLeadsIdRoute
   '/lt/leads/email': typeof LtLeadsEmailRoute
@@ -256,6 +280,7 @@ export interface FileRoutesById {
   '/modules': typeof ModulesRoute
   '/pending': typeof PendingRoute
   '/settings': typeof SettingsRoute
+  '/ai/$threadId': typeof AiThreadIdRoute
   '/auth_/complete': typeof AuthCompleteRoute
   '/crm/activity': typeof CrmActivityRoute
   '/crm/dashboard': typeof CrmDashboardRoute
@@ -271,6 +296,8 @@ export interface FileRoutesById {
   '/lt/ledger': typeof LtLedgerRoute
   '/lt/outreach': typeof LtOutreachRoute
   '/lt/todos': typeof LtTodosRoute
+  '/ai/': typeof AiIndexRoute
+  '/api/ai/chat': typeof ApiAiChatRoute
   '/crm/records/$id': typeof CrmRecordsIdRoute
   '/lt/leads/$id': typeof LtLeadsIdRoute
   '/lt/leads/email': typeof LtLeadsEmailRoute
@@ -289,6 +316,7 @@ export interface FileRouteTypes {
     | '/modules'
     | '/pending'
     | '/settings'
+    | '/ai/$threadId'
     | '/auth/complete'
     | '/crm/activity'
     | '/crm/dashboard'
@@ -304,6 +332,8 @@ export interface FileRouteTypes {
     | '/lt/ledger'
     | '/lt/outreach'
     | '/lt/todos'
+    | '/ai/'
+    | '/api/ai/chat'
     | '/crm/records/$id'
     | '/lt/leads/$id'
     | '/lt/leads/email'
@@ -320,6 +350,7 @@ export interface FileRouteTypes {
     | '/modules'
     | '/pending'
     | '/settings'
+    | '/ai/$threadId'
     | '/auth/complete'
     | '/crm/activity'
     | '/crm/dashboard'
@@ -335,6 +366,8 @@ export interface FileRouteTypes {
     | '/lt/ledger'
     | '/lt/outreach'
     | '/lt/todos'
+    | '/ai'
+    | '/api/ai/chat'
     | '/crm/records/$id'
     | '/lt/leads/$id'
     | '/lt/leads/email'
@@ -351,6 +384,7 @@ export interface FileRouteTypes {
     | '/modules'
     | '/pending'
     | '/settings'
+    | '/ai/$threadId'
     | '/auth_/complete'
     | '/crm/activity'
     | '/crm/dashboard'
@@ -366,6 +400,8 @@ export interface FileRouteTypes {
     | '/lt/ledger'
     | '/lt/outreach'
     | '/lt/todos'
+    | '/ai/'
+    | '/api/ai/chat'
     | '/crm/records/$id'
     | '/lt/leads/$id'
     | '/lt/leads/email'
@@ -383,6 +419,7 @@ export interface RootRouteChildren {
   ModulesRoute: typeof ModulesRoute
   PendingRoute: typeof PendingRoute
   SettingsRoute: typeof SettingsRoute
+  AiThreadIdRoute: typeof AiThreadIdRoute
   AuthCompleteRoute: typeof AuthCompleteRoute
   CrmActivityRoute: typeof CrmActivityRoute
   CrmDashboardRoute: typeof CrmDashboardRoute
@@ -398,6 +435,8 @@ export interface RootRouteChildren {
   LtLedgerRoute: typeof LtLedgerRoute
   LtOutreachRoute: typeof LtOutreachRoute
   LtTodosRoute: typeof LtTodosRoute
+  AiIndexRoute: typeof AiIndexRoute
+  ApiAiChatRoute: typeof ApiAiChatRoute
   CrmRecordsIdRoute: typeof CrmRecordsIdRoute
   LtLeadsIdRoute: typeof LtLeadsIdRoute
   LtLeadsEmailRoute: typeof LtLeadsEmailRoute
@@ -450,6 +489,20 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai/': {
+      id: '/ai/'
+      path: '/ai'
+      fullPath: '/ai/'
+      preLoaderRoute: typeof AiIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai/$threadId': {
+      id: '/ai/$threadId'
+      path: '/ai/$threadId'
+      fullPath: '/ai/$threadId'
+      preLoaderRoute: typeof AiThreadIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth_/complete': {
@@ -557,6 +610,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LtTodosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai/chat': {
+      id: '/api/ai/chat'
+      path: '/api/ai/chat'
+      fullPath: '/api/ai/chat'
+      preLoaderRoute: typeof ApiAiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/crm/records/': {
       id: '/crm/records/'
       path: '/crm/records'
@@ -623,6 +683,7 @@ const rootRouteChildren: RootRouteChildren = {
   ModulesRoute: ModulesRoute,
   PendingRoute: PendingRoute,
   SettingsRoute: SettingsRoute,
+  AiThreadIdRoute: AiThreadIdRoute,
   AuthCompleteRoute: AuthCompleteRoute,
   CrmActivityRoute: CrmActivityRoute,
   CrmDashboardRoute: CrmDashboardRoute,
@@ -638,6 +699,8 @@ const rootRouteChildren: RootRouteChildren = {
   LtLedgerRoute: LtLedgerRoute,
   LtOutreachRoute: LtOutreachRoute,
   LtTodosRoute: LtTodosRoute,
+  AiIndexRoute: AiIndexRoute,
+  ApiAiChatRoute: ApiAiChatRoute,
   CrmRecordsIdRoute: CrmRecordsIdRoute,
   LtLeadsIdRoute: LtLeadsIdRoute,
   LtLeadsEmailRoute: LtLeadsEmailRoute,

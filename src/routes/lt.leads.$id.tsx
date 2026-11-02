@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { ProspectBadge } from "@/hooks/useProspectNumbers";
 import { DateField } from "@/components/date-field";
 // Ported from live chunk lt.leads._id-KGC4i_M0.js
 import { confirmDialog } from "@/components/confirm-dialog";
@@ -1578,6 +1579,7 @@ function LeadHeader({
               onChange={(e) => setName(e.target.value)}
               onBlur={() => name.trim() && name !== lead.company_name && onSave({ company_name: name.trim() })}
             />
+            <ProspectBadge id={lead.id} />
             <span className="font-mono text-[11.5px] text-faint">{lead.lead_code}</span>
           </div>
           <div className="flex flex-wrap items-center gap-2">
