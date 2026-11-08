@@ -929,7 +929,7 @@ function LeadsPage() {
   });
 
   const { data: tableData, isLoading } = useQuery({
-    queryKey: ["leads-table", searchLeadIds, filters, page, pageSize, orderCol, sortDir, tagLeadIds],
+    queryKey: ["leads-table", searchLeadIds, filters, page, pageSize, sortField, orderCol, sortDir, tagLeadIds],
     queryFn: async () => {
       let q: any = supabase.from("leads").select("*", { count: "exact" });
       q = applyFilters(q);
@@ -937,7 +937,9 @@ function LeadsPage() {
         if (!tagLeadIds || tagLeadIds.length === 0) return { rows: [] as Lead[], count: 0 };
         q = q.in("id", tagLeadIds);
       }
-      q = q.order(orderCol, { ascending: sortDir === "asc", nullsFirst: false }).range(page * pageSize, page * pageSize + pageSize - 1);
+      q = q.order(orderCol, { ascending: sortDir === "asc", nullsFirst: false });
+      if (sortField === "number") q = q.order("created_at", { ascending: sortDir === "asc" }).order("lead_code", { ascending: sortDir === "asc" });
+      q = q.range(page * pageSize, page * pageSize + pageSize - 1);
       const { data, error, count } = await q;
       if (error) throw error;
       return { rows: (data ?? []) as Lead[], count: (count ?? 0) as number };
