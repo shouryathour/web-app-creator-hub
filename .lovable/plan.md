@@ -3,8 +3,9 @@
 ## What changes
 
 **1. Leads list: prospect number moves to its own first column**
-- New first column (header "#") that shows just the number, e.g. `221`, before Company.
-- Column order becomes: # · Company · Contact · Country · Stage · Status · Channel · Added.
+- New first column called **Number** that shows just the number, e.g. `221`, before Company.
+- The list opens in ascending order (1, 2, 3…). Click the Number header to flip to descending (…3, 2, 1) and back, like the other column sorts.
+- Column order becomes: Number · Company · Contact · Country · Stage · Status · Channel · Added.
 - The grey "Prospect 221" tag next to the company name is removed.
 
 **2. Hide the "LEAD-0355" code from view**
@@ -21,7 +22,7 @@
 - No leads, contacts, follow-ups, CRM records or codes are removed or edited. Only what is shown on screen changes.
 
 ## Technical details
-- `src/routes/lt.leads.index.tsx`: add leading `#` column using `useProspectNumbers`; drop `ProspectBadge` + `lead_code` span from the company cell; keep `lead_code` in search filter and CSV export.
+- `src/routes/lt.leads.index.tsx`: add leading sortable `Number` column using `useProspectNumbers` (sort by date_added order, which is what the number derives from; default ascending); drop `ProspectBadge` + `lead_code` span from the company cell; keep `lead_code` in search filter and CSV export.
 - `src/components/app-shell.tsx` (~2080) and `src/routes/lt.leads.$id.tsx`: remove visible `lead_code`, show `#N`.
 - `src/components/account/settings-permissions.ts`: add `{ label: "AI", keys: [{ key: "ai.chat", label: "Ask AI chat" }] }` matching `src/lib/permissions.ts`; ideally re-export the single list so the two can't drift again.
 - Assumption: "State" in the request means Stage.
