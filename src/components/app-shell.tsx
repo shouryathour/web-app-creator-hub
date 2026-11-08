@@ -2078,7 +2078,6 @@ function LeadPeek({ id, onClose }: { id: string; onClose: () => void }) {
     <>
       <div className="flex items-center gap-2 border-b border-border px-4 py-3">
         <ProspectBadge id={lead.id} />
-        <span className="font-mono text-[11px] text-faint">{lead.lead_code}</span>
         <StagePill stage={stage} />
         <span className="flex-1" />
         <Button asChild size="sm" className="h-8">

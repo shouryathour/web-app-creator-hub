@@ -1580,7 +1580,6 @@ function LeadHeader({
               onBlur={() => name.trim() && name !== lead.company_name && onSave({ company_name: name.trim() })}
             />
             <ProspectBadge id={lead.id} />
-            <span className="font-mono text-[11.5px] text-faint">{lead.lead_code}</span>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Select value={lead.stage_id ?? undefined} disabled={!canEdit} onValueChange={onStage}>

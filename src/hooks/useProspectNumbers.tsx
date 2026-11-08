@@ -20,5 +20,10 @@ export function ProspectBadge({ id }: { id: string }) {
   const { data } = useProspectNumbers();
   const n = data?.get(id);
   if (!n) return null;
-  return <span className="ml-1.5 rounded bg-subtle px-1.5 py-px text-[11px] font-medium text-muted-foreground">Prospect {n}</span>;
+  return <span className="ml-1.5 rounded bg-subtle px-1.5 py-px text-[11px] font-medium text-muted-foreground">#{n}</span>;
+}
+
+export function ProspectNumber({ id }: { id: string }) {
+  const { data } = useProspectNumbers();
+  return <>{data?.get(id) ?? "-"}</>;
 }

@@ -1,5 +1,5 @@
 // Ported from live chunk lt.leads.index-Bpm776UG.js
-import { ProspectBadge } from "@/hooks/useProspectNumbers";
+import { ProspectNumber } from "@/hooks/useProspectNumbers";
 import { confirmDialog, promptDate } from "@/components/confirm-dialog";
 import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -543,6 +543,7 @@ function LeadsTable({
                 onCheckedChange={() => onToggleAll(leads.map((l) => l.id))}
               />
             </th>
+            <SortTh field="number">Number</SortTh>
             <SortTh field="company_name">Company</SortTh>
             <SortTh field="primary_contact">Contact</SortTh>
             <SortTh field="country">Country</SortTh>
@@ -577,12 +578,13 @@ function LeadsTable({
                     <td className="px-3">
                       <Checkbox checked={selected.has(r.id)} onCheckedChange={() => onToggle(r.id)} aria-label={`Select ${r.company_name}`} />
                     </td>
+                    <td className="px-3 whitespace-nowrap tabular-nums text-muted-foreground">
+                      <ProspectNumber id={r.id} />
+                    </td>
                     <td className="px-3 whitespace-nowrap">
                       <LeadLink id={r.id} className="font-semibold tracking-tight hover:underline hover:underline-offset-4">
                         {r.company_name}
                       </LeadLink>
-                      <ProspectBadge id={r.id} />
-                      <span className="ml-1.5 font-mono text-[11px] text-faint">{r.lead_code}</span>
                       <Link
                         to="/lt/leads/$id"
                         params={{ id: r.id }}
@@ -644,7 +646,7 @@ function TableGroup({ group, render }: { group: { label: string; leads: Lead[] }
     <>
       <tr className="bg-subtle/70">
         <td
-          colSpan={11}
+          colSpan={12}
           className="cursor-pointer border-b border-border/70 px-3 py-2 text-[12px] font-semibold text-muted-foreground"
           onClick={() => setOpen((o) => !o)}
         >
@@ -846,8 +848,8 @@ function LeadsPage() {
   const [pageSize, setPageSize] = useState(50);
   const [customOpen, setCustomOpen] = useState(false);
   const [customSize, setCustomSize] = useState("");
-  const [sortField, setSortField] = useState("updated_at");
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [sortField, setSortField] = useState("number");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [groupBy, setGroupBy] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [month, setMonth] = useState(() => todayISO().slice(0, 7));
@@ -880,7 +882,7 @@ function LeadsPage() {
   const { data: tags } = useTags();
 
   const orderCol =
-    sortField === "country" ? "country_id" : sortField === "stage" ? "stage_id" : sortField === "primary_contact" ? "primary_contact" : sortField;
+    sortField === "number" ? "date_added" : sortField === "country" ? "country_id" : sortField === "stage" ? "stage_id" : sortField === "primary_contact" ? "primary_contact" : sortField;
 
   const applyFilters = (q: any) => {
     const f = filters;
@@ -927,7 +929,7 @@ function LeadsPage() {
   });
 
   const { data: tableData, isLoading } = useQuery({
-    queryKey: ["leads-table", searchLeadIds, filters, page, pageSize, orderCol, sortDir, tagLeadIds],
+    queryKey: ["leads-table", searchLeadIds, filters, page, pageSize, sortField, orderCol, sortDir, tagLeadIds],
     queryFn: async () => {
       let q: any = supabase.from("leads").select("*", { count: "exact" });
       q = applyFilters(q);
@@ -935,7 +937,9 @@ function LeadsPage() {
         if (!tagLeadIds || tagLeadIds.length === 0) return { rows: [] as Lead[], count: 0 };
         q = q.in("id", tagLeadIds);
       }
-      q = q.order(orderCol, { ascending: sortDir === "asc", nullsFirst: false }).range(page * pageSize, page * pageSize + pageSize - 1);
+      q = q.order(orderCol, { ascending: sortDir === "asc", nullsFirst: false });
+      if (sortField === "number") q = q.order("created_at", { ascending: sortDir === "asc" }).order("lead_code", { ascending: sortDir === "asc" });
+      q = q.range(page * pageSize, page * pageSize + pageSize - 1);
       const { data, error, count } = await q;
       if (error) throw error;
       return { rows: (data ?? []) as Lead[], count: (count ?? 0) as number };
