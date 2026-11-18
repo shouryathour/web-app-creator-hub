@@ -119,10 +119,28 @@ function OutreachPage() {
   const [editing, setEditing] = useState(false);
   const [savingCell, setSavingCell] = useState<string | null>(null);
   const activeChannels = useMemo(
-    () => ((channels ?? []) as { id: string; name: string; is_active?: boolean | null }[]).filter((c) => c.is_active !== false),
+    () => ((channels ?? []) as { id: string; name: string; kind?: string | null; is_active?: boolean | null }[]).filter((c) => c.is_active !== false && c.kind !== "instagram" && c.kind !== "other"),
     [channels],
   );
   const [channelFilter, setChannelFilter] = useState("all");
+  const { data: summary } = useQuery({
+    queryKey: ["leads", "outreach-summary", from, to],
+    queryFn: async () => {
+      const start = `${from}T00:00:00`;
+      const end = `${addDaysISO(1, to)}T00:00:00`;
+      const count = async (col: string) => {
+        const { count, error } = await supabase.from("leads").select("id", { count: "exact", head: true })
+          .eq("archived", false).gte(col, start).lt(col, end);
+        if (error) throw error;
+        return count ?? 0;
+      };
+      const fu = await supabase.from("lead_followups").select("id, leads!inner(archived)", { count: "exact", head: true })
+        .eq("leads.archived", false).gte("sent_at", start).lt("sent_at", end);
+      if (fu.error) throw fu.error;
+      const [emails, linkedin] = await Promise.all([count("email_sent_at"), count("linkedin_sent_at")]);
+      return { emails, followups: fu.count ?? 0, linkedin };
+    },
+  });
   const shown = useMemo(
     () => (channelFilter === "all" ? activeChannels : activeChannels.filter((c) => c.id === channelFilter)),
     [activeChannels, channelFilter],
@@ -350,15 +368,6 @@ function OutreachPage() {
               className="w-[260px]"
             />
           )}
-          {activeChannels.length > 1 && (
-            <div className="flex max-w-full flex-wrap gap-0.5 rounded-[10px] border border-border bg-subtle p-[3px]">
-              {[{ id: "all", name: "All channels" }, ...activeChannels].map((c) => (
-                <button key={c.id} type="button" onClick={() => setChannelFilter(c.id)} className={segBtn(channelFilter === c.id)}>
-                  {c.name}
-                </button>
-              ))}
-            </div>
-          )}
           <Popover>
             <PopoverTrigger asChild>
               <button
@@ -389,6 +398,19 @@ function OutreachPage() {
               ))}
             </PopoverContent>
           </Popover>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {([
+            ["Emails sent", summary?.emails],
+            ["Follow-ups sent", summary?.followups],
+            ["LinkedIn messages sent", summary?.linkedin],
+          ] as [string, number | undefined][]).map(([label, n]) => (
+            <Card key={label} title={label}>
+              <div className="metric-number">{n ?? "-"}</div>
+              <div className="label-text mt-1">{RANGE_LABELS[rangeKey]}</div>
+            </Card>
+          ))}
         </div>
 
         {isLoading ? (

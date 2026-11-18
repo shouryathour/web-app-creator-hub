@@ -64,6 +64,8 @@ const BASE_FIELDS: FieldDef[] = [
   { key: "email_replied_at", label: "Email replied date", group: "Email", type: "date", synonyms: ["reply date", "replied on", "response date"] },
   { key: "reply_sentiment", label: "Reply sentiment", group: "Email", type: "sentiment", synonyms: ["sentiment", "reply type", "positive/negative", "response type"] },
 
+  { key: "verified", label: "Verified", group: "Email", type: "bool", synonyms: ["lead verified", "verified lead", "verified?"] },
+
   // Loom
   { key: "sample_url", label: "Sample link", group: "Loom", type: "text", synonyms: ["sample", "sample link", "sample url"] },
   { key: "content_audit_url", label: "Content audit link", group: "Loom", type: "text", synonyms: ["content audit", "audit", "audit link"] },
@@ -223,6 +225,7 @@ export const TEMPLATE_HEADER = [
   "loom_url",
   "sample_url",
   "content_audit_url",
+  "verified",
   "loom_sent",
   "loom_watched",
   "loom_watch_percent",

@@ -1433,6 +1433,15 @@ function LeadDetailPage() {
             invalidate={invalidate}
             leadId={id}
           />
+          <label className={cn("flex items-center gap-2 rounded-lg border px-3 py-2 text-[13px] font-medium", lead.verified ? "border-positive/40 bg-positive/10 text-positive" : "border-border bg-surface")}>
+            <Checkbox
+              checked={!!lead.verified}
+              disabled={!canEdit}
+              onCheckedChange={(v) => onSave(v ? { verified: true, verified_at: new Date().toISOString(), verified_by: user?.id ?? null } : { verified: false, verified_at: null, verified_by: null })}
+              aria-label="Lead verified"
+            />
+            {lead.verified ? "Lead verified" : "Mark lead as verified"}
+          </label>
           <PeopleCard
             contacts={contacts}
             canEdit={canEdit}

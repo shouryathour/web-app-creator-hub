@@ -110,6 +110,7 @@ const HEADERS = [
   "Updated at",
   "Sample link",
   "Content audit link",
+  "Verified",
 ];
 
 type Row = Record<string, unknown>;
@@ -173,6 +174,7 @@ function toRow(l: Row): string[] {
     day(l["updated_at"]),
     s(l["sample_url"]),
     s(l["content_audit_url"]),
+    l["verified"] ? "Yes" : "",
   ];
 }
 

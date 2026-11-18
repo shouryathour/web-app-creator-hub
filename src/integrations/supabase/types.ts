@@ -1052,6 +1052,9 @@ export type Database = {
           stage_id: string | null
           status: string
           updated_at: string
+          verified: boolean
+          verified_at: string | null
+          verified_by: string | null
           website_url: string | null
           workspace_id: string
           youtube_url: string | null
@@ -1115,6 +1118,9 @@ export type Database = {
           stage_id?: string | null
           status?: string
           updated_at?: string
+          verified?: boolean
+          verified_at?: string | null
+          verified_by?: string | null
           website_url?: string | null
           workspace_id?: string
           youtube_url?: string | null
@@ -1178,6 +1184,9 @@ export type Database = {
           stage_id?: string | null
           status?: string
           updated_at?: string
+          verified?: boolean
+          verified_at?: string | null
+          verified_by?: string | null
           website_url?: string | null
           workspace_id?: string
           youtube_url?: string | null

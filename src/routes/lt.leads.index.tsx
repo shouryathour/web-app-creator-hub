@@ -115,6 +115,7 @@ type Filters = {
   hasReplied: string;
   hasLoomSent: string;
   hasLoomWatched?: string;
+  verified?: string;
   hasSample?: string;
   hasAudit?: string;
   whenField: string;
@@ -136,6 +137,7 @@ const EMPTY_FILTERS: Filters = {
   hasReplied: "",
   hasLoomSent: "",
   hasLoomWatched: "",
+  verified: "",
   hasSample: "",
   hasAudit: "",
   whenField: "updated_at",
@@ -321,6 +323,7 @@ function LeadFilters({
           />
         </div>
         <FilterSelect label="Has replied" value={filters.hasReplied} onValue={(v) => set("hasReplied", v)} options={[{ id: "yes", name: "Yes" }, { id: "no", name: "No" }]} />
+        <FilterSelect label="Verified" value={filters.verified ?? ""} onValue={(v) => set("verified", v)} options={[{ id: "yes", name: "Verified" }, { id: "no", name: "Not verified" }]} />
         <FilterSelect label="Loom sent" value={filters.hasLoomSent} onValue={(v) => set("hasLoomSent", v)} options={[{ id: "yes", name: "Yes" }, { id: "no", name: "No" }]} />
         <FilterSelect label="Loom watched" value={filters.hasLoomWatched ?? ""} onValue={(v) => set("hasLoomWatched", v)} options={[{ id: "yes", name: "Yes" }, { id: "no", name: "No" }]} />
         <FilterSelect label="Sample sent" value={filters.hasSample ?? ""} onValue={(v) => set("hasSample", v)} options={[{ id: "yes", name: "Yes" }, { id: "no", name: "No" }]} />
@@ -578,7 +581,7 @@ function LeadsTable({
                     <td className="px-3">
                       <Checkbox checked={selected.has(r.id)} onCheckedChange={() => onToggle(r.id)} aria-label={`Select ${r.company_name}`} />
                     </td>
-                    <td className="px-3 whitespace-nowrap tabular-nums text-muted-foreground">
+                    <td className={cn("px-3 whitespace-nowrap tabular-nums", (r as any).verified ? "font-semibold text-positive" : "text-muted-foreground")} title={(r as any).verified ? "Verified lead" : undefined}>
                       <ProspectNumber id={r.id} />
                     </td>
                     <td className="px-3 whitespace-nowrap">
@@ -845,7 +848,7 @@ function LeadsPage() {
   const [view, setView] = useState<ViewMode>("table");
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(50);
+  const [pageSize, setPageSize] = useState(500);
   const [customOpen, setCustomOpen] = useState(false);
   const [customSize, setCustomSize] = useState("");
   const [sortField, setSortField] = useState("number");
@@ -904,6 +907,8 @@ function LeadsPage() {
     if (f.hasLoomSent === "no") q = q.eq("loom_sent", false);
     if (f.hasLoomWatched === "yes") q = q.eq("loom_watched", true);
     if (f.hasLoomWatched === "no") q = q.eq("loom_watched", false);
+    if (f.verified === "yes") q = q.eq("verified", true);
+    if (f.verified === "no") q = q.eq("verified", false);
     if (f.hasSample === "yes") q = q.not("sample_url", "is", null);
     if (f.hasSample === "no") q = q.is("sample_url", null);
     if (f.hasAudit === "yes") q = q.not("content_audit_url", "is", null);
