@@ -183,6 +183,13 @@
       "when": 1795017114808,
       "tag": "0025_lead_verified",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1795017327048,
+      "tag": "0026_fx_read_members_only",
+      "breakpoints": true
     }
   ]
 }
