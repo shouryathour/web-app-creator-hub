@@ -28,6 +28,7 @@ import {
   X,
   Youtube,
   Calendar,
+  BadgeCheck,
 } from "lucide-react";
 import { AppPage } from "@/components/app-shell";
 import { useLeadPeek } from "@/components/lt/events"; // TODO: useLeadPeek is Ua in the live app-shell chunk; repo app-shell lacks it
@@ -548,15 +549,9 @@ function LeadsTable({
             </th>
             <SortTh field="number">Number</SortTh>
             <SortTh field="company_name">Company</SortTh>
-            <SortTh field="primary_contact">Contact</SortTh>
-            <SortTh field="country">Country</SortTh>
             <SortTh field="stage">Stage</SortTh>
-            <SortTh field="status">Status</SortTh>
-            <th className={TH}>Channel</th>
-            <SortTh field="date_added">Added</SortTh>
             <SortTh field="last_contacted_at">Last contacted</SortTh>
             <SortTh field="next_followup_date">Follow-up</SortTh>
-            <SortTh field="updated_at">Activity</SortTh>
           </tr>
         </thead>
         <tbody>
@@ -566,7 +561,6 @@ function LeadsTable({
               group={g}
               render={(lead) => {
                 const r = lead as AnyRow;
-                const Icon = channelIcon(r.channel_id);
                 return (
                   <tr
                     key={r.id}
@@ -600,21 +594,9 @@ function LeadsTable({
                         <ExternalLink className="size-3" />
                       </Link>
                     </td>
-                    <td className="px-3 whitespace-nowrap text-muted-foreground">{r.primary_contact || "-"}</td>
-                    <td className="px-3 whitespace-nowrap text-muted-foreground">{countryLabel(r.country_id)}</td>
                     <td className="px-3">
                       <StagePill stage={findStage(stages, r.stage_id) as any} />
                     </td>
-                    <td className="px-3">
-                      <Pill tone={(STATUS_TONE[r.status ?? ""] ?? "neutral") as any}>{String(r.status ?? "-").replace(/_/g, " ")}</Pill>
-                    </td>
-                    <td className="px-3 whitespace-nowrap text-muted-foreground">
-                      <span className="inline-flex items-center gap-1.5">
-                        {Icon ? <Icon className="size-3.5" /> : null}
-                        {channelName(r.channel_id)}
-                      </span>
-                    </td>
-                    <td className="tabular px-3 text-[12px] whitespace-nowrap text-muted-foreground">{fmtDate(r.date_added)}</td>
                     <td className="tabular px-3 text-[12px] whitespace-nowrap text-muted-foreground">{fmtDate(r.last_contacted_at) || "-"}</td>
                     <td
                       className={cn(
@@ -630,7 +612,6 @@ function LeadsTable({
                     >
                       {r.next_followup_date === today ? "Today" : fmtDate(r.next_followup_date) || "-"}
                     </td>
-                    <td className="tabular px-3 text-[12px] whitespace-nowrap text-muted-foreground">{fmtDate(r.updated_at)}</td>
                   </tr>
                 );
               }}
@@ -1020,6 +1001,16 @@ function LeadsPage() {
     void invalidateTrackerQueries(qc, ["leads"]);
     setSelected(new Set());
   };
+  const bulkVerify = async (on: boolean) => {
+    const n = selected.size;
+    const uid = on ? (await supabase.auth.getUser()).data.user?.id ?? null : null;
+    const patch = on ? { verified: true, verified_at: new Date().toISOString(), verified_by: uid } : { verified: false, verified_at: null, verified_by: null };
+    const { error } = await supabase.from("leads").update(patch as never).in("id", ids());
+    if (error) return toast.error(error.message);
+    toast.success(`${n} lead${n === 1 ? "" : "s"} ${on ? "verified" : "unverified"}`);
+    void invalidateTrackerQueries(qc, ["leads"]);
+    setSelected(new Set());
+  };
   const bulkPushCrm = async () => {
     for (const id of selected) {
       const { error } = await supabase.rpc("ensure_crm_record", { _lead_id: id });
@@ -1246,6 +1237,13 @@ function LeadsPage() {
               <Button size="sm" variant="outline" className="h-8 text-[13px]" onClick={bulkFollowup}>
                 <Calendar className="mr-1.5 size-3.5 text-muted-foreground" />
                 Set follow-up
+              </Button>
+              <Button size="sm" variant="outline" className="h-8 text-[13px]" onClick={() => bulkVerify(true)}>
+                <BadgeCheck className="mr-1.5 size-3.5 text-positive" />
+                Mark verified
+              </Button>
+              <Button size="sm" variant="ghost" className="h-8 text-[13px]" onClick={() => bulkVerify(false)}>
+                Mark unverified
               </Button>
               <Button size="sm" variant="outline" className="h-8 text-[13px]" onClick={bulkPushCrm}>
                 <Upload className="mr-1.5 size-3.5 text-muted-foreground" />
